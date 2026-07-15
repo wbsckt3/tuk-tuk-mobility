@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tuk Tuk — Mototaxis en tu barrio. Pide un viaje, conduce o administra tu flota desde el panel empresa." data-i18n-meta="meta.description" />
+  <meta name="theme-color" content="#0d9488" />
+  <title data-i18n="meta.title_passenger">Tuk Tuk — Muévete por tu ciudad</title>
+  <link rel="icon" href="assets/tuki-driver-icon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    :root {
+      --teal-50: #f0fdfa;
+      --teal-100: #ccfbf1;
+      --teal-200: #99f6e4;
+      --teal-500: #14b8a6;
+      --teal-600: #0d9488;
+      --teal-700: #0f766e;
+      --teal-800: #115e59;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --white: #ffffff;
+      --shadow: 0 18px 48px rgba(15, 23, 42, 0.12);
+      --radius: 16px;
+      --header-h: 72px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+      color: var(--ink);
+      background: var(--white);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; border: none; background: none; }
+
+    .container {
+      width: min(1140px, calc(100% - 32px));
+      margin-inline: auto;
+    }
+
+    .site-header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 100;
+      height: var(--header-h);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .site-header.is-scrolled {
+      border-color: var(--line);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+    .site-header__inner {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      line-height: 0;
+    }
+    .brand__logo {
+      height: 54px;
+      width: auto;
+      max-width: min(200px, 52vw);
+      object-fit: contain;
+      object-position: left center;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav a {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--muted);
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav a:hover { color: var(--ink); background: var(--teal-50); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn--primary {
+      background: linear-gradient(135deg, var(--teal-500), var(--teal-700));
+      color: var(--white);
+      box-shadow: 0 10px 28px rgba(13, 148, 136, 0.35);
+    }
+    .btn--primary:hover { box-shadow: 0 14px 32px rgba(13, 148, 136, 0.42); }
+    .btn--outline {
+      border: 2px solid var(--teal-200);
+      color: var(--teal-700);
+      background: var(--white);
+    }
+    .btn--outline:hover { background: var(--teal-50); }
+    .btn--ghost {
+      color: var(--teal-700);
+      background: var(--teal-50);
+    }
+    .btn--lg { padding: 14px 28px; font-size: 1rem; }
+    .btn.is-active {
+      background: linear-gradient(135deg, var(--teal-500), var(--teal-700));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 10px 28px rgba(13, 148, 136, 0.35);
+    }
+    .btn--outline.is-active {
+      border-color: transparent;
+    }
+
+    .menu-toggle {
+      display: none;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: var(--ink);
+    }
+
+    .hero {
+      padding: calc(var(--header-h) + 48px) 0 72px;
+      background:
+        radial-gradient(ellipse 80% 60% at 100% 0%, rgba(20, 184, 166, 0.18), transparent 60%),
+        radial-gradient(ellipse 60% 50% at 0% 100%, rgba(13, 148, 136, 0.12), transparent 55%),
+        linear-gradient(180deg, #f8fffe 0%, #ffffff 100%);
+      overflow: hidden;
+    }
+    .hero__grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 40px;
+      align-items: center;
+    }
+    .hero__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--teal-50);
+      border: 1px solid var(--teal-200);
+      color: var(--teal-700);
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+    .hero__title {
+      margin: 0 0 16px;
+      font-size: clamp(2.1rem, 5vw, 3.35rem);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      font-weight: 800;
+    }
+    .hero__title em {
+      font-style: normal;
+      color: var(--teal-600);
+    }
+    .hero__lead {
+      margin: 0 0 28px;
+      font-size: clamp(1rem, 2.2vw, 1.15rem);
+      color: var(--muted);
+      max-width: 34rem;
+    }
+    .hero__ctas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .hero__badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .hero__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .hero__badge strong { color: var(--ink); }
+
+    .phone-mock {
+      position: relative;
+      width: min(320px, 88%);
+      margin-inline: auto;
+      aspect-ratio: 9 / 18;
+      border-radius: 36px;
+      padding: 12px;
+      background: linear-gradient(160deg, #1e293b, #0f172a);
+      box-shadow: var(--shadow);
+    }
+    .phone-mock::before {
+      content: "";
+      position: absolute;
+      inset: -20% -30% auto auto;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(20, 184, 166, 0.35), transparent 70%);
+      pointer-events: none;
+    }
+    .phone-mock__screen {
+      height: 100%;
+      border-radius: 28px;
+      overflow: hidden;
+      background: #0f172a;
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .phone-mock__map {
+      position: absolute;
+      inset: 0;
+      background:
+        center / cover no-repeat url("assets/mapa.png");
+      transition: background-image 0.25s ease;
+    }
+    /* Flota/empresa: misma enmarcación edge-to-edge que mapa.png; contain evita recortar números */
+    .phone-mock--fleet .phone-mock__screen {
+      background: #fff;
+    }
+    .phone-mock--fleet .phone-mock__map {
+      background:
+        #fff center top / contain no-repeat url("assets/movil_empresa.png");
+    }
+    .phone-mock--fleet .phone-mock__top,
+    .phone-mock--fleet .phone-mock__card {
+      display: none;
+    }
+    .phone-mock__top {
+      position: relative;
+      z-index: 2;
+      padding: 14px 14px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.55), transparent);
+    }
+    .phone-mock__top img {
+      display: none;
+    }
+    .phone-mock__pill {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--teal-600);
+      color: #fff;
+    }
+    .phone-mock__card {
+      position: relative;
+      z-index: 2;
+      margin: auto 12px 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 20px rgba(15,23,42,0.18);
+    }
+    .phone-mock__card strong { display: block; font-size: 0.82rem; margin-bottom: 4px; }
+    .phone-mock__card span { font-size: 0.72rem; color: var(--muted); }
+
+    .section { padding: 72px 0; }
+    .section--alt { background: #f8fafc; }
+    .section__head {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 40px;
+    }
+    .section__head h2 {
+      margin: 0 0 10px;
+      font-size: clamp(1.65rem, 3.5vw, 2.25rem);
+      letter-spacing: -0.02em;
+    }
+    .section__head p { margin: 0; color: var(--muted); }
+
+    .benefits, .services, .steps, .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .benefit, .admin-card {
+      padding: 28px 24px;
+      border-radius: var(--radius);
+      background: var(--white);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 30px rgba(15,23,42,0.04);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .benefit:hover, .admin-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(13, 148, 136, 0.1);
+    }
+    .benefit__icon, .admin-card__icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 1.4rem;
+      background: var(--teal-50);
+      margin-bottom: 16px;
+    }
+    .benefit h3, .admin-card h3 { margin: 0 0 8px; font-size: 1.1rem; }
+    .benefit p, .admin-card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+    .service {
+      padding: 22px;
+      border-radius: var(--radius);
+      background: var(--white);
+      border: 1px solid var(--line);
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .service:hover {
+      border-color: var(--teal-200);
+      box-shadow: 0 12px 32px rgba(13, 148, 136, 0.1);
+    }
+    .service__tag {
+      align-self: flex-start;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--teal-700);
+      background: var(--teal-50);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .service h3 { margin: 0; font-size: 1.05rem; }
+    .service p { margin: 0; color: var(--muted); font-size: 0.92rem; flex: 1; }
+
+    .step { text-align: center; padding: 24px 16px; }
+    .step__num {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 14px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--teal-700);
+      background: linear-gradient(135deg, var(--teal-50), var(--teal-100));
+      border: 1px solid var(--teal-200);
+    }
+    .step h3 { margin: 0 0 8px; font-size: 1.05rem; }
+    .step p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+    .highlight {
+      padding: 40px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, var(--teal-700), var(--teal-500));
+      color: #fff;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: center;
+      box-shadow: 0 20px 50px rgba(13, 148, 136, 0.35);
+    }
+    .highlight h2 { margin: 0 0 10px; font-size: clamp(1.4rem, 3vw, 1.9rem); }
+    .highlight p { margin: 0; opacity: 0.92; max-width: 520px; }
+    .highlight .btn--outline {
+      border-color: rgba(255,255,255,0.5);
+      color: #fff;
+      background: rgba(255,255,255,0.1);
+    }
+    .highlight .btn--outline:hover { background: rgba(255,255,255,0.2); }
+
+    .banner {
+      padding: 28px 32px;
+      border-radius: var(--radius);
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .banner h3 { margin: 0 0 6px; font-size: 1.1rem; }
+    .banner p { margin: 0; color: var(--muted); font-size: 0.92rem; max-width: 560px; }
+
+    .driver-cta {
+      text-align: center;
+      padding: 56px 24px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(20,184,166,0.15), transparent 50%),
+        #f0fdfa;
+      border: 1px solid var(--teal-100);
+    }
+    .driver-cta img {
+      display: none;
+    }
+    .driver-cta h2 { margin: 0 0 10px; font-size: clamp(1.5rem, 3vw, 2rem); }
+    .driver-cta p { margin: 0 auto 24px; color: var(--muted); max-width: 520px; }
+
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .plan {
+      padding: 22px 18px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 100%;
+    }
+    .plan--starter { border-top: 4px solid #22c55e; }
+    .plan--growth { border-top: 4px solid #3b82f6; }
+    .plan--business { border-top: 4px solid #8b5cf6; }
+    .plan--enterprise { border-top: 4px solid #ef4444; }
+    .plan__tier {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .plan h3 { margin: 0; font-size: 1.05rem; }
+    .plan__price {
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--teal-700);
+    }
+    .plan__micro { margin: 0; font-size: 0.85rem; color: var(--muted); }
+    .plan ul {
+      margin: 0;
+      padding-left: 1.1rem;
+      color: #334155;
+      font-size: 0.88rem;
+      flex: 1;
+    }
+    .plan li { margin-bottom: 6px; }
+    .plan__billing {
+      margin: 0;
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .mode-panel[hidden] { display: none !important; }
+
+    .footer {
+      background: #0f172a;
+      color: #cbd5e1;
+      padding: 48px 0 28px;
+      font-size: 0.9rem;
+    }
+    .footer__grid {
+      display: grid;
+      grid-template-columns: 1.4fr repeat(3, 1fr);
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+    .footer h4 { margin: 0 0 12px; color: #fff; font-size: 0.95rem; }
+    .footer ul { list-style: none; margin: 0; padding: 0; }
+    .footer li { margin-bottom: 8px; }
+    .footer a { color: #94a3b8; }
+    .footer a:hover { color: #fff; }
+    .footer__brand strong { color: #fff; font-size: 1.15rem; display: block; margin-bottom: 10px; }
+    .footer__copy {
+      padding-top: 20px;
+      border-top: 1px solid #1e293b;
+      color: #64748b;
+      font-size: 0.82rem;
+      text-align: center;
+    }
+
+    @media (max-width: 1100px) {
+      .plans { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .hero__grid { grid-template-columns: 1fr; text-align: center; }
+      .hero__lead { margin-inline: auto; }
+      .hero__ctas, .hero__badges { justify-content: center; }
+      .phone-mock { margin-top: 12px; }
+      .benefits, .services, .steps, .admin-grid { grid-template-columns: 1fr; }
+      .highlight { grid-template-columns: 1fr; text-align: center; }
+      .highlight p { margin-inline: auto; }
+      .footer__grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 720px) {
+      .nav {
+        display: none;
+        position: absolute;
+        top: var(--header-h);
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px 16px 16px;
+        background: #fff;
+        border-bottom: 1px solid var(--line);
+        box-shadow: 0 12px 32px rgba(15,23,42,0.08);
+      }
+      .nav.is-open { display: flex; }
+      .nav a, .nav .btn { width: 100%; justify-content: center; }
+      .menu-toggle { display: inline-flex; }
+      .header-cta-desktop { display: none; }
+      .header-actions { gap: 8px; }
+      .qa-lang-switch__btn { min-width: 2rem; padding: 5px 8px; }
+      .banner { padding: 20px; }
+      .footer__grid { grid-template-columns: 1fr; }
+      .plans { grid-template-columns: 1fr; }
+      .brand__logo { height: 46px; }
+    }
+    @media (min-width: 721px) {
+      .nav-cta-mobile { display: none; }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .qa-lang-switch {
+      display: inline-flex;
+      gap: 4px;
+      padding: 3px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+    }
+    .qa-lang-switch__btn {
+      min-width: 2.25rem;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #64748b;
+      cursor: pointer;
+    }
+    .qa-lang-switch__btn--active {
+      background: #0d9488;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35);
+    }
+
+    .wa-float {
+      position: fixed;
+      right: max(18px, env(safe-area-inset-right, 18px));
+      bottom: max(18px, env(safe-area-inset-bottom, 18px));
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #25d366;
+      color: #fff;
+      text-decoration: none;
+      box-shadow: 0 6px 22px rgba(37, 211, 102, 0.45);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .wa-float:hover,
+    .wa-float:focus-visible {
+      transform: translateY(-3px) scale(1.04);
+      background: #20bd5a;
+      box-shadow: 0 10px 28px rgba(37, 211, 102, 0.55);
+      outline: none;
+    }
+    .wa-float__icon {
+      font-size: 1.85rem;
+      line-height: 1;
+    }
+    @media (max-width: 420px) {
+      .wa-float {
+        width: 52px;
+        height: 52px;
+        right: max(14px, env(safe-area-inset-right, 14px));
+        bottom: max(14px, env(safe-area-inset-bottom, 14px));
+      }
+      .wa-float__icon { font-size: 1.65rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header" id="header">
+    <div class="container site-header__inner">
+      <a href="#" class="brand" data-mode="passenger" data-i18n-aria="nav.home" aria-label="Tuk Tuk inicio">
+        <img class="brand__logo" src="assets/tuki-logo.png" alt="Tuk Tuk" width="200" height="148" />
+      </a>
+
+      <button class="menu-toggle" id="menuToggle" type="button" data-i18n-aria="nav.menu_open" aria-label="Abrir menú" aria-expanded="false">☰</button>
+
+      <nav class="nav" id="mainNav" data-i18n-aria="nav.main" aria-label="Principal">
+        <a href="#passenger-beneficios" data-nav="beneficios" data-i18n="nav.benefits">Beneficios</a>
+        <a href="#passenger-servicios" data-nav="servicios" data-i18n="nav.services">Servicios</a>
+        <a href="#passenger-como" data-nav="como" data-i18n="nav.how">Cómo funciona</a>
+        <a href="#passenger-cta" id="navAudienceLink" data-nav="cta" data-i18n="nav.drivers">Conductores</a>
+        <a class="btn btn--ghost nav-cta-mobile" id="headerCtaMobile" href="https://www.refactorii.com/p2l-tenant/login/tuki" data-i18n="nav.use_tuki">Usar Tuk Tuk</a>
+      </nav>
+
+      <div class="header-actions">
+        <div class="qa-lang-switch" role="group" data-i18n-aria="nav.language" aria-label="Idioma">
+          <button type="button" class="qa-lang-switch__btn qa-lang-switch__btn--active" data-set-locale="es" aria-pressed="true">ES</button>
+          <button type="button" class="qa-lang-switch__btn" data-set-locale="en" aria-pressed="false">EN</button>
+        </div>
+        <a class="btn btn--primary header-cta-desktop" id="headerCta" href="https://www.refactorii.com/p2l-tenant/login/tuki" data-i18n="nav.use_tuki">Usar Tuk Tuk</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero__grid">
+        <div class="hero__copy">
+          <div class="hero__eyebrow" id="heroEyebrow">🛵 Mototaxis · Pasajero</div>
+          <h1 class="hero__title" id="heroTitle">Muévete por tu ciudad con <em>Tuk Tuk Pasajero</em></h1>
+          <p class="hero__lead" id="heroLead">
+            La app para pedir viajes en mototaxi, seguir tu recorrido en tiempo real, chatear con el conductor
+            y descubrir mototaxistas disponibles en tu sector.
+          </p>
+          <div class="hero__ctas" role="tablist" data-i18n-aria="nav.profile_tabs" aria-label="Elige tu perfil">
+            <button type="button" class="btn btn--primary btn--lg is-active" data-mode="passenger" aria-pressed="true" data-i18n="modes.passenger">Pedir un viaje</button>
+            <button type="button" class="btn btn--outline btn--lg" data-mode="driver" aria-pressed="false" data-i18n="modes.driver">Soy conductor</button>
+            <button type="button" class="btn btn--outline btn--lg" data-mode="fleet" aria-pressed="false" data-i18n="modes.fleet">Panel de flota</button>
+          </div>
+          <div class="hero__badges" id="heroBadges">
+            <span class="hero__badge">⚡ <strong>En minutos</strong> solicita y acepta</span>
+            <span class="hero__badge">📍 <strong>Tiempo real</strong> mapa y chat</span>
+            <span class="hero__badge">📡 <strong>Tu barrio</strong> conductores cerca</span>
+          </div>
+        </div>
+
+        <div class="hero__visual" aria-hidden="true">
+          <div class="phone-mock" id="phoneMock">
+            <div class="phone-mock__screen">
+              <div class="phone-mock__map" id="phoneMap" aria-hidden="true"></div>
+              <div class="phone-mock__top">
+                <span class="phone-mock__pill" id="phonePill">En camino</span>
+              </div>
+              <div class="phone-mock__card">
+                <strong id="phoneCardTitle">Tu mototaxi llega en ~4 min</strong>
+                <span id="phoneCardSub">Recorrido en vivo · Chat activo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== PASAJERO ========== -->
+    <div class="mode-panel" data-panel="passenger">
+      <section class="section section--alt" id="passenger-beneficios">
+        <div class="container">
+          <div class="section__head">
+            <h2 data-i18n="passenger.benefits_title">Viaja mejor en mototaxi</h2>
+            <p data-i18n="passenger.benefits_lead">Tuk Tuk conecta pasajeros con conductores de mototaxi en tu zona, con herramientas pensadas para moverte rápido y con confianza.</p>
+          </div>
+          <div class="benefits">
+            <article class="benefit">
+              <div class="benefit__icon">📍</div>
+              <h3 data-i18n="passenger.b1_title">Cobertura en tu sector</h3>
+              <p data-i18n="passenger.b1_text">Encuentra conductores activos cerca de ti y solicita viajes cuando los necesites, a cualquier hora del día.</p>
+            </article>
+            <article class="benefit">
+              <div class="benefit__icon">💰</div>
+              <h3 data-i18n="passenger.b2_title">Tarifas transparentes</h3>
+              <p data-i18n="passenger.b2_text">Cotiza antes de viajar y conoce el valor del trayecto sin sorpresas. Pagas lo acordado, sin complicaciones.</p>
+            </article>
+            <article class="benefit">
+              <div class="benefit__icon">🛡️</div>
+              <h3 data-i18n="passenger.b3_title">Seguimiento y soporte</h3>
+              <p data-i18n="passenger.b3_text">Sigue el recorrido en el mapa, chatea durante el viaje y cuenta con herramientas de seguridad en la app.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="passenger-servicios">
+        <div class="container">
+          <div class="section__head">
+            <h2 data-i18n="passenger.services_title">Hay un Tuk Tuk para ti</h2>
+            <p data-i18n="passenger.services_lead">Como pasajero pides el viaje, ves el mapa en vivo y coordinas la recogida sin fricción.</p>
+          </div>
+          <div class="services">
+            <article class="service">
+              <span data-i18n="passenger.s1_tag" class="service__tag">Pasajero</span>
+              <h3 data-i18n="passenger.s1_title">Tuk Tuk Viaje</h3>
+              <p data-i18n="passenger.s1_text">Solicita un mototaxi desde tu celular, indica origen y destino, y recibe propuestas de conductores cercanos.</p>
+            </article>
+            <article class="service">
+              <span data-i18n="passenger.s2_tag" class="service__tag">Tiempo real</span>
+              <h3 data-i18n="passenger.s2_title">Mapa en vivo</h3>
+              <p data-i18n="passenger.s2_text">Visualiza el recorrido, el estado del viaje y la ubicación durante todo el servicio.</p>
+            </article>
+            <article class="service">
+              <span data-i18n="passenger.s3_tag" class="service__tag">Comunicación</span>
+              <h3 data-i18n="passenger.s3_title">Chat en el viaje</h3>
+              <p data-i18n="passenger.s3_text">Coordina detalles de recogida y entrega sin salir de la aplicación.</p>
+            </article>
+            <article class="service">
+              <span data-i18n="passenger.s4_tag" class="service__tag">Plus</span>
+              <h3 data-i18n="passenger.s4_title">Canales geográficos</h3>
+              <p data-i18n="passenger.s4_text">Descubre mototaxistas y oferta de movilidad en tu barrio con geovallas y canales por sector.</p>
+            </article>
+            <article class="service">
+              <span data-i18n="passenger.s5_tag" class="service__tag">Historial</span>
+              <h3 data-i18n="passenger.s5_title">Mis viajes</h3>
+              <p data-i18n="passenger.s5_text">Consulta solicitudes anteriores, estados completados y tu actividad reciente.</p>
+            </article>
+            <article class="service">
+              <span data-i18n="passenger.s6_tag" class="service__tag">Confianza</span>
+              <h3 data-i18n="passenger.s6_title">Estado del viaje</h3>
+              <p data-i18n="passenger.s6_text">Sabe si tu mototaxi está en camino, en el punto de encuentro o finalizando el trayecto.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--alt" id="passenger-como">
+        <div class="container">
+          <div class="section__head">
+            <h2 data-i18n="passenger.how_title">Utiliza Tuk Tuk en 3 pasos</h2>
+            <p data-i18n="passenger.how_lead">Entra con tu cuenta Google y empieza a moverte en minutos.</p>
+          </div>
+          <div class="steps">
+            <article class="step">
+              <div class="step__num">1</div>
+              <h3 data-i18n="passenger.step1_title">Inicia sesión</h3>
+              <p data-i18n="passenger.step1_text">Accede con Google desde la web o tu dispositivo. Sin formularios largos.</p>
+            </article>
+            <article class="step">
+              <div class="step__num">2</div>
+              <h3 data-i18n="passenger.step2_title">Pide tu viaje</h3>
+              <p data-i18n="passenger.step2_text">Indica origen y destino, revisa la cotización y solicita un mototaxi cerca de ti.</p>
+            </article>
+            <article class="step">
+              <div class="step__num">3</div>
+              <h3 data-i18n="passenger.step3_title">Viaja con confianza</h3>
+              <p data-i18n="passenger.step3_text">Sigue el mapa, chatea y cierra el viaje cuando llegues a tu destino.</p>
+            </article>
+          </div>
+          <div style="margin-top: 40px; text-align: center;">
+            <a data-i18n="passenger.start_free" class="btn btn--primary btn--lg" href="https://www.refactorii.com/p2l-tenant/login/tuki">Empezar ahora — es gratis</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="highlight">
+            <div>
+              <h2 data-i18n="passenger.highlight_title">Descubre conductores en tu barrio</h2>
+              <p data-i18n="passenger.highlight_text">
+                Con canales geográficos y geovallas, Tuk Tuk te muestra la oferta de mototaxis activa en tu sector.
+                Ideal para barrios, zonas urbanas y operadores locales.
+              </p>
+            </div>
+            <a data-i18n="passenger.explore" class="btn btn--outline btn--lg" href="https://www.refactorii.com/p2l-tenant/login/tuki">Explorar la app</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--alt">
+        <div class="container">
+          <div class="banner">
+            <div>
+              <h3 data-i18n="passenger.lost_title">¿Olvidaste algo en el mototaxi?</h3>
+              <p data-i18n="passenger.lost_text">Desde la app puedes contactar al conductor o reportar un inconveniente con tu viaje para recibir ayuda.</p>
+            </div>
+            <a data-i18n="passenger.go_app" class="btn btn--outline" href="https://www.refactorii.com/p2l-tenant/login/tuki">Ir a la app</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="passenger-cta">
+        <div class="container">
+          <div class="driver-cta">
+            <h2 data-i18n="passenger.cta_title">¿Quieres manejar con Tuk Tuk?</h2>
+            <p data-i18n="passenger.cta_text">
+              Genera ingresos con tu mototaxi, administra tus tiempos y recibe solicitudes de pasajeros cerca de ti.
+              También puedes operar tu propia flota desde el panel empresa.
+            </p>
+            <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center;">
+              <a data-i18n="passenger.register_driver" class="btn btn--primary btn--lg" href="https://www.refactorii.com/p2l-tenant/login/tuki-dashboard">Registrarme como conductor</a>
+              <a data-i18n="passenger.fleet_panel" class="btn btn--outline btn--lg" href="https://www.refactorii.com/p2l-tenant/login/tuki-dashboard">Panel de flota</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ========== CONDUCTOR ========== -->
+    <div class="mode-panel" data-panel="driver" hidden>
+      <section class="section section--alt" id="driver-beneficios">
+        <div class="container">
+          <div class="section__head">
+            <h2 data-i18n="driver.benefits_title">Conduce con Tuk Tuk</h2>
+            <p data-i18n="driver.benefits_lead">Activa tu disponibilidad, recibe solicitudes cerca de ti y administra tus carreras del día desde el celular.</p>
+          </div>
+          <div class="benefits">
+            <article class="benefit">
+              <div class="benefit__icon">🛵</div>
+              <h3 data-i18n="driver.b1_title">Solicitudes cerca de ti</h3>
+              <p data-i18n="driver.b1_text">Recibe pedidos de pasajeros en tu zona y decide cuándo aceptar según tu disponibilidad.</p>
+            </article>
+            <article class="benefit">
+              <div class="benefit__icon">⏱️</div>
+              <h3 data-i18n="driver.b2_title">Tú controlas tus tiempos</h3>
+              <p data-i18n="driver.b2_text">Enciende o apaga tu disponibilidad cuando quieras. Trabaja en las franjas que te convengan.</p>
+            </article>
+            <article class="benefit">
+              <div class="benefit__icon">🗺️</div>
+              <h3 data-i18n="driver.b3_title">Navegación y chat</h3>
+              <p data-i18n="driver.b3_text">Sigue el trayecto en el mapa, coordina la recogida por chat y cierra el viaje al llegar.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="driver-servicios">
+        <div class="container">
+          <div class="section__head">
+            <h2 data-i18n="driver.services_title">Capacidades del conductor</h2>
+            <p data-i18n="driver.services_lead">Todo lo que necesitas para operar como mototaxista en Tuk Tuk.</p>
+          </div>
+          <div class="services">
+            <article class="service">
+              <span data-i18n="driver.s1_tag" class="service__tag">Disponibilidad</span>
+              <h3 data-i18n="driver.s1_title">Modo en línea</h3>
+              <p data-i18n="driver.s1_text">Actívate para recibir solicitudes de pasajeros cercanos y pausa cuando no estés disponible.</p>
+            </article>
+            <article class="service">
+              <span data-i18n="driver.s2_tag" class="service__tag">Matching</span>
+              <h3 data-i18n="driver.s2_title">Aceptar o rechazar</h3>
+              <p data-i18n="driver.s2_text">Revisa origen, destino y valor estimado antes de aceptar la carrera.</p>
+            </article>
+            <article class="service">
+              <span data-i18n="driver.s3_tag" class="service__tag">Operación</span>
+              <h3 data-i18n="driver.s3_title">Viaje en curso</h3>
+              <p data-i18n="driver.s3_text">Gestiona el estado del viaje: en camino, recogiendo pasajero y finalizado.</p>
+            </article>
+            <article class="service">
+              <span data-i18n="driver.s4_tag" class="service__tag">Mapa</span>
+              <h3 data-i18n="driver.s4_title">Recorrido en vivo</h3>
+              <p data-i18n="driver.s4_text">Visualiza la ruta y la ubicación del pasajero durante todo el servicio.</p>
+            </article>
+            <article class="service">
+              <span data-i18n="driver.s5_tag" class="service__tag">Ingresos</span>
+              <h3 data-i18n="driver.s5_title">Historial de carreras</h3>
+              <p data-i18n="driver.s5_text">Consulta tus viajes completados y la actividad reciente del día.</p>
+            </article>
+            <article class="service">
+              <span data-i18n="driver.s6_tag" class="service__tag">Flota</span>
+              <h3 data-i18n="driver.s6_title">Únete a una empresa</h3>
+              <p data-i18n="driver.s6_text">Opera bajo una cooperativa o empresa de transporte con clave de acceso y cupos del plan.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--alt" id="driver-como">
+        <div class="container">
+          <div class="section__head">
+            <h2 data-i18n="driver.how_title">Empieza a conducir en 3 pasos</h2>
+            <p data-i18n="driver.how_lead">Regístrate en el panel, únete a una flota o crea la tuya, y abre la app.</p>
+          </div>
+          <div class="steps">
+            <article class="step">
+              <div class="step__num">1</div>
+              <h3 data-i18n="driver.step1_title">Regístrate</h3>
+              <p data-i18n="driver.step1_text">Entra al panel empresa / cooperativa y crea o únete a una organización Tuk Tuk.</p>
+            </article>
+            <article class="step">
+              <div class="step__num">2</div>
+              <h3 data-i18n="driver.step2_title">Activa tu rol</h3>
+              <p data-i18n="driver.step2_text">El administrador te agrega como conductor. Tú abres la app Tuki e inicias sesión.</p>
+            </article>
+            <article class="step">
+              <div class="step__num">3</div>
+              <h3 data-i18n="driver.step3_title">Recibe solicitudes</h3>
+              <p data-i18n="driver.step3_text">Ponte en línea, acepta viajes cercanos y genera ingresos en tu barrio.</p>
+            </article>
+          </div>
+          <div style="margin-top: 40px; text-align: center;">
+            <a data-i18n="driver.open_app" class="btn btn--primary btn--lg" href="https://www.refactorii.com/p2l-tenant/login/tuki">Abrir app conductor</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="highlight">
+            <div>
+              <h2 data-i18n="driver.highlight_title">También puedes operar tu propia flota</h2>
+              <p data-i18n="driver.highlight_text">
+                Si eres cooperativa o empresa de mototaxis, el panel de flota te permite crear la compañía,
+                gestionar conductores, planes, wallet y canales geográficos.
+              </p>
+            </div>
+            <a data-i18n="driver.go_panel" class="btn btn--outline btn--lg" href="https://www.refactorii.com/p2l-tenant/login/tuki-dashboard">Ir al panel</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--alt" id="driver-cta">
+        <div class="container">
+          <div class="driver-cta">
+            <h2 data-i18n="driver.cta_title">¿Quieres manejar con Tuk Tuk?</h2>
+            <p data-i18n="driver.cta_text">
+              Genera ingresos con tu mototaxi, administra tus tiempos y recibe solicitudes de pasajeros cerca de ti.
+              También puedes operar tu propia flota desde el panel empresa.
+            </p>
+            <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center;">
+              <a data-i18n="driver.register_driver" class="btn btn--primary btn--lg" href="https://www.refactorii.com/p2l-tenant/login/tuki-dashboard">Registrarme como conductor</a>
+              <a data-i18n="driver.fleet_panel" class="btn btn--outline btn--lg" href="https://www.refactorii.com/p2l-tenant/login/tuki-dashboard">Panel de flota</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ========== EMPRESA / FLOTA ========== -->
+    <div class="mode-panel" data-panel="fleet" hidden>
+      <section class="section section--alt" id="fleet-beneficios">
+        <div class="container">
+          <div class="section__head">
+            <h2 data-i18n="fleet.benefits_title">Panel empresa · cooperativa de transporte</h2>
+            <p data-i18n="fleet.benefits_lead">
+              El administrador opera la flota desde el dashboard: crea la empresa, elige plan, invita conductores,
+              controla wallet y define canales geográficos por sector.
+            </p>
+          </div>
+          <div class="admin-grid">
+            <article class="admin-card">
+              <div class="admin-card__icon">🏢</div>
+              <h3 data-i18n="fleet.a1_title">Crear y editar empresa</h3>
+              <p data-i18n="fleet.a1_text">Registra nombre, teléfono y responsable. Obtén la clave de acceso para conductores y operación.</p>
+            </article>
+            <article class="admin-card">
+              <div class="admin-card__icon">👥</div>
+              <h3 data-i18n="fleet.a2_title">Gestionar conductores</h3>
+              <p data-i18n="fleet.a2_text">Invita por correo, asigna rol conductor y controla el tope de conductores según tu plan.</p>
+            </article>
+            <article class="admin-card">
+              <div class="admin-card__icon">💳</div>
+              <h3 data-i18n="fleet.a3_title">Planes, wallet y ePayco</h3>
+              <p data-i18n="fleet.a3_text">Elige Starter, Growth, Business o Enterprise. Paga con ePayco y consume viajes según cupos.</p>
+            </article>
+            <article class="admin-card">
+              <div class="admin-card__icon">📡</div>
+              <h3 data-i18n="fleet.a4_title">Canales geográficos</h3>
+              <p data-i18n="fleet.a4_text">Configura geovallas y canales por barrio para mostrar oferta de mototaxis en cada zona.</p>
+            </article>
+            <article class="admin-card">
+              <div class="admin-card__icon">📊</div>
+              <h3 data-i18n="fleet.a5_title">Cupos y consumo</h3>
+              <p data-i18n="fleet.a5_text">Monitorea viajes completados, saldo de wallet, costo por viaje y vigencia de la suscripción.</p>
+            </article>
+            <article class="admin-card">
+              <div class="admin-card__icon">🧪</div>
+              <h3 data-i18n="fleet.a6_title">Prueba de 5 días</h3>
+              <p data-i18n="fleet.a6_text">Al crear la empresa aplican los cupos del plan elegido. Luego renuevas con ePayco (30 días).</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="fleet-servicios">
+        <div class="container">
+          <div class="section__head">
+            <h2 data-i18n="fleet.plans_title">Planes Tuk Tuk para tu flota</h2>
+            <p data-i18n="fleet.plans_lead">
+              Misma estructura del dashboard de administración: cupos de conductores, viajes habilitados y costo por viaje.
+              Prueba 5 días al registrarte; los planes de pago se renuevan con ePayco.
+            </p>
+          </div>
+          <div class="plans">
+            <article class="plan plan--starter">
+              <span class="plan__tier">PLAN STARTER</span>
+              <h3 data-i18n="plans.starter_headline">Starter — Recarga base</h3>
+              <p data-i18n="plans.price_starter" class="plan__price">$80.000 COP</p>
+              <p data-i18n="plans.starter_micro" class="plan__micro">Ideal para validar tu modelo de negocio sin riesgo</p>
+              <ul>
+                <li data-i18n="plans.starter_f1">1 conductor</li>
+                <li data-i18n="plans.starter_f2">200 viajes habilitados</li>
+                <li data-i18n="plans.starter_f3">Costo por viaje: $400 COP</li>
+                <li data-i18n="plans.starter_f4">Prueba completa por 5 días</li>
+              </ul>
+              <p data-i18n="plans.starter_billing" class="plan__billing">Entrada / recarga base</p>
+            </article>
+            <article class="plan plan--growth">
+              <span class="plan__tier">PLAN GROWTH</span>
+              <h3 data-i18n="plans.growth_headline">Growth — Opera en serio</h3>
+              <p data-i18n="plans.price_growth" class="plan__price">$700.000 COP / mes</p>
+              <p data-i18n="plans.growth_micro" class="plan__micro">Para negocios que ya están generando ingresos</p>
+              <ul>
+                <li data-i18n="plans.growth_f1">Hasta 10 conductores</li>
+                <li data-i18n="plans.growth_f2">2.000 viajes habilitados</li>
+                <li data-i18n="plans.growth_f3">Costo por viaje: $350 COP</li>
+                <li data-i18n="plans.growth_f4">Panel de gestión + soporte básico</li>
+              </ul>
+              <p data-i18n="plans.growth_billing" class="plan__billing">Suscripción: 30 días (ePayco)</p>
+            </article>
+            <article class="plan plan--business">
+              <span class="plan__tier">PLAN BUSINESS</span>
+              <h3 data-i18n="plans.business_headline">Business — Escala</h3>
+              <p data-i18n="plans.price_business" class="plan__price">$1.800.000 COP / mes</p>
+              <p data-i18n="plans.business_micro" class="plan__micro">Para empresas que quieren crecer sin límites técnicos</p>
+              <ul>
+                <li data-i18n="plans.business_f1">Hasta 25 conductores</li>
+                <li data-i18n="plans.business_f2">6.000 viajes habilitados</li>
+                <li data-i18n="plans.business_f3">Costo por viaje: $300 COP</li>
+                <li data-i18n="plans.business_f4">Analítica y soporte prioritario</li>
+              </ul>
+              <p data-i18n="plans.business_billing" class="plan__billing">Suscripción: 30 días (ePayco)</p>
+            </article>
+            <article class="plan plan--enterprise">
+              <span class="plan__tier">PLAN ENTERPRISE</span>
+              <h3 data-i18n="plans.enterprise_headline">Enterprise — Plataforma</h3>
+              <p data-i18n="plans.price_enterprise" class="plan__price">$1.000.000+ COP / mes</p>
+              <p data-i18n="plans.enterprise_micro" class="plan__micro">Para tu propio Uber / Rappi de mototaxis</p>
+              <ul>
+                <li data-i18n="plans.enterprise_f1">Conductores ilimitados (alto cupo)</li>
+                <li data-i18n="plans.enterprise_f2">Viajes ilimitados</li>
+                <li data-i18n="plans.enterprise_f3">White-label completo</li>
+                <li data-i18n="plans.enterprise_f4">Infraestructura y soporte directo</li>
+              </ul>
+              <p data-i18n="plans.enterprise_billing" class="plan__billing">Suscripción: 30 días · Contactar ventas</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--alt" id="fleet-como">
+        <div class="container">
+          <div class="section__head">
+            <h2 data-i18n="fleet.how_title">Cómo opera el administrador</h2>
+            <p data-i18n="fleet.how_lead">Del registro de la empresa al matching de viajes en la app de conductores y pasajeros.</p>
+          </div>
+          <div class="steps">
+            <article class="step">
+              <div class="step__num">1</div>
+              <h3 data-i18n="fleet.step1_title">Crea la empresa</h3>
+              <p data-i18n="fleet.step1_text">Entra al dashboard, registra la cooperativa y elige el plan con el que iniciarás la prueba.</p>
+            </article>
+            <article class="step">
+              <div class="step__num">2</div>
+              <h3 data-i18n="fleet.step2_title">Invita conductores</h3>
+              <p data-i18n="fleet.step2_text">Agrega correos, comparte la clave de acceso y controla cupos según el plan contratado.</p>
+            </article>
+            <article class="step">
+              <div class="step__num">3</div>
+              <h3 data-i18n="fleet.step3_title">Opera y renueva</h3>
+              <p data-i18n="fleet.step3_text">Monitorea wallet y viajes. Cuando termine la prueba, paga con ePayco para renovar 30 días.</p>
+            </article>
+          </div>
+          <div style="margin-top: 40px; text-align: center;">
+            <a data-i18n="fleet.enter_panel" class="btn btn--primary btn--lg" href="https://www.refactorii.com/p2l-tenant/login/tuki-dashboard">Entrar al panel de flota</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="fleet-cta">
+        <div class="container">
+          <div class="driver-cta">
+            <h2 data-i18n="fleet.cta_title">Administra tu cooperativa con Tuk Tuk</h2>
+            <p data-i18n="fleet.cta_text">
+              El panel empresa te da control de flota, planes, wallet y canales geo.
+              Tus conductores y pasajeros usan la app Tuki en tiempo real.
+            </p>
+            <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center;">
+              <a data-i18n="fleet.register_driver" class="btn btn--primary btn--lg" href="https://www.refactorii.com/p2l-tenant/login/tuki-dashboard">Registrarme como conductor</a>
+              <a data-i18n="fleet.open_fleet" class="btn btn--outline btn--lg" href="https://www.refactorii.com/p2l-tenant/login/tuki-dashboard">Abrir panel de flota</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <div class="footer__brand">
+            <strong>Tuk Tuk</strong>
+          </div>
+          <p style="margin:0; max-width:280px;" data-i18n="footer.blurb">
+            Movilidad en mototaxi para pasajeros, conductores y cooperativas. Conectamos tu barrio con viajes rápidos y seguros.
+          </p>
+        </div>
+        <div>
+          <h4 data-i18n="footer.passengers">Pasajeros</h4>
+          <ul>
+            <li><a data-i18n="modes.passenger" href="#" data-mode="passenger">Pedir un viaje</a></li>
+            <li><a data-i18n="footer.how" href="#passenger-como" data-mode="passenger">Cómo funciona</a></li>
+            <li><a data-i18n="footer.enter_app" href="https://www.refactorii.com/p2l-tenant/login/tuki">Entrar a la app</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="footer.drivers">Conductores</h4>
+          <ul>
+            <li><a data-i18n="modes.driver" href="#" data-mode="driver">Soy conductor</a></li>
+            <li><a data-i18n="footer.register" href="https://www.refactorii.com/p2l-tenant/login/tuki-dashboard">Registrarme</a></li>
+            <li><a data-i18n="footer.open_app" href="https://www.refactorii.com/p2l-tenant/login/tuki">Abrir app</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="footer.company">Empresa</h4>
+          <ul>
+            <li><a data-i18n="modes.fleet" href="#" data-mode="fleet">Panel de flota</a></li>
+            <li><a data-i18n="footer.admin_dash" href="https://www.refactorii.com/p2l-tenant/login/tuki-dashboard">Dashboard admin</a></li>
+            <li><a data-i18n="footer.plans" href="#fleet-servicios" data-mode="fleet">Planes</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer__copy">© <span id="year"></span> <span data-i18n="footer.copy">Tuk Tuk · Powered by P2L Mobility</span></p>
+    </div>
+  </footer>
+
+  <a
+    class="wa-float"
+    href="https://wa.me/573187813116"
+    target="_blank"
+    rel="noopener noreferrer"
+    data-i18n-aria="nav.whatsapp"
+    aria-label="Contactar por WhatsApp al 318 781 3116"
+    title="WhatsApp"
+  >
+    <i class="fa-brands fa-whatsapp wa-float__icon" aria-hidden="true"></i>
+  </a>
+
+  <script src="https://unpkg.com/i18next@23.4.6/i18next.min.js"></script>
+  <script src="scripts/locales-embed.js"></script>
+  <script src="scripts/i18n.js"></script>
+  <script>
+    const TUKI_LINKS = {
+      login: 'https://www.refactorii.com/p2l-tenant/login/tuki',
+      dashboard: 'https://www.refactorii.com/p2l-tenant/login/tuki-dashboard'
+    };
+
+    const MODE_META = {
+      passenger: { navCta: 'cta', ctaHref: TUKI_LINKS.login, navAudienceKey: 'nav.drivers', titleKey: 'meta.title_passenger' },
+      driver: { navCta: 'cta', ctaHref: TUKI_LINKS.login, navAudienceKey: 'nav.fleet', titleKey: 'meta.title_driver' },
+      fleet: { navCta: 'servicios', ctaHref: TUKI_LINKS.dashboard, navAudienceKey: 'nav.plans', titleKey: 'meta.title_fleet' }
+    };
+
+    let currentMode = 'passenger';
+    let i18nReady = false;
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const header = document.getElementById('header');
+    const menuToggle = document.getElementById('menuToggle');
+    const mainNav = document.getElementById('mainNav');
+    const headerCta = document.getElementById('headerCta');
+    const headerCtaMobile = document.getElementById('headerCtaMobile');
+    const navAudienceLink = document.getElementById('navAudienceLink');
+
+    function t(key, fallback) {
+      if (typeof i18next !== 'undefined' && i18next.isInitialized) {
+        const v = i18next.t(key, { returnObjects: true });
+        if (v != null && v !== key) return v;
+      }
+      return fallback != null ? fallback : null;
+    }
+
+    function getModeCopy(mode) {
+      const m = MODE_META[mode] || MODE_META.passenger;
+      const prefix = `hero.${mode}`;
+      const badgesRaw = t(`${prefix}.badges`, []);
+      const badgeList = Array.isArray(badgesRaw)
+        ? badgesRaw.map((b) => [b.icon || '', b.strong || '', b.rest || ''])
+        : [];
+      return {
+        eyebrow: t(`${prefix}.eyebrow`),
+        titleHtml: t(`${prefix}.title`),
+        lead: t(`${prefix}.lead`),
+        badges: badgeList,
+        pill: t(`${prefix}.pill`),
+        phoneTitle: t(`${prefix}.phone_title`),
+        phoneSub: t(`${prefix}.phone_sub`),
+        navAudience: t(m.navAudienceKey),
+        navCta: m.navCta,
+        ctaHref: m.ctaHref,
+        ctaLabel: t('nav.use_tuki'),
+        docTitle: t(m.titleKey)
+      };
+    }
+
+    const phoneMock = document.getElementById('phoneMock');
+
+    function syncPhoneVisual(mode) {
+      if (!phoneMock) return;
+      phoneMock.classList.toggle('phone-mock--fleet', mode === 'fleet');
+    }
+
+    function setMode(mode, opts = {}) {
+      if (!MODE_META[mode]) mode = 'passenger';
+      currentMode = mode;
+      syncPhoneVisual(mode);
+      if (!i18nReady && !(window.tukiI18n && window.tukiI18n.ready)) {
+        document.body.dataset.mode = mode;
+        document.querySelectorAll('.mode-panel').forEach((panel) => {
+          panel.hidden = panel.getAttribute('data-panel') !== mode;
+        });
+        document.querySelectorAll('.hero__ctas [data-mode]').forEach((btn) => {
+          const active = btn.getAttribute('data-mode') === mode;
+          btn.classList.toggle('is-active', active);
+          btn.classList.toggle('btn--primary', active);
+          btn.classList.toggle('btn--outline', !active);
+          btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        return;
+      }
+
+      const copy = getModeCopy(mode);
+      document.body.dataset.mode = mode;
+      if (copy.docTitle) document.title = copy.docTitle;
+
+      const titleEl = document.querySelector('title');
+      if (titleEl) {
+        titleEl.setAttribute('data-i18n', MODE_META[mode].titleKey);
+        if (copy.docTitle) titleEl.textContent = copy.docTitle;
+      }
+
+      if (copy.eyebrow) document.getElementById('heroEyebrow').textContent = copy.eyebrow;
+      if (copy.titleHtml) document.getElementById('heroTitle').innerHTML = copy.titleHtml;
+      if (copy.lead) document.getElementById('heroLead').textContent = copy.lead;
+      if (copy.pill) document.getElementById('phonePill').textContent = copy.pill;
+      if (copy.phoneTitle) document.getElementById('phoneCardTitle').textContent = copy.phoneTitle;
+      if (copy.phoneSub) document.getElementById('phoneCardSub').textContent = copy.phoneSub;
+      if (copy.navAudience) {
+        navAudienceLink.textContent = copy.navAudience;
+        navAudienceLink.setAttribute('data-i18n', MODE_META[mode].navAudienceKey);
+      }
+
+      headerCta.href = copy.ctaHref;
+      headerCtaMobile.href = copy.ctaHref;
+      if (copy.ctaLabel) {
+        headerCta.textContent = copy.ctaLabel;
+        headerCtaMobile.textContent = copy.ctaLabel;
+      }
+
+      document.querySelectorAll('[data-nav]').forEach((link) => {
+        const key = link.getAttribute('data-nav');
+        const section = key === 'cta' && copy.navCta === 'servicios' ? 'servicios' : key;
+        link.setAttribute('href', `#${mode}-${section}`);
+      });
+
+      if (copy.badges.length) {
+        document.getElementById('heroBadges').innerHTML = copy.badges.map(([icon, strong, rest]) =>
+          `<span class="hero__badge">${icon} <strong>${strong}</strong> ${rest}</span>`
+        ).join('');
+      }
+
+      document.querySelectorAll('.hero__ctas [data-mode]').forEach((btn) => {
+        const active = btn.getAttribute('data-mode') === mode;
+        btn.classList.toggle('is-active', active);
+        btn.classList.toggle('btn--primary', active);
+        btn.classList.toggle('btn--outline', !active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+
+      document.querySelectorAll('.mode-panel').forEach((panel) => {
+        panel.hidden = panel.getAttribute('data-panel') !== mode;
+      });
+
+      if (!opts.skipScroll) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    document.querySelectorAll('[data-mode]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        const mode = el.getAttribute('data-mode');
+        if (!MODE_META[mode]) return;
+        e.preventDefault();
+        setMode(mode);
+        mainNav.classList.remove('is-open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.textContent = '☰';
+        const hash = el.getAttribute('href');
+        if (hash && hash.startsWith('#') && hash.length > 1) {
+          requestAnimationFrame(() => {
+            const target = document.querySelector(hash);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        }
+      });
+    });
+
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('is-scrolled', window.scrollY > 8);
+    }, { passive: true });
+
+    menuToggle.addEventListener('click', () => {
+      const open = mainNav.classList.toggle('is-open');
+      menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      menuToggle.textContent = open ? '✕' : '☰';
+      const label = t(open ? 'nav.menu_close' : 'nav.menu_open', open ? 'Cerrar menú' : 'Abrir menú');
+      if (label) menuToggle.setAttribute('aria-label', label);
+    });
+
+    mainNav.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        mainNav.classList.remove('is-open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.textContent = '☰';
+      });
+    });
+
+    window.onTukiI18nReady = function () {
+      i18nReady = true;
+      setMode(currentMode, { skipScroll: true });
+    };
+
+    window.onTukiLocaleChange = function (_lang, opts) {
+      i18nReady = true;
+      setMode(currentMode, { skipScroll: !!(opts && opts.skipScroll) });
+    };
+
+    // Solo cambia modo visual; textos de hero se aplican cuando i18n está listo
+    setMode('passenger', { skipScroll: true });
+
+    // Si i18n terminó antes de registrar el callback
+    if (window.tukiI18n && window.tukiI18n.ready) {
+      i18nReady = true;
+      setMode(currentMode, { skipScroll: true });
+    }
+  </script>
+</body>
+</html>
