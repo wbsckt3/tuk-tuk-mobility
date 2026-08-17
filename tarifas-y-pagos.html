@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="P2L no recauda ni custodia el valor de los servicios. El pago se realiza entre las partes. Conoce el modelo 80 / 12 / 8, el saldo prepago y el cargo por uso de la plataforma." data-i18n-meta="payments.meta_description" />
+  <meta name="description" content="P2L no recauda ni custodia el valor de los servicios. El pago se realiza entre las partes. El costo de plataforma se paga anticipadamente con el saldo de la empresa; no se cobra de nuevo en cada viaje." data-i18n-meta="payments.meta_description" />
   <meta name="theme-color" content="#4f46e5" />
   <title data-i18n="payments.meta_title">Tarifas y pagos — P2L Empresa</title>
   <link rel="icon" href="assets/logo-p2l.png" type="image/png" />
@@ -413,7 +413,7 @@
         <div class="page-hero__eyebrow" data-i18n="payments.eyebrow">Empresa · Tarifas y pagos</div>
         <h1 data-i18n="payments.title">Modelo de operación y pagos de P2L</h1>
         <p class="page-hero__lead" data-i18n="payments.lead" data-i18n-html>P2L conecta pasajeros, operadores y empresas <strong>sin custodiar el dinero de los viajes</strong>.</p>
-        <p class="quote" data-i18n="payments.quote">P2L no recauda ni custodia el valor de los servicios realizados entre usuarios, empresas y operadores. El pago del servicio se realiza directamente entre las partes mediante el medio de pago acordado. P2L presta la infraestructura tecnológica, registra la operación y cobra a la empresa el uso de la plataforma mediante un saldo prepago independiente.</p>
+        <p class="quote" data-i18n="payments.quote">P2L no recauda ni custodia el valor de los servicios realizados entre usuarios, empresas y operadores. El pago del servicio se realiza directamente entre las partes. El costo de P2L se paga anticipadamente mediante el saldo de la empresa. En cada viaje, P2L registra y consume el valor correspondiente del saldo, pero no recibe nuevamente dinero del pasajero ni del operativo.</p>
       </div>
     </section>
 
@@ -422,30 +422,30 @@
         <h2 data-i18n="payments.s1_title">1. Flujo de dinero</h2>
         <figure class="flow-card">
           <img src="assets/flujo-pagos-p2l.png" alt="Esquema de costos, tarifas, transacciones y planes de pago P2L" data-i18n-aria="payments.s1_img_alt" />
-          <figcaption data-i18n="payments.s1_img_caption">El pasajero paga al conductor. P2L registra la liquidación: 80% conductor, 12% empresa, 8% cargo de plataforma.</figcaption>
+          <figcaption data-i18n="payments.s1_img_caption">El pasajero paga al conductor. P2L registra la distribución: 80% operativo, 12% empresa, 8% costo de plataforma ya prepagado.</figcaption>
         </figure>
 
         <div class="split" aria-hidden="true">
           <article class="split__card split__card--driver">
             <span class="split__pct">80%</span>
-            <span class="split__who" data-i18n="payments.split_driver">Conductor</span>
-            <p class="split__text" data-i18n="payments.split_driver_text">Recibe el pago del pasajero</p>
+            <span class="split__who" data-i18n="payments.split_driver">Operativo</span>
+            <p class="split__text" data-i18n="payments.split_driver_text">Participación del viaje. Recibe el pago del pasajero</p>
           </article>
           <article class="split__card split__card--company">
             <span class="split__pct">12%</span>
             <span class="split__who" data-i18n="payments.split_company">Empresa</span>
-            <p class="split__text" data-i18n="payments.split_company_text">Participación registrada</p>
+            <p class="split__text" data-i18n="payments.split_company_text">Ingreso bruto / participación del viaje</p>
           </article>
           <article class="split__card split__card--p2l">
             <span class="split__pct">8%</span>
-            <span class="split__who" data-i18n="payments.split_p2l">P2L</span>
-            <p class="split__text" data-i18n="payments.split_p2l_text">Cargo descontado del saldo</p>
+            <span class="split__who" data-i18n="payments.split_p2l">Plataforma</span>
+            <p class="split__text" data-i18n="payments.split_p2l_text">Costo de plataforma ya prepagado</p>
           </article>
         </div>
 
-        <p data-i18n="payments.s1_p1">P2L no recibe ni guarda el dinero que el pasajero paga por el viaje. El pasajero le paga directamente al conductor por el medio acordado. P2L registra el valor del servicio y calcula la participación correspondiente para el conductor, la empresa y la plataforma.</p>
-        <p data-i18n="payments.s1_p2">La empresa mantiene un saldo prepago en P2L para cubrir los cargos de uso de la plataforma. Si el saldo disponible no es suficiente, la empresa debe recargarlo antes de que sus conductores puedan aceptar nuevos viajes.</p>
-        <p data-i18n="payments.s1_p3">La empresa utiliza un saldo prepago independiente para pagar el uso de la plataforma.</p>
+        <p data-i18n="payments.s1_p1">P2L no recibe ni guarda el dinero que el pasajero paga por el viaje. El pasajero le paga directamente al conductor. Quien liquida económicamente a la empresa es el conductor, según las reglas de la operación. P2L solo registra esa distribución; no transfiere esos montos.</p>
+        <p data-i18n="payments.s1_p2">La empresa mantiene un saldo prepago para cubrir el costo de usar P2L. Ese costo se consume del saldo en cada viaje. No se vuelve a cobrar al pasajero ni al operativo. Si el saldo no alcanza, la empresa lo recarga antes de seguir operando.</p>
+        <p data-i18n="payments.s1_p3">El costo de P2L es un costo de operación tecnológica pagado por adelantado, no una comisión que se cobre otra vez sobre cada viaje.</p>
 
         <h2 data-i18n="payments.s2_title">2. Los cuatro participantes del modelo</h2>
         <div class="roles">
@@ -455,7 +455,7 @@
               <li data-i18n="payments.pax_l1">Consulta el valor estimado antes de solicitar.</li>
               <li data-i18n="payments.pax_l2">Puede participar en una puja, cuando esté habilitada.</li>
               <li data-i18n="payments.pax_l3">Paga el viaje directamente al conductor.</li>
-              <li data-i18n="payments.pax_l4">No paga una comisión a P2L por el viaje.</li>
+              <li data-i18n="payments.pax_l4">No paga a P2L por el viaje. P2L no recibe ese dinero.</li>
             </ul>
           </article>
           <article class="role">
@@ -463,8 +463,8 @@
             <ul>
               <li data-i18n="payments.op_l1">Realiza el viaje y recibe directamente el pago del pasajero.</li>
               <li data-i18n="payments.op_l2">Registra en P2L el valor final y el medio de pago utilizado.</li>
-              <li data-i18n="payments.op_l3">La aplicación registra la participación que corresponde al conductor dentro de la liquidación del viaje.</li>
-              <li data-i18n="payments.op_l4">No necesita tener un saldo o wallet propia.</li>
+              <li data-i18n="payments.op_l3">Liquida económicamente a la empresa su participación (en el ejemplo, $2.400). P2L no transfiere ese dinero.</li>
+              <li data-i18n="payments.op_l4">No necesita un saldo P2L propio. P2L no le cobra de nuevo por el viaje.</li>
             </ul>
           </article>
           <article class="role">
@@ -472,75 +472,101 @@
             <ul>
               <li data-i18n="payments.co_l1">Administra sus conductores y su operación.</li>
               <li data-i18n="payments.co_l2">Define sus tarifas dentro de los límites establecidos por P2L.</li>
-              <li data-i18n="payments.co_l3">Recarga un saldo P2L para pagar el uso de la plataforma.</li>
-              <li data-i18n="payments.co_l4">Consulta viajes, liquidaciones, participaciones y movimientos.</li>
-              <li data-i18n="payments.co_l5">La participación económica de la empresa queda registrada en sus liquidaciones.</li>
+              <li data-i18n="payments.co_l3">Compra plan o recarga saldo P2L para usar la infraestructura.</li>
+              <li data-i18n="payments.co_l4">Consulta viajes, participaciones y el consumo de su saldo prepago.</li>
+              <li data-i18n="payments.co_l5">Los $2.400 del ejemplo son la participación empresa sugerida / ingreso bruto del viaje.</li>
             </ul>
           </article>
           <article class="role">
             <h3 data-i18n="payments.pl_title">P2L / Plataforma</h3>
             <ul>
               <li data-i18n="payments.pl_l1">Proporciona la tecnología para conectar pasajeros, operadores y empresas.</li>
-              <li data-i18n="payments.pl_l2">Registra los viajes y genera las liquidaciones.</li>
-              <li data-i18n="payments.pl_l3">Calcula el cargo por uso de la plataforma.</li>
-              <li data-i18n="payments.pl_l4">Descuenta ese cargo del saldo prepago de la empresa.</li>
-              <li data-i18n="payments.pl_l5">No custodia el dinero que el pasajero paga directamente al conductor.</li>
+              <li data-i18n="payments.pl_l2">Registra los viajes y la distribución económica (80 / 12 / 8).</li>
+              <li data-i18n="payments.pl_l3">Calcula el costo de plataforma (platformShare) según el plan.</li>
+              <li data-i18n="payments.pl_l4">Consume ese valor del saldo prepago. No lo cobra otra vez al pasajero ni al operativo.</li>
+              <li data-i18n="payments.pl_l5">No custodia ni liquida el dinero del viaje entre las partes.</li>
             </ul>
           </article>
         </div>
 
-        <h2 data-i18n="payments.s4_title">3. Cargo por uso de P2L</h2>
-        <p data-i18n="payments.s4_p2">El costo de P2L combina un porcentaje del valor del viaje con un pequeño valor fijo. Para proteger a la empresa, el cargo tiene un valor mínimo y un valor máximo.</p>
+        <h2 data-i18n="payments.s4_title">3. Cómo se cubre P2L</h2>
+        <p data-i18n="payments.s4_p2">El pasajero paga directamente al operativo. La empresa define o recibe una participación sobre el valor del viaje. P2L ya monetiza su servicio con el plan y el saldo prepago de la empresa: no cobra de nuevo en el momento del viaje.</p>
         <p class="label" data-i18n="payments.s4_formula_label">Fórmula técnica (para desarrolladores):</p>
-        <pre><code>cargoP2L = clamp(
+        <pre><code>platformShare = clamp(
   valorFijo + porcentaje * valorFinal,
   mínimo,
   máximo
 )</code></pre>
 
-        <h2 data-i18n="payments.s5_title">4. Cargo por viaje según tu plan</h2>
+        <h2 data-i18n="payments.s5_title">4. Participación empresa sugerida según tu plan</h2>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
                 <th data-i18n="payments.th_plan">Plan</th>
-                <th data-i18n="payments.th_pct">Cargo porcentual</th>
-                <th data-i18n="payments.th_fixed">Cargo fijo</th>
-                <th data-i18n="payments.th_min">Mínimo</th>
-                <th data-i18n="payments.th_max">Máximo</th>
+                <th data-i18n="payments.th_share">Participación empresa sugerida</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td>Trial</td><td>0%</td><td>$0</td><td>$0</td><td>$0</td></tr>
-              <tr><td>Starter</td><td>12%</td><td>$200</td><td>$400</td><td>$3.000</td></tr>
-              <tr><td>Growth</td><td>10%</td><td>$150</td><td>$350</td><td>$2.800</td></tr>
-              <tr><td>Business</td><td>8%</td><td>$100</td><td>$300</td><td>$2.500</td></tr>
-              <tr><td>Enterprise</td><td>6%</td><td>$0</td><td>$250</td><td>$2.000</td></tr>
+              <tr><td>Starter</td><td data-i18n="payments.s5_starter">20% del valor del viaje</td></tr>
+              <tr><td>Growth</td><td data-i18n="payments.s5_growth">20% del valor del viaje</td></tr>
+              <tr><td>Business</td><td data-i18n="payments.s5_business">20% del valor del viaje</td></tr>
+              <tr><td>Enterprise</td><td data-i18n="payments.s5_enterprise">Por contacto comercial</td></tr>
             </tbody>
           </table>
         </div>
-        <p data-i18n="payments.s5_p1">Mientras mayor sea tu plan, menor es el porcentaje que pagas por el uso de P2L. Además, el cargo por viaje nunca supera el valor máximo establecido para tu plan.</p>
+        <p data-i18n="payments.s5_p1">La empresa define o recibe esa participación sobre el valor del viaje. El pasajero paga al operativo. P2L no presenta ese porcentaje como un cobro adicional en el momento del viaje: su servicio ya está cubierto por el plan y el saldo prepago.</p>
 
         <h2 data-i18n="payments.s6_title">5. Ejemplo: viaje de $20.000</h2>
-        <p data-i18n="payments.s6_p1">Supongamos que la empresa está en un plan donde el cargo de P2L es del 8%.</p>
-        <pre><code>Pasajero paga al conductor       $20.000
-                                      │
-                    ┌─────────────────┼─────────────────┐
-                    ↓                 ↓                 ↓
-              Conductor          Empresa             P2L
-                 80%                12%                8%
-              $16.000             $2.400             $1.600</code></pre>
-        <p data-i18n="payments.s6_p2">Si el pasajero entrega los $20.000 al conductor, físicamente:</p>
-        <ul>
-          <li data-i18n="payments.s6_l1" data-i18n-html>El conductor recibe <strong>$20.000</strong>.</li>
-          <li data-i18n="payments.s6_l2">No recibe físicamente $16.000.</li>
-        </ul>
-        <p data-i18n="payments.s6_p3" data-i18n-html>Los $16.000 / $2.400 / $1.600 representan la <strong>distribución económica registrada en la liquidación</strong>, no tres transferencias bancarias realizadas por P2L.</p>
-        <p data-i18n="payments.s6_p4">En un viaje de $20.000, el pasajero paga los $20.000 directamente al conductor. P2L registra la distribución económica del viaje según el plan de la empresa. En este ejemplo, $16.000 corresponden al conductor, $2.400 a la participación de la empresa y $1.600 al cargo de P2L. El cargo de P2L se descuenta del saldo prepago de la empresa.</p>
-        <p data-i18n="payments.s6_p5" data-i18n-html>Esto evita una confusión jurídica y financiera importante: <strong>P2L no está moviendo los $20.000 del pasajero</strong>.</p>
+        <p data-i18n="payments.s6_p1">Plan Business: 8% de costo de plataforma. Ese 8% ya está cubierto por el saldo prepago de la empresa. No se cobra otra vez al pasajero ni al operativo.</p>
+        <p data-i18n="payments.s6_p2" data-i18n-html>El pasajero entrega <strong>$20.000</strong> directamente al conductor. <strong>P2L no recibe esos $20.000.</strong></p>
+        <pre><code>Pasajero
+   │
+   │ paga $20.000
+   ▼
+Conductor / Operativo
+   │
+   │ liquida económicamente
+   ├──────────────► $16.000 Operativo (80%)
+   │
+   └──────────────► $2.400 Empresa (12%)
+
+Empresa
+   │
+   │ compra plan / prepaga saldo
+   ▼
+P2L
+   │
+   │ habilita infraestructura
+   │ consume $1.600 del saldo (8% ya prepagado)
+   ▼
+Plataforma</code></pre>
+        <p data-i18n="payments.s6_p3" data-i18n-html>Los $16.000 / $2.400 / $1.600 son la <strong>distribución económica registrada</strong>. P2L no hace tres transferencias. Quien liquida a la empresa es el conductor. P2L solo anota que $2.400 son la participación de la empresa y que $1.600 corresponden al costo de plataforma previamente cubierto con el saldo P2L.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="payments.th_concept">Concepto</th>
+                <th data-i18n="payments.th_value">Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td data-i18n="payments.s6_r1">Pasajero paga al conductor</td><td>$20.000</td></tr>
+              <tr><td data-i18n="payments.s6_r2">Participación del operativo</td><td>$16.000</td></tr>
+              <tr><td data-i18n="payments.s6_r3">Participación de la empresa (ingreso bruto)</td><td>$2.400</td></tr>
+              <tr><td data-i18n="payments.s6_r4">Uso de plataforma P2L (ya prepagado)</td><td>$1.600</td></tr>
+              <tr><td data-i18n="payments.s6_r5">P2L recibe del pasajero</td><td>$0</td></tr>
+              <tr><td data-i18n="payments.s6_r6">P2L cobra nuevamente al conductor</td><td>$0</td></tr>
+              <tr><td data-i18n="payments.s6_r7">P2L descuenta del saldo prepago</td><td>$1.600</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p data-i18n="payments.s6_p4">Los $1.600 no son un dinero que P2L vuelva a cobrar. Son el valor económico del uso de P2L en ese viaje, ya financiado por la empresa con su saldo.</p>
+        <p data-i18n="payments.s6_p5" data-i18n-html>Los <strong>$2.400 son la participación empresa sugerida</strong> / ingreso bruto de ese viaje. No representan un retorno sobre inversión.</p>
+        <p class="quote" data-i18n="payments.s6_key">El costo de P2L se paga anticipadamente mediante el saldo de la empresa. En cada viaje, P2L registra y consume el valor correspondiente del saldo, pero no recibe nuevamente dinero del pasajero ni del operativo por ese concepto.</p>
         <aside class="clarify">
           <h3 data-i18n="payments.s6_clarify_title">Aclaración</h3>
-          <p data-i18n="payments.s6_clarify_lead">P2L no recibe los $20.000, no tiene que resolver dentro de su propia plataforma cuestiones como:</p>
+          <p data-i18n="payments.s6_clarify_lead">P2L no recibe los $20.000 y no resuelve dentro de su plataforma:</p>
           <ul>
             <li data-i18n="payments.s6_c1">custodia de fondos</li>
             <li data-i18n="payments.s6_c2">devolución del dinero del viaje</li>
@@ -554,28 +580,28 @@
         </aside>
 
         <h2 data-i18n="payments.s7_title">6. Saldo P2L de la empresa</h2>
-        <p data-i18n="payments.s7_p2">El saldo P2L es un saldo prepago que utiliza la empresa para cubrir los cargos por uso de la plataforma. No es el dinero recibido de los pasajeros ni el saldo de los conductores.</p>
+        <p data-i18n="payments.s7_p2">El saldo P2L es un prepago de la empresa para usar la infraestructura. No es el dinero de los pasajeros ni el saldo de los conductores. Ejemplo: si recarga $100.000, cada viaje consume el costo de plataforma imputado (en el ejemplo, $1.600) hasta agotar el saldo.</p>
         <p class="label" data-i18n="payments.s7_flow_label">Flujo operativo:</p>
-        <p><strong data-i18n="payments.s7_flow">Empresa → recarga saldo P2L → P2L descuenta cargos de plataforma → la empresa puede continuar operando.</strong></p>
+        <p><strong data-i18n="payments.s7_flow">Empresa → recarga saldo P2L → P2L consume el costo de plataforma del saldo → la empresa puede continuar operando.</strong></p>
 
         <h2 data-i18n="payments.s8_title">7. Cómo opera el ciclo</h2>
         <ol>
           <li data-i18n="payments.s8_l1">El pasajero paga directamente al conductor.</li>
           <li data-i18n="payments.s8_l2">El conductor registra el valor final del viaje.</li>
-          <li data-i18n="payments.s8_l3">P2L genera la liquidación del viaje.</li>
-          <li data-i18n="payments.s8_l4">La liquidación determina la participación de cada parte.</li>
-          <li data-i18n="payments.s8_l5">El cargo de P2L se descuenta del saldo prepago de la empresa.</li>
+          <li data-i18n="payments.s8_l3">P2L registra la distribución: operativo, empresa y costo de plataforma ya prepagado.</li>
+          <li data-i18n="payments.s8_l4">El conductor liquida a la empresa su participación. P2L no transfiere ese dinero.</li>
+          <li data-i18n="payments.s8_l5">P2L consume del saldo prepago el costo de plataforma de ese viaje. No cobra de nuevo al pasajero ni al operativo.</li>
           <li data-i18n="payments.s8_l6">La empresa recarga su saldo cuando lo necesita.</li>
         </ol>
 
         <div class="note">
           <h2 data-i18n="payments.tech_title">Nota técnica</h2>
-          <p data-i18n="payments.tech_p1">Internamente P2L utiliza un registro de liquidaciones (RideSettlement) y un saldo prepago (wallet) para controlar los movimientos económicos asociados al uso de la plataforma.</p>
+          <p data-i18n="payments.tech_p1">Internamente se registra la distribución del viaje (RideSettlement) y el consumo del saldo prepago. El campo comercial es platformShare / platformAllocation, no un fee cobrado otra vez sobre el viaje.</p>
         </div>
 
         <div class="cta-box">
           <h2 data-i18n="payments.cta_title">Activa tu empresa en P2L</h2>
-          <p data-i18n="payments.cta_text">Recarga tu saldo, define tarifas y opera con liquidaciones claras: 80% conductor, 12% empresa, 8% cargo de plataforma.</p>
+          <p data-i18n="payments.cta_text">Recarga tu saldo y opera con una distribución clara: 80% operativo, 12% empresa, 8% costo de plataforma ya prepagado.</p>
           <a class="btn btn--primary btn--lg" href="https://www.refactorii.com/p2l-tenant/login" data-i18n="payments.cta_panel">Entrar al panel empresa</a>
         </div>
       </div>
@@ -628,7 +654,7 @@
   </a>
 
   <script src="https://unpkg.com/i18next@23.4.6/i18next.min.js"></script>
-  <script src="scripts/locales-embed.js?v=20260817a"></script>
+  <script src="scripts/locales-embed.js?v=20260817c"></script>
   <script src="scripts/i18n.js?v=20260817a"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
