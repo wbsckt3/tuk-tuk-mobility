@@ -490,6 +490,13 @@
     }
 
     .mode-panel[hidden] { display: none !important; }
+    body:not([data-mode="fleet"]) .fleet-only { display: none !important; }
+    .hero__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: -8px 0 28px;
+    }
 
     .footer {
       background: #0f172a;
@@ -523,7 +530,7 @@
     @media (max-width: 900px) {
       .hero__grid { grid-template-columns: 1fr; text-align: center; }
       .hero__lead { margin-inline: auto; }
-      .hero__ctas, .hero__badges { justify-content: center; }
+      .hero__ctas, .hero__badges, .hero__actions { justify-content: center; }
       .phone-mock { margin-top: 12px; }
       .benefits, .services, .steps, .admin-grid { grid-template-columns: 1fr; }
       .highlight { grid-template-columns: 1fr; text-align: center; }
@@ -642,6 +649,7 @@
         <a href="#passenger-servicios" data-nav="servicios" data-i18n="nav.services">Servicios</a>
         <a href="#passenger-como" data-nav="como" data-i18n="nav.how">Cómo funciona</a>
         <a href="#passenger-cta" id="navAudienceLink" data-nav="cta" data-i18n="nav.drivers">Conductores</a>
+        <a href="tarifas-y-pagos.html" class="fleet-only" data-i18n="nav.payments">Tarifas y pagos</a>
         <a class="btn btn--ghost nav-cta-mobile" id="headerCtaMobile" href="https://www.refactorii.com/p2l-tenant/login/tuki" data-i18n="nav.use_tuki">Usar Tuk Tuk</a>
       </nav>
 
@@ -669,6 +677,9 @@
             <button type="button" class="btn btn--primary btn--lg is-active" data-mode="passenger" aria-pressed="true" data-i18n="modes.passenger">Pedir un viaje</button>
             <button type="button" class="btn btn--outline btn--lg" data-mode="driver" aria-pressed="false" data-i18n="modes.driver">Soy conductor</button>
             <button type="button" class="btn btn--outline btn--lg" data-mode="fleet" aria-pressed="false" data-i18n="modes.fleet">Panel de flota</button>
+          </div>
+          <div class="hero__actions fleet-only">
+            <a class="btn btn--primary btn--lg" href="tarifas-y-pagos.html" data-i18n="nav.payments">Tarifas y pagos</a>
           </div>
           <div class="hero__badges" id="heroBadges">
             <span class="hero__badge">⚡ <strong>En minutos</strong> solicita y acepta</span>
@@ -1101,8 +1112,9 @@
               <p data-i18n="fleet.step3_text">Monitorea wallet y viajes. Cuando termine la prueba, paga con ePayco para renovar 30 días.</p>
             </article>
           </div>
-          <div style="margin-top: 40px; text-align: center;">
+          <div style="margin-top: 40px; text-align: center; display:flex; flex-wrap:wrap; gap:12px; justify-content:center;">
             <a data-i18n="fleet.enter_panel" class="btn btn--primary btn--lg" href="https://www.refactorii.com/p2l-tenant/login">Entrar al panel de flota</a>
+            <a data-i18n="nav.payments" class="btn btn--outline btn--lg" href="tarifas-y-pagos.html">Tarifas y pagos</a>
           </div>
         </div>
       </section>
@@ -1118,6 +1130,7 @@
             <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center;">
               <a data-i18n="fleet.register_driver" class="btn btn--primary btn--lg" href="https://www.refactorii.com/p2l-tenant/login">Registrarme como conductor</a>
               <a data-i18n="fleet.open_fleet" class="btn btn--outline btn--lg" href="https://www.refactorii.com/p2l-tenant/login">Abrir panel de flota</a>
+              <a data-i18n="nav.payments" class="btn btn--outline btn--lg" href="tarifas-y-pagos.html">Tarifas y pagos</a>
             </div>
           </div>
         </div>
@@ -1156,6 +1169,7 @@
           <h4 data-i18n="footer.company">Empresa</h4>
           <ul>
             <li><a data-i18n="modes.fleet" href="#" data-mode="fleet">Panel de flota</a></li>
+            <li><a data-i18n="nav.payments" href="tarifas-y-pagos.html">Tarifas y pagos</a></li>
             <li><a data-i18n="footer.admin_dash" href="https://www.refactorii.com/p2l-tenant/login">Dashboard admin</a></li>
             <li><a data-i18n="footer.plans" href="#fleet-servicios" data-mode="fleet">Planes</a></li>
           </ul>
@@ -1178,8 +1192,8 @@
   </a>
 
   <script src="https://unpkg.com/i18next@23.4.6/i18next.min.js"></script>
-  <script src="scripts/locales-embed.js"></script>
-  <script src="scripts/i18n.js"></script>
+  <script src="scripts/locales-embed.js?v=20260817a"></script>
+  <script src="scripts/i18n.js?v=20260817a"></script>
   <script>
     const TUKI_LINKS = {
       login: 'https://www.refactorii.com/p2l-tenant/login/tuki',
