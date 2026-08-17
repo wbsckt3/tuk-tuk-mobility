@@ -422,7 +422,7 @@
         <h2 data-i18n="payments.s1_title">1. Flujo de dinero</h2>
         <figure class="flow-card">
           <img src="assets/flujo-pagos-p2l.png" alt="Esquema de costos, tarifas, transacciones y planes de pago P2L" data-i18n-aria="payments.s1_img_alt" />
-          <figcaption data-i18n="payments.s1_img_caption">El pasajero paga al conductor. P2L registra la distribución: 80% operativo, 12% empresa, 8% costo de plataforma ya prepagado.</figcaption>
+          <figcaption data-i18n="payments.s1_img_caption">El pasajero paga al conductor. P2L registra la distribución: 80% operativo, 20% empresa, 0% plataforma (el plan cubre el costo).</figcaption>
         </figure>
 
         <div class="split" aria-hidden="true">
@@ -432,19 +432,19 @@
             <p class="split__text" data-i18n="payments.split_driver_text">Participación del viaje. Recibe el pago del pasajero</p>
           </article>
           <article class="split__card split__card--company">
-            <span class="split__pct">12%</span>
+            <span class="split__pct">20%</span>
             <span class="split__who" data-i18n="payments.split_company">Empresa</span>
             <p class="split__text" data-i18n="payments.split_company_text">Ingreso bruto / participación del viaje</p>
           </article>
           <article class="split__card split__card--p2l">
-            <span class="split__pct">8%</span>
+            <span class="split__pct">0%</span>
             <span class="split__who" data-i18n="payments.split_p2l">Plataforma</span>
-            <p class="split__text" data-i18n="payments.split_p2l_text">Costo de plataforma ya prepagado</p>
+            <p class="split__text" data-i18n="payments.split_p2l_text">El plan cubre el costo de la plataforma</p>
           </article>
         </div>
 
         <p data-i18n="payments.s1_p1">P2L no recibe ni guarda el dinero que el pasajero paga por el viaje. El pasajero le paga directamente al conductor. Quien liquida económicamente a la empresa es el conductor, según las reglas de la operación. P2L solo registra esa distribución; no transfiere esos montos.</p>
-        <p data-i18n="payments.s1_p2">La empresa mantiene un saldo prepago para cubrir el costo de usar P2L. Ese costo se consume del saldo en cada viaje. No se vuelve a cobrar al pasajero ni al operativo. Si el saldo no alcanza, la empresa lo recarga antes de seguir operando.</p>
+        <p data-i18n="payments.s1_p2">La empresa compra un plan. Ese plan cubre el costo de la plataforma: no se cobra un porcentaje adicional en el momento del viaje.</p>
         <p data-i18n="payments.s1_p3">El costo de P2L es un costo de operación tecnológica pagado por adelantado, no una comisión que se cobre otra vez sobre cada viaje.</p>
 
         <h2 data-i18n="payments.s2_title">2. Los cuatro participantes del modelo</h2>
@@ -463,7 +463,7 @@
             <ul>
               <li data-i18n="payments.op_l1">Realiza el viaje y recibe directamente el pago del pasajero.</li>
               <li data-i18n="payments.op_l2">Registra en P2L el valor final y el medio de pago utilizado.</li>
-              <li data-i18n="payments.op_l3">Liquida económicamente a la empresa su participación (en el ejemplo, $2.400). P2L no transfiere ese dinero.</li>
+              <li data-i18n="payments.op_l3">Liquida económicamente a la empresa su participación (en el ejemplo, $4.000). P2L no transfiere ese dinero.</li>
               <li data-i18n="payments.op_l4">No necesita un saldo P2L propio. P2L no le cobra de nuevo por el viaje.</li>
             </ul>
           </article>
@@ -474,16 +474,16 @@
               <li data-i18n="payments.co_l2">Define sus tarifas dentro de los límites establecidos por P2L.</li>
               <li data-i18n="payments.co_l3">Compra plan o recarga saldo P2L para usar la infraestructura.</li>
               <li data-i18n="payments.co_l4">Consulta viajes, participaciones y el consumo de su saldo prepago.</li>
-              <li data-i18n="payments.co_l5">Los $2.400 del ejemplo son la participación empresa sugerida / ingreso bruto del viaje.</li>
+              <li data-i18n="payments.co_l5">Los $4.000 del ejemplo son la participación empresa sugerida / ingreso bruto del viaje.</li>
             </ul>
           </article>
           <article class="role">
             <h3 data-i18n="payments.pl_title">P2L / Plataforma</h3>
             <ul>
               <li data-i18n="payments.pl_l1">Proporciona la tecnología para conectar pasajeros, operadores y empresas.</li>
-              <li data-i18n="payments.pl_l2">Registra los viajes y la distribución económica (80 / 12 / 8).</li>
-              <li data-i18n="payments.pl_l3">Calcula el costo de plataforma (platformShare) según el plan.</li>
-              <li data-i18n="payments.pl_l4">Consume ese valor del saldo prepago. No lo cobra otra vez al pasajero ni al operativo.</li>
+              <li data-i18n="payments.pl_l2">Registra los viajes y la distribución económica (80 / 20 / 0).</li>
+              <li data-i18n="payments.pl_l3">El plan cubre el costo de la plataforma. No cobra un porcentaje adicional en el momento del viaje.</li>
+              <li data-i18n="payments.pl_l4">No cobra de nuevo al pasajero ni al operativo por cada viaje.</li>
               <li data-i18n="payments.pl_l5">No custodia ni liquida el dinero del viaje entre las partes.</li>
             </ul>
           </article>
@@ -518,7 +518,7 @@
         <p data-i18n="payments.s5_p1">La empresa define o recibe esa participación sobre el valor del viaje. El pasajero paga al operativo. P2L no presenta ese porcentaje como un cobro adicional en el momento del viaje: su servicio ya está cubierto por el plan y el saldo prepago.</p>
 
         <h2 data-i18n="payments.s6_title">5. Ejemplo: viaje de $20.000</h2>
-        <p data-i18n="payments.s6_p1">Plan Business: 8% de costo de plataforma. Ese 8% ya está cubierto por el saldo prepago de la empresa. No se cobra otra vez al pasajero ni al operativo.</p>
+        <p data-i18n="payments.s6_p1">El plan cubre el costo de la plataforma (0% en el viaje). La empresa recibe el 20% del valor: $4.000. P2L no cobra de nuevo al pasajero ni al operativo.</p>
         <p data-i18n="payments.s6_p2" data-i18n-html>El pasajero entrega <strong>$20.000</strong> directamente al conductor. <strong>P2L no recibe esos $20.000.</strong></p>
         <pre><code>Pasajero
    │
@@ -529,19 +529,19 @@ Conductor / Operativo
    │ liquida económicamente
    ├──────────────► $16.000 Operativo (80%)
    │
-   └──────────────► $2.400 Empresa (12%)
+   └──────────────► $4.000 Empresa (20%)
 
 Empresa
    │
-   │ compra plan / prepaga saldo
+   │ compra el plan
    ▼
 P2L
    │
    │ habilita infraestructura
-   │ consume $1.600 del saldo (8% ya prepagado)
+   │ el plan cubre el costo de la plataforma (0% en el viaje)
    ▼
 Plataforma</code></pre>
-        <p data-i18n="payments.s6_p3" data-i18n-html>Los $16.000 / $2.400 / $1.600 son la <strong>distribución económica registrada</strong>. P2L no hace tres transferencias. Quien liquida a la empresa es el conductor. P2L solo anota que $2.400 son la participación de la empresa y que $1.600 corresponden al costo de plataforma previamente cubierto con el saldo P2L.</p>
+        <p data-i18n="payments.s6_p3" data-i18n-html>Los $16.000 / $4.000 / $0 son la <strong>distribución económica registrada</strong>. P2L no hace tres transferencias. Quien liquida a la empresa es el conductor. P2L solo anota que $4.000 son la participación de la empresa. El plan cubre el costo de la plataforma.</p>
         <div class="table-wrap">
           <table>
             <thead>
@@ -553,17 +553,17 @@ Plataforma</code></pre>
             <tbody>
               <tr><td data-i18n="payments.s6_r1">Pasajero paga al conductor</td><td>$20.000</td></tr>
               <tr><td data-i18n="payments.s6_r2">Participación del operativo</td><td>$16.000</td></tr>
-              <tr><td data-i18n="payments.s6_r3">Participación de la empresa (ingreso bruto)</td><td>$2.400</td></tr>
-              <tr><td data-i18n="payments.s6_r4">Uso de plataforma P2L (ya prepagado)</td><td>$1.600</td></tr>
+              <tr><td data-i18n="payments.s6_r3">Participación de la empresa (ingreso bruto)</td><td>$4.000</td></tr>
+              <tr><td data-i18n="payments.s6_r4">Uso de plataforma P2L (el plan cubre el costo)</td><td>$0</td></tr>
               <tr><td data-i18n="payments.s6_r5">P2L recibe del pasajero</td><td>$0</td></tr>
               <tr><td data-i18n="payments.s6_r6">P2L cobra nuevamente al conductor</td><td>$0</td></tr>
-              <tr><td data-i18n="payments.s6_r7">P2L descuenta del saldo prepago</td><td>$1.600</td></tr>
+              <tr><td data-i18n="payments.s6_r7">P2L descuenta del saldo prepago</td><td>$0</td></tr>
             </tbody>
           </table>
         </div>
-        <p data-i18n="payments.s6_p4">Los $1.600 no son un dinero que P2L vuelva a cobrar. Son el valor económico del uso de P2L en ese viaje, ya financiado por la empresa con su saldo.</p>
-        <p data-i18n="payments.s6_p5" data-i18n-html>Los <strong>$2.400 son la participación empresa sugerida</strong> / ingreso bruto de ese viaje. No representan un retorno sobre inversión.</p>
-        <p class="quote" data-i18n="payments.s6_key">El costo de P2L se paga anticipadamente mediante el saldo de la empresa. En cada viaje, P2L registra y consume el valor correspondiente del saldo, pero no recibe nuevamente dinero del pasajero ni del operativo por ese concepto.</p>
+        <p data-i18n="payments.s6_p4">El plan cubre el costo de la plataforma. En este viaje ese costo es 0% sobre el valor que paga el pasajero.</p>
+        <p data-i18n="payments.s6_p5" data-i18n-html>Los <strong>$4.000 son la participación empresa sugerida</strong> / ingreso bruto de ese viaje. No representan un retorno sobre inversión.</p>
+        <p class="quote" data-i18n="payments.s6_key">El costo de P2L lo cubre el plan. En cada viaje P2L no cobra un porcentaje adicional al pasajero ni al operativo.</p>
         <aside class="clarify">
           <h3 data-i18n="payments.s6_clarify_title">Aclaración</h3>
           <p data-i18n="payments.s6_clarify_lead">P2L no recibe los $20.000 y no resuelve dentro de su plataforma:</p>
@@ -580,7 +580,7 @@ Plataforma</code></pre>
         </aside>
 
         <h2 data-i18n="payments.s7_title">6. Saldo P2L de la empresa</h2>
-        <p data-i18n="payments.s7_p2">El saldo P2L es un prepago de la empresa para usar la infraestructura. No es el dinero de los pasajeros ni el saldo de los conductores. Ejemplo: si recarga $100.000, cada viaje consume el costo de plataforma imputado (en el ejemplo, $1.600) hasta agotar el saldo.</p>
+        <p data-i18n="payments.s7_p2">El saldo P2L es un prepago de la empresa para usar la infraestructura. No es el dinero de los pasajeros ni el saldo de los conductores. El plan cubre el costo de la plataforma: en el viaje de ejemplo ese costo es $0.</p>
         <p class="label" data-i18n="payments.s7_flow_label">Flujo operativo:</p>
         <p><strong data-i18n="payments.s7_flow">Empresa → recarga saldo P2L → P2L consume el costo de plataforma del saldo → la empresa puede continuar operando.</strong></p>
 
@@ -601,7 +601,7 @@ Plataforma</code></pre>
 
         <div class="cta-box">
           <h2 data-i18n="payments.cta_title">Activa tu empresa en P2L</h2>
-          <p data-i18n="payments.cta_text">Recarga tu saldo y opera con una distribución clara: 80% operativo, 12% empresa, 8% costo de plataforma ya prepagado.</p>
+          <p data-i18n="payments.cta_text">Recarga tu saldo y opera con una distribución clara: 80% operativo, 20% empresa, 0% plataforma (el plan cubre el costo).</p>
           <a class="btn btn--primary btn--lg" href="https://www.refactorii.com/p2l-tenant/login" data-i18n="payments.cta_panel">Entrar al panel empresa</a>
         </div>
       </div>
@@ -654,7 +654,7 @@ Plataforma</code></pre>
   </a>
 
   <script src="https://unpkg.com/i18next@23.4.6/i18next.min.js"></script>
-  <script src="scripts/locales-embed.js?v=20260817c"></script>
+  <script src="scripts/locales-embed.js?v=20260817d"></script>
   <script src="scripts/i18n.js?v=20260817a"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
