@@ -288,7 +288,7 @@
     "names_note": "Technical names stay in parentheses when they help development docs. The commercial term comes first.",
     "s1_title": "1. Money flow",
     "s1_img_alt": "P2L costs, fares, transactions, and payment plans diagram",
-    "s1_img_caption": "The passenger pays the driver. P2L records the split: 80% operator, 20% company, 0% platform (the plan covers the cost).",
+    "s1_img_caption": "P2L does not charge a commission on the value of each trip. The company contracts and prepays for platform use through a plan and a prepaid balance. The trip value is split between the driver and the company according to the operating conditions defined by the company.",
     "s1_p1": "P2L does not receive or hold the money the passenger pays for the trip. The passenger pays the driver directly. The driver settles economically with the company, according to the operation’s rules. P2L only records that split; it does not transfer those amounts.",
     "s1_p2": "The company buys a plan. That plan covers the platform cost: no extra percentage is charged at trip time.",
     "phrase_label": "Visible model phrase",

@@ -288,7 +288,7 @@
     "names_note": "Los nombres técnicos se mantienen entre paréntesis cuando sirven para documentación de desarrollo. Primero va el término comercial.",
     "s1_title": "1. Flujo de dinero",
     "s1_img_alt": "Esquema de costos, tarifas, transacciones y planes de pago P2L",
-    "s1_img_caption": "El pasajero paga al conductor. P2L registra la distribución: 80% operativo, 20% empresa, 0% plataforma (el plan cubre el costo).",
+    "s1_img_caption": "P2L no cobra una comisión sobre el valor de cada viaje. La empresa contrata y paga anticipadamente el uso de la plataforma mediante un plan y un saldo prepago. El valor del viaje se distribuye entre el conductor y la empresa según las condiciones de operación definidas por la empresa.",
     "s1_p1": "P2L no recibe ni guarda el dinero que el pasajero paga por el viaje. El pasajero le paga directamente al conductor. Quien liquida económicamente a la empresa es el conductor, según las reglas de la operación. P2L solo registra esa distribución; no transfiere esos montos.",
     "s1_p2": "La empresa compra un plan. Ese plan cubre el costo de la plataforma: no se cobra un porcentaje adicional en el momento del viaje.",
     "phrase_label": "Frase visible del modelo",
