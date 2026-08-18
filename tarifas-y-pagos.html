@@ -211,28 +211,31 @@
     }
 
     .flow-card {
-      margin: 8px 0 28px;
-      padding: 18px;
-      border-radius: 20px;
-      background: linear-gradient(180deg, var(--profile-primary-light), #fff);
-      border: 1px solid var(--profile-primary-border);
-      box-shadow: 0 16px 40px rgba(79, 70, 229, 0.12);
+      margin: 8px 0 24px;
+      padding: 0;
+      border: none;
+      background: none;
+      box-shadow: none;
     }
     .flow-card img {
+      display: block;
       width: auto;
       max-width: 100%;
       height: auto;
       margin-inline: auto;
       object-fit: contain;
-      border-radius: 14px;
-      background: #f8fafc;
-      border: 1px solid var(--line);
+      border: none;
+      border-radius: 0;
+      background: none;
+    }
+    .flow-card--compact img {
+      max-width: min(100%, 480px);
     }
     .flow-card figcaption {
-      margin-top: 12px;
-      font-size: 0.9rem;
-      color: var(--profile-primary-ink);
-      font-weight: 600;
+      margin-top: 10px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      font-weight: 500;
       text-align: center;
     }
 
@@ -500,7 +503,7 @@
       <div class="container">
         <h2 data-i18n="payments.s1_title">1. Flujo de dinero</h2>
         <figure class="flow-card">
-          <img src="assets/flujo-pagos-p2l.png?v=20260817e" alt="Esquema de costos, tarifas, transacciones y planes de pago P2L" data-i18n-aria="payments.s1_img_alt" />
+          <img src="assets/flujo-pagos-p2l.png?v=20260818b" alt="Esquema de costos, tarifas, transacciones y planes de pago P2L" data-i18n-aria="payments.s1_img_alt" />
           <figcaption data-i18n="payments.s1_img_caption">P2L no cobra una comisión sobre el valor de cada viaje. La empresa contrata y paga anticipadamente el uso de la plataforma mediante un plan y un saldo prepago. El valor del viaje se distribuye entre el conductor y la empresa según las condiciones de operación definidas por la empresa.</figcaption>
         </figure>
 
@@ -571,39 +574,10 @@
         <h2 data-i18n="payments.s4_title">3. Cómo se cubre P2L</h2>
         <p data-i18n="payments.s4_p2">El pasajero paga directamente al operativo. La empresa define o recibe una participación sobre el valor del viaje. P2L ya monetiza su servicio con el plan y el saldo prepago de la empresa: no cobra de nuevo en el momento del viaje.</p>
         <p data-i18n="payments.s4_ledger_lead">Hay dos flujos contables en paralelo. Uno es el consumo del plan de la empresa registrada. El otro es el pago del usuario al conductor, que P2L solo registra.</p>
-        <figure class="flow-card">
-          <img src="assets/flujos-contables-p2l.png?v=20260818a" alt="Dos flujos contables: consumo del plan y pago del viaje" data-i18n-aria="payments.s4_ledger_img_alt" />
+        <figure class="flow-card flow-card--compact">
+          <img src="assets/flujos-contables-p2l.png?v=20260818b" alt="Dos flujos contables: consumo del plan y pago del viaje" data-i18n-aria="payments.s4_ledger_img_alt" />
           <figcaption data-i18n="payments.s4_ledger_img_caption">P2L no calcula una comisión sobre el valor del viaje. Monetiza con plan y prepago. El dinero del pasajero va al conductor; la empresa recibe su participación fuera de P2L.</figcaption>
         </figure>
-        <div class="ledger-pair">
-          <article class="ledger">
-            <h3 data-i18n="payments.s4_plan_title">Consumo del plan</h3>
-            <p data-i18n="payments.s4_plan_text">La empresa registrada paga el plan. Ese pago carga el saldo. P2L consume del saldo el uso de la plataforma.</p>
-            <ol class="ledger__flow">
-              <li class="ledger__node" data-i18n="payments.s4_plan_n1">Empresa</li>
-              <li class="ledger__edge" data-i18n="payments.s4_plan_e1">paga plan</li>
-              <li class="ledger__node"><code>subscriptionpayments</code></li>
-              <li class="ledger__edge" aria-hidden="true"></li>
-              <li class="ledger__node"><code>companywallet</code></li>
-              <li class="ledger__edge" data-i18n="payments.s4_plan_e2">consumo</li>
-              <li class="ledger__node"><code>wallettransactions</code></li>
-            </ol>
-          </article>
-          <p class="ledger-pair__mid" data-i18n="payments.s4_meanwhile">Mientras:</p>
-          <article class="ledger">
-            <h3 data-i18n="payments.s4_ride_title">Pago de usuarios a conductores</h3>
-            <p data-i18n="payments.s4_ride_text">El pasajero paga al conductor. P2L registra el viaje y la distribución con la empresa (80 / 20 / 0). No transfiere ese dinero.</p>
-            <ol class="ledger__flow">
-              <li class="ledger__node" data-i18n="payments.s4_ride_n1">Pasajero</li>
-              <li class="ledger__edge">$20.000</li>
-              <li class="ledger__node" data-i18n="payments.s4_ride_n2">Conductor</li>
-              <li class="ledger__edge" aria-hidden="true"></li>
-              <li class="ledger__node"><code>rides</code></li>
-              <li class="ledger__edge" aria-hidden="true"></li>
-              <li class="ledger__node"><code>ridesettlements</code></li>
-            </ol>
-          </article>
-        </div>
         <p data-i18n="payments.s4_ledger_company">La empresa registrada no cobra el viaje a través de P2L. Recibe su 20% del conductor, según las reglas de la operación. El plan habilita la infraestructura; el viaje se liquida entre las partes.</p>
 
         <h2 data-i18n="payments.s5_title">4. Participación empresa sugerida según tu plan</h2>
