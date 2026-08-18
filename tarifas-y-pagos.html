@@ -262,6 +262,83 @@
     .split__who { display: block; font-weight: 800; margin: 4px 0 6px; }
     .split__text { margin: 0; font-size: 0.85rem; color: var(--muted); }
 
+    .ledger-pair {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 18px;
+      align-items: stretch;
+      margin: 8px 0 28px;
+    }
+    .ledger-pair__mid {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      font-weight: 800;
+      color: var(--profile-primary-deep);
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      letter-spacing: 0.04em;
+    }
+    .ledger {
+      padding: 20px 18px 18px;
+      border-radius: 18px;
+      background: #0f172a;
+      color: #e2e8f0;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+    }
+    .ledger h3 {
+      margin: 0 0 8px;
+      color: #fff;
+      font-size: 1.05rem;
+    }
+    .ledger p {
+      margin: 0 0 16px;
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+    .ledger__flow {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    .ledger__node {
+      width: min(100%, 240px);
+      text-align: center;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      font-weight: 700;
+      color: #fff;
+    }
+    .ledger__node code {
+      background: none;
+      color: #67e8f9;
+      padding: 0;
+      font-size: 0.92em;
+    }
+    .ledger__edge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #94a3b8;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 0;
+      line-height: 1.2;
+    }
+    .ledger__edge::after {
+      content: "↓";
+      color: #818cf8;
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
     .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
     .role {
       padding: 18px 18px 8px;
@@ -358,6 +435,8 @@
 
     @media (max-width: 900px) {
       .split, .roles, .footer__grid { grid-template-columns: 1fr 1fr; }
+      .ledger-pair { grid-template-columns: 1fr; }
+      .ledger-pair__mid { writing-mode: horizontal-tb; transform: none; padding: 4px 0; }
     }
     @media (max-width: 720px) {
       .nav {
@@ -491,12 +570,41 @@
 
         <h2 data-i18n="payments.s4_title">3. Cómo se cubre P2L</h2>
         <p data-i18n="payments.s4_p2">El pasajero paga directamente al operativo. La empresa define o recibe una participación sobre el valor del viaje. P2L ya monetiza su servicio con el plan y el saldo prepago de la empresa: no cobra de nuevo en el momento del viaje.</p>
-        <p class="label" data-i18n="payments.s4_formula_label">Fórmula técnica (para desarrolladores):</p>
-        <pre><code>platformShare = clamp(
-  valorFijo + porcentaje * valorFinal,
-  mínimo,
-  máximo
-)</code></pre>
+        <p data-i18n="payments.s4_ledger_lead">Hay dos flujos contables en paralelo. Uno es el consumo del plan de la empresa registrada. El otro es el pago del usuario al conductor, que P2L solo registra.</p>
+        <figure class="flow-card">
+          <img src="assets/flujos-contables-p2l.png?v=20260818a" alt="Dos flujos contables: consumo del plan y pago del viaje" data-i18n-aria="payments.s4_ledger_img_alt" />
+          <figcaption data-i18n="payments.s4_ledger_img_caption">P2L no calcula una comisión sobre el valor del viaje. Monetiza con plan y prepago. El dinero del pasajero va al conductor; la empresa recibe su participación fuera de P2L.</figcaption>
+        </figure>
+        <div class="ledger-pair">
+          <article class="ledger">
+            <h3 data-i18n="payments.s4_plan_title">Consumo del plan</h3>
+            <p data-i18n="payments.s4_plan_text">La empresa registrada paga el plan. Ese pago carga el saldo. P2L consume del saldo el uso de la plataforma.</p>
+            <ol class="ledger__flow">
+              <li class="ledger__node" data-i18n="payments.s4_plan_n1">Empresa</li>
+              <li class="ledger__edge" data-i18n="payments.s4_plan_e1">paga plan</li>
+              <li class="ledger__node"><code>subscriptionpayments</code></li>
+              <li class="ledger__edge" aria-hidden="true"></li>
+              <li class="ledger__node"><code>companywallet</code></li>
+              <li class="ledger__edge" data-i18n="payments.s4_plan_e2">consumo</li>
+              <li class="ledger__node"><code>wallettransactions</code></li>
+            </ol>
+          </article>
+          <p class="ledger-pair__mid" data-i18n="payments.s4_meanwhile">Mientras:</p>
+          <article class="ledger">
+            <h3 data-i18n="payments.s4_ride_title">Pago de usuarios a conductores</h3>
+            <p data-i18n="payments.s4_ride_text">El pasajero paga al conductor. P2L registra el viaje y la distribución con la empresa (80 / 20 / 0). No transfiere ese dinero.</p>
+            <ol class="ledger__flow">
+              <li class="ledger__node" data-i18n="payments.s4_ride_n1">Pasajero</li>
+              <li class="ledger__edge">$20.000</li>
+              <li class="ledger__node" data-i18n="payments.s4_ride_n2">Conductor</li>
+              <li class="ledger__edge" aria-hidden="true"></li>
+              <li class="ledger__node"><code>rides</code></li>
+              <li class="ledger__edge" aria-hidden="true"></li>
+              <li class="ledger__node"><code>ridesettlements</code></li>
+            </ol>
+          </article>
+        </div>
+        <p data-i18n="payments.s4_ledger_company">La empresa registrada no cobra el viaje a través de P2L. Recibe su 20% del conductor, según las reglas de la operación. El plan habilita la infraestructura; el viaje se liquida entre las partes.</p>
 
         <h2 data-i18n="payments.s5_title">4. Participación empresa sugerida según tu plan</h2>
         <div class="table-wrap">
@@ -596,7 +704,7 @@ Plataforma</code></pre>
 
         <div class="note">
           <h2 data-i18n="payments.tech_title">Nota técnica</h2>
-          <p data-i18n="payments.tech_p1">Internamente se registra la distribución del viaje (RideSettlement) y el consumo del saldo prepago. El campo comercial es platformShare / platformAllocation, no un fee cobrado otra vez sobre el viaje.</p>
+          <p data-i18n="payments.tech_p1">Internamente el consumo del plan queda en subscriptionpayments, companywallet y wallettransactions. El viaje y su distribución (80 / 20 / 0) quedan en rides y ridesettlements. No hay comisión calculada sobre el valor del viaje.</p>
         </div>
 
         <div class="cta-box">
@@ -654,7 +762,7 @@ Plataforma</code></pre>
   </a>
 
   <script src="https://unpkg.com/i18next@23.4.6/i18next.min.js"></script>
-  <script src="scripts/locales-embed.js?v=20260817f"></script>
+  <script src="scripts/locales-embed.js?v=20260818a"></script>
   <script src="scripts/i18n.js?v=20260817a"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
