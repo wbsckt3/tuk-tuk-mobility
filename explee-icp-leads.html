@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Explee para P2L: ICP de operadores de mototaxi, tuk-tuk y movilidad local. Cómo probar leads B2B con un agente de outreach." />
+  <meta name="description" content="Explee para P2L: ICP de operadores de mototaxi, tuk-tuk y movilidad local. Cómo probar leads B2B con un agente de outreach." data-i18n-meta="explee.meta_description" />
   <meta name="theme-color" content="#0d9488" />
-  <title>Explee ICP Leads — P2L / Tuk Tuk</title>
+  <title data-i18n="explee.meta_title">Explee ICP Leads — P2L / Tuk Tuk</title>
   <link rel="icon" href="assets/tuki-driver-icon.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -49,6 +49,12 @@
       gap: 12px;
       margin-bottom: 28px;
     }
+    .top__actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
     .brand {
       display: inline-flex;
       align-items: center;
@@ -58,6 +64,30 @@
       font-weight: 800;
     }
     .brand img { height: 40px; width: auto; display: block; }
+    .qa-lang-switch {
+      display: inline-flex;
+      gap: 4px;
+      padding: 3px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+    }
+    .qa-lang-switch__btn {
+      min-width: 2.25rem;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #64748b;
+      cursor: pointer;
+    }
+    .qa-lang-switch__btn--active {
+      background: #0d9488;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35);
+    }
     .btn {
       display: inline-flex;
       align-items: center;
@@ -113,10 +143,7 @@
       color: var(--ink);
     }
     blockquote p { margin: 0; white-space: pre-wrap; }
-    .icp {
-      font-size: 0.95rem;
-      line-height: 1.55;
-    }
+    .icp { font-size: 0.95rem; line-height: 1.55; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -148,150 +175,164 @@
       margin-top: 22px;
       font-size: 0.88rem;
       color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="top">
-      <a class="brand" href="./">
+      <a class="brand" href="./" data-i18n-aria="nav.home" aria-label="Tuk Tuk inicio">
         <img src="assets/tuki-logo.png" alt="Tuk Tuk" />
-        <span>Tuk Tuk · P2L</span>
+        <span data-i18n="explee.brand">Tuk Tuk · P2L</span>
       </a>
-      <a
-        class="btn"
-        href="https://explee.com/?twclid=27gjjwwwz0ya7c0fwe2zkcz0t1&_ref=tw-ag353-c777&utm_source=referral&utm_campaign=tw-ag353-c777"
-        target="_blank"
-        rel="noopener noreferrer"
-      >Abrir agente Explee</a>
+      <div class="top__actions">
+        <div class="qa-lang-switch" role="group" data-i18n-aria="nav.language" aria-label="Idioma">
+          <button type="button" class="qa-lang-switch__btn qa-lang-switch__btn--active" data-set-locale="es" aria-pressed="true">ES</button>
+          <button type="button" class="qa-lang-switch__btn" data-set-locale="en" aria-pressed="false">EN</button>
+        </div>
+        <a
+          class="btn"
+          href="https://explee.com/?twclid=27gjjwwwz0ya7c0fwe2zkcz0t1&_ref=tw-ag353-c777&utm_source=referral&utm_campaign=tw-ag353-c777"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-i18n="explee.open_agent"
+        >Abrir agente Explee</a>
+      </div>
     </div>
 
     <article>
-      <h1>Explee ICP Leads</h1>
-      <p class="lead">Notas para usar Explee en la adquisición B2B de P2L: qué cliente buscar, cómo no vender “otra Uber”, y cómo medir una prueba de $30.</p>
+      <h1 data-i18n="explee.title">Explee ICP Leads</h1>
+      <p class="lead" data-i18n="explee.lead">Notas para usar Explee en la adquisición B2B de P2L: qué cliente buscar, cómo no vender “otra Uber”, y cómo medir una prueba de $30.</p>
 
-      <p>Sí. Para P2L me parece bastante más interesante que Apollo/Geoapify para el tipo de adquisición de clientes que veníamos buscando, pero con una condición importante: hay que definir muy bien qué cliente queremos que Explee busque.</p>
+      <p data-i18n="explee.p1">Sí. Para P2L me parece bastante más interesante que Apollo/Geoapify para el tipo de adquisición de clientes que veníamos buscando, pero con una condición importante: hay que definir muy bien qué cliente queremos que Explee busque.</p>
+      <p data-i18n="explee.p2">Lo revisé directamente. Explee actualmente funciona como un agente de GTM: analiza tu web, intenta entender qué vendes y quién debería comprarte, encuentra prospectos, personaliza emails, gestiona respuestas y puede agendar reuniones. Afirma trabajar sobre una base de 105 millones de empresas y 536 millones de perfiles, y además permite segmentación por geografía.</p>
 
-      <p>Lo revisé directamente. Explee actualmente funciona como un agente de GTM: analiza tu web, intenta entender qué vendes y quién debería comprarte, encuentra prospectos, personaliza emails, gestiona respuestas y puede agendar reuniones. Afirma trabajar sobre una base de 105 millones de empresas y 536 millones de perfiles, y además permite segmentación por geografía.</p>
-
-      <h2>Para P2L veo este encaje</h2>
-      <p>Yo no le diría simplemente:</p>
-      <blockquote><p>Busca empresas de transporte.</p></blockquote>
-      <p>Eso probablemente produciría demasiados resultados genéricos.</p>
-      <p>Le daría un ICP mucho más específico, por ejemplo:</p>
+      <h2 data-i18n="explee.h_fit">Para P2L veo este encaje</h2>
+      <p data-i18n="explee.p3">Yo no le diría simplemente:</p>
+      <blockquote><p data-i18n="explee.q_generic">Busca empresas de transporte.</p></blockquote>
+      <p data-i18n="explee.p4">Eso probablemente produciría demasiados resultados genéricos.</p>
+      <p data-i18n="explee.p5">Le daría un ICP mucho más específico, por ejemplo:</p>
       <blockquote>
-        <p class="icp">Companies operating motorcycle taxis, tuk-tuks, three-wheelers, motorcycle transportation, local mobility, passenger transport or informal/independent driver networks in emerging markets, especially Latin America, Africa, Asia and Southeast Asia. Find founders, owners, CEOs and operations managers who could deploy a white-label mobility platform to manage drivers, passengers, geofenced service areas, ride requests, routing, real-time presence and payments.</p>
+        <p class="icp" data-i18n="explee.icp">Companies operating motorcycle taxis, tuk-tuks, three-wheelers, motorcycle transportation, local mobility, passenger transport or informal/independent driver networks in emerging markets, especially Latin America, Africa, Asia and Southeast Asia. Find founders, owners, CEOs and operations managers who could deploy a white-label mobility platform to manage drivers, passengers, geofenced service areas, ride requests, routing, real-time presence and payments.</p>
       </blockquote>
 
-      <h2>P2L tiene un mercado global muy particular</h2>
-      <p>No estás buscando solamente “empresas de transporte”.</p>
-      <p>Estás buscando operadores de movilidad que todavía no tienen una infraestructura tecnológica propia.</p>
-      <p>Por ejemplo:</p>
+      <h2 data-i18n="explee.h_market">P2L tiene un mercado global muy particular</h2>
+      <p data-i18n="explee.p6">No estás buscando solamente “empresas de transporte”.</p>
+      <p data-i18n="explee.p7">Estás buscando operadores de movilidad que todavía no tienen una infraestructura tecnológica propia.</p>
+      <p data-i18n="explee.p8">Por ejemplo:</p>
       <ul>
-        <li>operadores de mototaxi</li>
-        <li>empresas de tuk-tuk</li>
-        <li>asociaciones de mototaxistas</li>
-        <li>operadores de transporte rural</li>
-        <li>empresas de motorcycle taxi</li>
-        <li>plataformas locales de movilidad</li>
-        <li>cooperativas de conductores</li>
-        <li>empresas de transporte de pasajeros en ciudades pequeñas</li>
-        <li>operadores de three-wheelers</li>
-        <li>empresas que trabajan con flotas de conductores independientes</li>
+        <li data-i18n="explee.l1">operadores de mototaxi</li>
+        <li data-i18n="explee.l2">empresas de tuk-tuk</li>
+        <li data-i18n="explee.l3">asociaciones de mototaxistas</li>
+        <li data-i18n="explee.l4">operadores de transporte rural</li>
+        <li data-i18n="explee.l5">empresas de motorcycle taxi</li>
+        <li data-i18n="explee.l6">plataformas locales de movilidad</li>
+        <li data-i18n="explee.l7">cooperativas de conductores</li>
+        <li data-i18n="explee.l8">empresas de transporte de pasajeros en ciudades pequeñas</li>
+        <li data-i18n="explee.l9">operadores de three-wheelers</li>
+        <li data-i18n="explee.l10">empresas que trabajan con flotas de conductores independientes</li>
       </ul>
-      <p>Y geográficamente yo probaría:</p>
-      <p><strong>Colombia → Latinoamérica → India → África → Sudeste Asiático.</strong></p>
-      <p>Eso es mucho más parecido al mercado natural de P2L.</p>
+      <p data-i18n="explee.p9">Y geográficamente yo probaría:</p>
+      <p><strong data-i18n="explee.geo">Colombia → Latinoamérica → India → África → Sudeste Asiático.</strong></p>
+      <p data-i18n="explee.p10">Eso es mucho más parecido al mercado natural de P2L.</p>
 
-      <h2>Hay otra cosa que me gusta mucho de Explee</h2>
-      <p>No tienes que montar inicialmente toda una infraestructura de Apollo + email + calentamiento de dominios.</p>
-      <p>Explee dice que utiliza sus propios buzones pre-calentados y que el outreach no sale desde tu propio dominio. También permite revisar la lista y los emails antes de lanzar la campaña.</p>
-      <p>Y el modelo de prueba es relativamente barato:</p>
-      <p><strong>$30 ≈ 750 emails</strong>, según su página actual, con un costo aproximado de <strong>$0.04 por email</strong> enviado.</p>
-      <p>La página incluso muestra campañas donde reportan costos de algunos dólares por lead, aunque obviamente eso es marketing del propio Explee y no debemos asumir que P2L conseguirá esos números.</p>
+      <h2 data-i18n="explee.h_like">Hay otra cosa que me gusta mucho de Explee</h2>
+      <p data-i18n="explee.p11">No tienes que montar inicialmente toda una infraestructura de Apollo + email + calentamiento de dominios.</p>
+      <p data-i18n="explee.p12">Explee dice que utiliza sus propios buzones pre-calentados y que el outreach no sale desde tu propio dominio. También permite revisar la lista y los emails antes de lanzar la campaña.</p>
+      <p data-i18n="explee.p13">Y el modelo de prueba es relativamente barato:</p>
+      <p data-i18n="explee.p14">$30 ≈ 750 emails, según su página actual, con un costo aproximado de $0.04 por email enviado.</p>
+      <p data-i18n="explee.p15">La página incluso muestra campañas donde reportan costos de algunos dólares por lead, aunque obviamente eso es marketing del propio Explee y no debemos asumir que P2L conseguirá esos números.</p>
 
-      <h2>Pero yo haría algo diferente con P2L</h2>
-      <p>No utilizaría Explee para vender:</p>
-      <blockquote><p>Tenemos una app tipo Uber.</p></blockquote>
-      <p>Eso te mete directamente en una comparación con cientos de plataformas.</p>
-      <p>Lo utilizaría para vender una idea mucho más potente:</p>
-      <blockquote><p>Turn your local transportation operation into your own mobility platform.</p></blockquote>
-      <p>Es decir:</p>
+      <h2 data-i18n="explee.h_diff">Pero yo haría algo diferente con P2L</h2>
+      <p data-i18n="explee.p16">No utilizaría Explee para vender:</p>
+      <blockquote><p data-i18n="explee.q_uber">Tenemos una app tipo Uber.</p></blockquote>
+      <p data-i18n="explee.p17">Eso te mete directamente en una comparación con cientos de plataformas.</p>
+      <p data-i18n="explee.p18">Lo utilizaría para vender una idea mucho más potente:</p>
+      <blockquote><p data-i18n="explee.q_pitch">Turn your local transportation operation into your own mobility platform.</p></blockquote>
+      <p data-i18n="explee.p19">Es decir:</p>
       <ul>
-        <li>P2L no es Uber.</li>
-        <li>P2L permite que el operador local tenga su propia plataforma de movilidad.</li>
+        <li data-i18n="explee.l11">P2L no es Uber.</li>
+        <li data-i18n="explee.l12">P2L permite que el operador local tenga su propia plataforma de movilidad.</li>
       </ul>
-      <p>Y aquí tus características técnicas empiezan a tener valor comercial:</p>
-      <p><strong>Pasajero → solicitud → conductor → geovalla → ruta → tarifa → chat → presencia → viaje → pago</strong></p>
-      <p>sin necesidad de que el operador construya toda esa infraestructura.</p>
+      <p data-i18n="explee.p20">Y aquí tus características técnicas empiezan a tener valor comercial:</p>
+      <p><strong data-i18n="explee.flow">Pasajero → solicitud → conductor → geovalla → ruta → tarifa → chat → presencia → viaje → pago</strong></p>
+      <p data-i18n="explee.p21">sin necesidad de que el operador construya toda esa infraestructura.</p>
 
-      <h2>Yo haría una prueba de $30</h2>
-      <p>Y no intentaría vender nada todavía.</p>
-      <p>Haría un experimento científico:</p>
+      <h2 data-i18n="explee.h_test">Yo haría una prueba de $30</h2>
+      <p data-i18n="explee.p22">Y no intentaría vender nada todavía.</p>
+      <p data-i18n="explee.p23">Haría un experimento científico:</p>
       <ul>
-        <li><strong>Campaña 1 — Colombia:</strong> 100–200 prospectos.</li>
-        <li><strong>Campaña 2 — Latinoamérica:</strong> 200–300.</li>
-        <li><strong>Campaña 3 — India:</strong> 200–300.</li>
-        <li><strong>Campaña 4 — África / Southeast Asia:</strong> 200–300.</li>
+        <li data-i18n="explee.c1">Campaña 1 — Colombia: 100–200 prospectos.</li>
+        <li data-i18n="explee.c2">Campaña 2 — Latinoamérica: 200–300.</li>
+        <li data-i18n="explee.c3">Campaña 3 — India: 200–300.</li>
+        <li data-i18n="explee.c4">Campaña 4 — África / Southeast Asia: 200–300.</li>
       </ul>
-      <p>Y mediría:</p>
+      <p data-i18n="explee.p24">Y mediría:</p>
       <table>
         <thead>
           <tr>
-            <th>Métrica</th>
-            <th>Lo que queremos saber</th>
+            <th data-i18n="explee.th_metric">Métrica</th>
+            <th data-i18n="explee.th_why">Lo que queremos saber</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>Empresas encontradas</td><td>¿Explee entiende nuestro ICP?</td></tr>
-          <tr><td>Contactos correctos</td><td>¿llega al dueño/CEO/operaciones?</td></tr>
-          <tr><td>Emails entregados</td><td>calidad de datos</td></tr>
-          <tr><td>Respuestas</td><td>interés real</td></tr>
-          <tr><td>Respuestas positivas</td><td>verdadero mercado</td></tr>
-          <tr><td>Demos</td><td>capacidad comercial</td></tr>
-          <tr><td>Pilotos</td><td>la métrica importante</td></tr>
+          <tr><td data-i18n="explee.m1">Empresas encontradas</td><td data-i18n="explee.m1w">¿Explee entiende nuestro ICP?</td></tr>
+          <tr><td data-i18n="explee.m2">Contactos correctos</td><td data-i18n="explee.m2w">¿llega al dueño/CEO/operaciones?</td></tr>
+          <tr><td data-i18n="explee.m3">Emails entregados</td><td data-i18n="explee.m3w">calidad de datos</td></tr>
+          <tr><td data-i18n="explee.m4">Respuestas</td><td data-i18n="explee.m4w">interés real</td></tr>
+          <tr><td data-i18n="explee.m5">Respuestas positivas</td><td data-i18n="explee.m5w">verdadero mercado</td></tr>
+          <tr><td data-i18n="explee.m6">Demos</td><td data-i18n="explee.m6w">capacidad comercial</td></tr>
+          <tr><td data-i18n="explee.m7">Pilotos</td><td data-i18n="explee.m7w">la métrica importante</td></tr>
         </tbody>
       </table>
-      <p>Porque para P2L 10.000 leads no valen nada si ninguno quiere montar una operación.</p>
+      <p data-i18n="explee.p25">Porque para P2L 10.000 leads no valen nada si ninguno quiere montar una operación.</p>
 
-      <h2>Y aquí hay una oportunidad que me parece incluso más interesante</h2>
-      <p>Explee tiene también una base de Google Maps de 218 millones de negocios y segmentos por regiones, incluida Latinoamérica.</p>
-      <p>Eso encaja bastante bien con lo que tú estabas buscando cuando hablábamos de Geoapify.</p>
-      <p>La diferencia es:</p>
+      <h2 data-i18n="explee.h_maps">Y aquí hay una oportunidad que me parece incluso más interesante</h2>
+      <p data-i18n="explee.p26">Explee tiene también una base de Google Maps de 218 millones de negocios y segmentos por regiones, incluida Latinoamérica.</p>
+      <p data-i18n="explee.p27">Eso encaja bastante bien con lo que tú estabas buscando cuando hablábamos de Geoapify.</p>
+      <p data-i18n="explee.p28">La diferencia es:</p>
       <ul>
-        <li><strong>Geoapify</strong> → “dime qué negocios existen alrededor de X”.</li>
-        <li><strong>Explee</strong> → “encuentra empresas que potencialmente pueden comprarme y encuentra a la persona a quien venderle”.</li>
+        <li data-i18n="explee.d1">Geoapify → “dime qué negocios existen alrededor de X”.</li>
+        <li data-i18n="explee.d2">Explee → “encuentra empresas que potencialmente pueden comprarme y encuentra a la persona a quien venderle”.</li>
       </ul>
-      <p>Para adquisición B2B de P2L, la segunda propuesta es muchísimo más cercana a lo que necesitamos.</p>
+      <p data-i18n="explee.p29">Para adquisición B2B de P2L, la segunda propuesta es muchísimo más cercana a lo que necesitamos.</p>
 
-      <h2>Mi conclusión</h2>
-      <p>Sí probaría Explee para P2L.</p>
-      <p>Pero no compraría todavía un plan grande.</p>
-      <p>Haría primero los $30 de prueba y utilizaría <a href="https://www.tuk-tuk.co/">tuk-tuk.co</a> como fuente de contexto para que el agente entienda el producto. La propia plataforma permite comenzar simplemente introduciendo el sitio web y construir la lista antes de ejecutar el outreach.</p>
-      <p>Y hay algo que yo haría contigo antes de lanzar la primera campaña:</p>
-      <p>diseñar el ICP exacto de P2L para Explee, incluyendo países, tipos de empresas, tamaño de flota, palabras clave, cargo del decisor y, sobre todo, el mensaje comercial que debería recibir el operador de mototaxi/tuk-tuk.</p>
-      <p>Eso puede ser mucho más importante que la herramienta misma.</p>
+      <h2 data-i18n="explee.h_concl">Mi conclusión</h2>
+      <p data-i18n="explee.p30">Sí probaría Explee para P2L.</p>
+      <p data-i18n="explee.p31">Pero no compraría todavía un plan grande.</p>
+      <p data-i18n="explee.p32">Haría primero los $30 de prueba y utilizaría tuk-tuk.co como fuente de contexto para que el agente entienda el producto. La propia plataforma permite comenzar simplemente introduciendo el sitio web y construir la lista antes de ejecutar el outreach.</p>
+      <p data-i18n="explee.p33">Y hay algo que yo haría contigo antes de lanzar la primera campaña:</p>
+      <p data-i18n="explee.p34">diseñar el ICP exacto de P2L para Explee, incluyendo países, tipos de empresas, tamaño de flota, palabras clave, cargo del decisor y, sobre todo, el mensaje comercial que debería recibir el operador de mototaxi/tuk-tuk.</p>
+      <p data-i18n="explee.p35">Eso puede ser mucho más importante que la herramienta misma.</p>
 
       <div class="cta-box">
         <p>
-          <strong>Abrir el agente Explee</strong>
-          Empieza con el sitio de producto y el ICP de operadores de movilidad local.
+          <strong data-i18n="explee.cta_title">Abrir el agente Explee</strong>
+          <span data-i18n="explee.cta_text">Empieza con el sitio de producto y el ICP de operadores de movilidad local.</span>
         </p>
         <a
           class="btn"
           href="https://explee.com/?twclid=27gjjwwwz0ya7c0fwe2zkcz0t1&_ref=tw-ag353-c777&utm_source=referral&utm_campaign=tw-ag353-c777"
           target="_blank"
           rel="noopener noreferrer"
+          data-i18n="explee.cta_btn"
         >Ir a Explee</a>
       </div>
 
       <p class="foot">
-        Fuente de referencia:
+        <span data-i18n="explee.source">Fuente de referencia:</span>
         <a href="https://explee.com/?twclid=27gjjwwwz0ya7c0fwe2zkcz0t1&_ref=tw-ag353-c777&utm_source=referral&utm_campaign=tw-ag353-c777" target="_blank" rel="noopener noreferrer">explee.com</a>
-        ·
-        <a class="btn--ghost btn" style="padding:8px 14px;margin-left:6px;display:inline-flex;" href="./">Volver a Tuk Tuk</a>
+        <a class="btn btn--ghost" style="padding:8px 14px;" href="./" data-i18n="explee.back">Volver a Tuk Tuk</a>
       </p>
     </article>
   </div>
+
+  <script src="https://unpkg.com/i18next@23.4.6/i18next.min.js"></script>
+  <script src="scripts/locales-embed.js?v=20261007e"></script>
+  <script src="scripts/i18n.js?v=20260817a"></script>
 </body>
 </html>
