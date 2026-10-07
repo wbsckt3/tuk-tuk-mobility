@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+    <!-- Home: app de mototaxis para pasajeros, conductores y flotas -->
+    <url>
+        <loc>https://www.tuk-tuk.co/</loc>
+        <lastmod>2026-10-07</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- Tarifas y pagos: el pasajero paga al conductor; la flota paga el plan -->
+    <url>
+        <loc>https://www.tuk-tuk.co/tarifas-y-pagos.html</loc>
+        <lastmod>2026-10-07</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+</urlset>

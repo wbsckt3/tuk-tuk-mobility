@@ -1,0 +1,33 @@
+# Tuk Tuk: sitio listo para motores de busqueda de IA.
+# Un grupo compartido: Allow en publico y Disallow en el skill interno.
+# Si un bot de busqueda queda bloqueado, ese motor no puede citar el sitio.
+# OAI-SearchBot = ChatGPT Search. PerplexityBot. Googlebot = Google y AI Overviews.
+# Claude-SearchBot. Bingbot. Google-Extended = Gemini. ClaudeBot = Claude.
+
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Claude-SearchBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: *
+
+Allow: /
+
+Disallow: /skills/
+Disallow: /.git/
+Disallow: /.env
+
+Allow: /assets/
+Allow: /scripts/
+Allow: /locales/
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.webp$
+
+Sitemap: https://www.tuk-tuk.co/sitemap.xml
