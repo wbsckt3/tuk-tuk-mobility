@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Explee para P2L: ICP de operadores de mototaxi, tuk-tuk y movilidad local. Cómo probar leads B2B con un agente de outreach." />
+  <meta name="theme-color" content="#0d9488" />
+  <title>Explee ICP Leads — P2L / Tuk Tuk</title>
+  <link rel="icon" href="assets/tuki-driver-icon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --teal-50: #f0fdfa;
+      --teal-100: #ccfbf1;
+      --teal-600: #0d9488;
+      --teal-700: #0f766e;
+      --teal-800: #115e59;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --white: #ffffff;
+      --radius: 16px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 480px at 10% -10%, rgba(13, 148, 136, 0.14), transparent 55%),
+        radial-gradient(900px 420px at 100% 0%, rgba(15, 118, 110, 0.1), transparent 50%),
+        var(--white);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--teal-700); }
+    .wrap {
+      width: min(760px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 72px;
+    }
+    .top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 800;
+    }
+    .brand img { height: 40px; width: auto; display: block; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 999px;
+      font-weight: 700;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--teal-600), var(--teal-800));
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(13, 148, 136, 0.28);
+    }
+    .btn:hover { filter: brightness(1.05); }
+    .btn--ghost {
+      background: #fff;
+      color: var(--teal-800);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+    article {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px 28px 36px;
+      box-shadow: 0 18px 48px rgba(15, 23, 42, 0.06);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.6rem, 3vw, 2.1rem);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+    .lead {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+    h2 {
+      margin: 28px 0 10px;
+      font-size: 1.15rem;
+      color: var(--teal-800);
+    }
+    p { margin: 0 0 12px; }
+    ul, ol { margin: 0 0 14px; padding-left: 1.2rem; }
+    li { margin: 0 0 6px; }
+    blockquote {
+      margin: 16px 0;
+      padding: 14px 16px;
+      border-left: 4px solid var(--teal-600);
+      background: var(--teal-50);
+      border-radius: 0 12px 12px 0;
+      color: var(--ink);
+    }
+    blockquote p { margin: 0; white-space: pre-wrap; }
+    .icp {
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--teal-50); color: var(--teal-800); }
+    .cta-box {
+      margin-top: 28px;
+      padding: 20px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--teal-50), #fff);
+      border: 1px solid var(--teal-100);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .cta-box p { margin: 0; max-width: 42ch; color: var(--muted); }
+    .cta-box strong { color: var(--ink); display: block; margin-bottom: 4px; }
+    .foot {
+      margin-top: 22px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <a class="brand" href="./">
+        <img src="assets/tuki-logo.png" alt="Tuk Tuk" />
+        <span>Tuk Tuk · P2L</span>
+      </a>
+      <a
+        class="btn"
+        href="https://explee.com/?twclid=27gjjwwwz0ya7c0fwe2zkcz0t1&_ref=tw-ag353-c777&utm_source=referral&utm_campaign=tw-ag353-c777"
+        target="_blank"
+        rel="noopener noreferrer"
+      >Abrir agente Explee</a>
+    </div>
+
+    <article>
+      <h1>Explee ICP Leads</h1>
+      <p class="lead">Notas para usar Explee en la adquisición B2B de P2L: qué cliente buscar, cómo no vender “otra Uber”, y cómo medir una prueba de $30.</p>
+
+      <p>Sí. Para P2L me parece bastante más interesante que Apollo/Geoapify para el tipo de adquisición de clientes que veníamos buscando, pero con una condición importante: hay que definir muy bien qué cliente queremos que Explee busque.</p>
+
+      <p>Lo revisé directamente. Explee actualmente funciona como un agente de GTM: analiza tu web, intenta entender qué vendes y quién debería comprarte, encuentra prospectos, personaliza emails, gestiona respuestas y puede agendar reuniones. Afirma trabajar sobre una base de 105 millones de empresas y 536 millones de perfiles, y además permite segmentación por geografía.</p>
+
+      <h2>Para P2L veo este encaje</h2>
+      <p>Yo no le diría simplemente:</p>
+      <blockquote><p>Busca empresas de transporte.</p></blockquote>
+      <p>Eso probablemente produciría demasiados resultados genéricos.</p>
+      <p>Le daría un ICP mucho más específico, por ejemplo:</p>
+      <blockquote>
+        <p class="icp">Companies operating motorcycle taxis, tuk-tuks, three-wheelers, motorcycle transportation, local mobility, passenger transport or informal/independent driver networks in emerging markets, especially Latin America, Africa, Asia and Southeast Asia. Find founders, owners, CEOs and operations managers who could deploy a white-label mobility platform to manage drivers, passengers, geofenced service areas, ride requests, routing, real-time presence and payments.</p>
+      </blockquote>
+
+      <h2>P2L tiene un mercado global muy particular</h2>
+      <p>No estás buscando solamente “empresas de transporte”.</p>
+      <p>Estás buscando operadores de movilidad que todavía no tienen una infraestructura tecnológica propia.</p>
+      <p>Por ejemplo:</p>
+      <ul>
+        <li>operadores de mototaxi</li>
+        <li>empresas de tuk-tuk</li>
+        <li>asociaciones de mototaxistas</li>
+        <li>operadores de transporte rural</li>
+        <li>empresas de motorcycle taxi</li>
+        <li>plataformas locales de movilidad</li>
+        <li>cooperativas de conductores</li>
+        <li>empresas de transporte de pasajeros en ciudades pequeñas</li>
+        <li>operadores de three-wheelers</li>
+        <li>empresas que trabajan con flotas de conductores independientes</li>
+      </ul>
+      <p>Y geográficamente yo probaría:</p>
+      <p><strong>Colombia → Latinoamérica → India → África → Sudeste Asiático.</strong></p>
+      <p>Eso es mucho más parecido al mercado natural de P2L.</p>
+
+      <h2>Hay otra cosa que me gusta mucho de Explee</h2>
+      <p>No tienes que montar inicialmente toda una infraestructura de Apollo + email + calentamiento de dominios.</p>
+      <p>Explee dice que utiliza sus propios buzones pre-calentados y que el outreach no sale desde tu propio dominio. También permite revisar la lista y los emails antes de lanzar la campaña.</p>
+      <p>Y el modelo de prueba es relativamente barato:</p>
+      <p><strong>$30 ≈ 750 emails</strong>, según su página actual, con un costo aproximado de <strong>$0.04 por email</strong> enviado.</p>
+      <p>La página incluso muestra campañas donde reportan costos de algunos dólares por lead, aunque obviamente eso es marketing del propio Explee y no debemos asumir que P2L conseguirá esos números.</p>
+
+      <h2>Pero yo haría algo diferente con P2L</h2>
+      <p>No utilizaría Explee para vender:</p>
+      <blockquote><p>Tenemos una app tipo Uber.</p></blockquote>
+      <p>Eso te mete directamente en una comparación con cientos de plataformas.</p>
+      <p>Lo utilizaría para vender una idea mucho más potente:</p>
+      <blockquote><p>Turn your local transportation operation into your own mobility platform.</p></blockquote>
+      <p>Es decir:</p>
+      <ul>
+        <li>P2L no es Uber.</li>
+        <li>P2L permite que el operador local tenga su propia plataforma de movilidad.</li>
+      </ul>
+      <p>Y aquí tus características técnicas empiezan a tener valor comercial:</p>
+      <p><strong>Pasajero → solicitud → conductor → geovalla → ruta → tarifa → chat → presencia → viaje → pago</strong></p>
+      <p>sin necesidad de que el operador construya toda esa infraestructura.</p>
+
+      <h2>Yo haría una prueba de $30</h2>
+      <p>Y no intentaría vender nada todavía.</p>
+      <p>Haría un experimento científico:</p>
+      <ul>
+        <li><strong>Campaña 1 — Colombia:</strong> 100–200 prospectos.</li>
+        <li><strong>Campaña 2 — Latinoamérica:</strong> 200–300.</li>
+        <li><strong>Campaña 3 — India:</strong> 200–300.</li>
+        <li><strong>Campaña 4 — África / Southeast Asia:</strong> 200–300.</li>
+      </ul>
+      <p>Y mediría:</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Métrica</th>
+            <th>Lo que queremos saber</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Empresas encontradas</td><td>¿Explee entiende nuestro ICP?</td></tr>
+          <tr><td>Contactos correctos</td><td>¿llega al dueño/CEO/operaciones?</td></tr>
+          <tr><td>Emails entregados</td><td>calidad de datos</td></tr>
+          <tr><td>Respuestas</td><td>interés real</td></tr>
+          <tr><td>Respuestas positivas</td><td>verdadero mercado</td></tr>
+          <tr><td>Demos</td><td>capacidad comercial</td></tr>
+          <tr><td>Pilotos</td><td>la métrica importante</td></tr>
+        </tbody>
+      </table>
+      <p>Porque para P2L 10.000 leads no valen nada si ninguno quiere montar una operación.</p>
+
+      <h2>Y aquí hay una oportunidad que me parece incluso más interesante</h2>
+      <p>Explee tiene también una base de Google Maps de 218 millones de negocios y segmentos por regiones, incluida Latinoamérica.</p>
+      <p>Eso encaja bastante bien con lo que tú estabas buscando cuando hablábamos de Geoapify.</p>
+      <p>La diferencia es:</p>
+      <ul>
+        <li><strong>Geoapify</strong> → “dime qué negocios existen alrededor de X”.</li>
+        <li><strong>Explee</strong> → “encuentra empresas que potencialmente pueden comprarme y encuentra a la persona a quien venderle”.</li>
+      </ul>
+      <p>Para adquisición B2B de P2L, la segunda propuesta es muchísimo más cercana a lo que necesitamos.</p>
+
+      <h2>Mi conclusión</h2>
+      <p>Sí probaría Explee para P2L.</p>
+      <p>Pero no compraría todavía un plan grande.</p>
+      <p>Haría primero los $30 de prueba y utilizaría <a href="https://www.tuk-tuk.co/">tuk-tuk.co</a> como fuente de contexto para que el agente entienda el producto. La propia plataforma permite comenzar simplemente introduciendo el sitio web y construir la lista antes de ejecutar el outreach.</p>
+      <p>Y hay algo que yo haría contigo antes de lanzar la primera campaña:</p>
+      <p>diseñar el ICP exacto de P2L para Explee, incluyendo países, tipos de empresas, tamaño de flota, palabras clave, cargo del decisor y, sobre todo, el mensaje comercial que debería recibir el operador de mototaxi/tuk-tuk.</p>
+      <p>Eso puede ser mucho más importante que la herramienta misma.</p>
+
+      <div class="cta-box">
+        <p>
+          <strong>Abrir el agente Explee</strong>
+          Empieza con el sitio de producto y el ICP de operadores de movilidad local.
+        </p>
+        <a
+          class="btn"
+          href="https://explee.com/?twclid=27gjjwwwz0ya7c0fwe2zkcz0t1&_ref=tw-ag353-c777&utm_source=referral&utm_campaign=tw-ag353-c777"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Ir a Explee</a>
+      </div>
+
+      <p class="foot">
+        Fuente de referencia:
+        <a href="https://explee.com/?twclid=27gjjwwwz0ya7c0fwe2zkcz0t1&_ref=tw-ag353-c777&utm_source=referral&utm_campaign=tw-ag353-c777" target="_blank" rel="noopener noreferrer">explee.com</a>
+        ·
+        <a class="btn--ghost btn" style="padding:8px 14px;margin-left:6px;display:inline-flex;" href="./">Volver a Tuk Tuk</a>
+      </p>
+    </article>
+  </div>
+</body>
+</html>
