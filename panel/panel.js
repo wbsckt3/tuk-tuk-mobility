@@ -557,7 +557,7 @@
     root.className = 'tg-co';
     root.innerHTML =
       '<div class="tg-gate"><div class="tg-gate__card">' +
-      '<p class="tg-gate__brand">Tech<em>Guard</em></p>' +
+      '<p class="tg-gate__brand">P2L</p>' +
       '<p class="tg-gate__eyebrow">Panel de empresa · Bot WhatsApp IA</p>' +
       '<p class="tg-gate__lead">Escribe la clave de empresa que te entregó el cluster. ' +
       'Solo la primera vez: después este enlace abrirá tu panel directamente.</p>' +
@@ -982,7 +982,7 @@
       $('#tg-root').className = 'tg-co';
       $('#tg-root').innerHTML =
         '<div class="tg-gate"><div class="tg-gate__card">' +
-        '<p class="tg-gate__brand">Tech<em>Guard</em></p>' +
+        '<p class="tg-gate__brand">P2L</p>' +
         '<p class="tg-gate__eyebrow">Panel de empresa</p>' +
         '<p class="tg-gate__lead">Este enlace no trae el identificador de tu empresa. ' +
         'Abre el enlace completo que te envió el cluster.</p></div></div>';
