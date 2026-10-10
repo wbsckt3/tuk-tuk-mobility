@@ -688,6 +688,20 @@ html, body {
 .tg-hidden { display: none !important; }
 .tg-loading { padding: 40px 16px; text-align: center; color: var(--muted); }
 
+.tg-plan-flag {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--leaf-deep);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+.is-plan-off { filter: grayscale(1); opacity: 0.62; }
+.tg-plan-lock { margin: 0 0 8px; color: #6b6560; font-size: 0.82rem; font-weight: 700; }
+
 #p2l-support-fab {
   position: fixed;
   right: 18px;
