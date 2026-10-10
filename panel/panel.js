@@ -763,6 +763,48 @@
     );
   }
 
+  function planOn(id) {
+    var caps = state.company && state.company.planSpec && state.company.planSpec.agentCapabilities;
+    if (caps && typeof caps[id] === 'boolean') return caps[id] === true;
+    return id !== 'devopsChat';
+  }
+
+  function markPlanOff(el) {
+    if (!el || el.classList.contains('is-plan-off')) return;
+    el.classList.add('is-plan-off');
+    el.querySelectorAll('input, textarea, select, button').forEach(function (node) {
+      node.disabled = true;
+    });
+    if (!el.querySelector('.tg-plan-lock')) {
+      var note = document.createElement('p');
+      note.className = 'tg-plan-lock';
+      note.textContent = 'Tu plan no incluye esta capacidad.';
+      el.insertBefore(note, el.firstChild);
+    }
+  }
+
+  function applyPlanLocks() {
+    if (!planOn('groq')) markPlanOff(document.querySelector('.tg-board__ai'));
+    if (!planOn('geoapify')) markPlanOff(document.querySelector('.tg-board__geo'));
+    if (!planOn('chat')) markPlanOff(document.querySelector('.tg-board__chats'));
+    if (!planOn('skill')) {
+      var skill = document.getElementById('tg-skill');
+      if (skill) markPlanOff(skill.closest('.tg-ctx__block'));
+    }
+    if (!planOn('capabilities')) {
+      var caps = document.getElementById('tg-caps');
+      if (caps) markPlanOff(caps.closest('.tg-ctx__block'));
+      markPlanOff(document.querySelector('.tg-ctx__block--links'));
+    }
+    if (!planOn('whatsapp')) {
+      markPlanOff(document.querySelector('.tg-board__wa'));
+      markPlanOff(document.querySelector('.tg-board__tutorial'));
+      markPlanOff(document.querySelector('.tg-float-kit'));
+    }
+    var ctxSave = document.getElementById('tg-save-ctx');
+    if (ctxSave && !planOn('skill') && !planOn('capabilities')) ctxSave.disabled = true;
+  }
+
   function renderPanel() {
     var c = state.company;
     document.title = (c.name || 'Empresa') + ' · Bot WhatsApp IA';
@@ -774,8 +816,9 @@
       '<header class="tg-co__header"><div class="tg-co__title">' +
       '<p class="tg-co__eyebrow">' + esc(c.name || 'Empresa') + ' · Bot WhatsApp IA</p>' +
       '<h1>' + esc(c.name || 'Empresa') + '</h1>' +
-      '<div class="tg-co__meta"><span class="tg-muted">Plan ' +
-      esc((c.planSpec && c.planSpec.name) || c.plan) + ' · WA ' + esc(c.waManagedBy) + ' · ' +
+      '<div class="tg-co__meta"><span class="tg-plan-flag">Plan ' +
+      esc((c.planSpec && c.planSpec.name) || c.plan) + '</span>' +
+      '<span class="tg-muted">WA ' + esc(c.waManagedBy) + ' · ' +
       esc(c.subscriptionStatus) + '</span></div></div>' +
       '<div class="tg-co__nav"><button type="button" class="tg-btn ghost" id="tg-logout">Salir</button></div>' +
       '</header>' +
@@ -871,6 +914,7 @@
     bindCopy('#tg-copy-webhook', '#tg-wa-webhook', 'Webhook copiado. Pégalo en «URL de devolución de llamada» en Meta');
     bindCopy('#tg-copy-verify', '#tg-wa-verify', 'Verify token copiado. Pégalo en el Paso 2 de developers.facebook.com');
     startChatLive();
+    applyPlanLocks();
     mountP2lSupportChat();
   }
 
