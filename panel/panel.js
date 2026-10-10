@@ -402,6 +402,7 @@
           function (ack) {
             state.chatSocketOk = !!(ack && ack.ok);
             setLiveBadge();
+            flushP2lSupport();
           }
         );
       });
@@ -417,6 +418,8 @@
         state.chatSocketOk = false;
         setLiveBadge();
       });
+      chatSocket.off('chatMessage', onP2lSupportMessage);
+      chatSocket.on('chatMessage', onP2lSupportMessage);
     });
   }
 
@@ -553,6 +556,7 @@
   /* ── pantalla de acceso ──────────────────────────────────────────────── */
 
   function renderGate(msg) {
+    mountP2lSupportChat(false);
     var root = $('#tg-root');
     root.className = 'tg-co';
     root.innerHTML =
@@ -867,6 +871,7 @@
     bindCopy('#tg-copy-webhook', '#tg-wa-webhook', 'Webhook copiado. Pégalo en «URL de devolución de llamada» en Meta');
     bindCopy('#tg-copy-verify', '#tg-wa-verify', 'Verify token copiado. Pégalo en el Paso 2 de developers.facebook.com');
     startChatLive();
+    mountP2lSupportChat();
   }
 
   function bindCopy(btnSel, inputSel, msg) {
@@ -974,9 +979,184 @@
       .catch(onError);
   }
 
+  /* ── chat de soporte P2L (mismo canal chatMessage del Semantic IDE) ── */
+
+  var P2L_SUPPORT_TO = 'jaalza@gmail.com';
+  var p2lSupportRows = [];
+  var p2lSupportOpen = false;
+  var p2lSupportUnread = 0;
+
+  function p2lSupportMe() {
+    return 'tg-portal-' + (state.companyId || '');
+  }
+
+  function p2lSupportRoom() {
+    return 'direct-' + [p2lSupportMe(), P2L_SUPPORT_TO].sort().join('_');
+  }
+
+  function devopsChatEnabled() {
+    var caps = state.company && state.company.planSpec && state.company.planSpec.agentCapabilities;
+    return !!(caps && caps.devopsChat === true);
+  }
+
+  function p2lSupportStoreKey() {
+    return 'p2l-support-chat-' + (state.companyId || 'x');
+  }
+
+  function loadP2lSupportRows() {
+    try {
+      var raw = sessionStorage.getItem(p2lSupportStoreKey());
+      var parsed = raw ? JSON.parse(raw) : [];
+      p2lSupportRows = Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      p2lSupportRows = [];
+    }
+  }
+
+  function saveP2lSupportRows() {
+    try {
+      var slim = p2lSupportRows.slice(-80).map(function (r) {
+        return { id: r.id, text: r.text, mine: !!r.mine };
+      });
+      sessionStorage.setItem(p2lSupportStoreKey(), JSON.stringify(slim));
+    } catch (e) {}
+  }
+
+  function flushP2lSupport() {
+    if (!chatSocket || !chatSocket.connected) return;
+    p2lSupportRows.forEach(function (row) {
+      if (!row.pending || !row.payload) return;
+      chatSocket.emit('chatMessage', row.payload);
+      row.pending = false;
+      row.payload = null;
+    });
+  }
+
+  function mountP2lSupportChat(force) {
+    var on = force === false ? false : devopsChatEnabled();
+    var oldFab = document.getElementById('p2l-support-fab');
+    var oldBox = document.getElementById('p2l-support-box');
+    if (!on) {
+      if (oldFab) oldFab.remove();
+      if (oldBox) oldBox.remove();
+      p2lSupportOpen = false;
+      return;
+    }
+    if (!p2lSupportRows.length) loadP2lSupportRows();
+    if (!oldFab) {
+      var fab = document.createElement('button');
+      fab.id = 'p2l-support-fab';
+      fab.type = 'button';
+      fab.setAttribute('aria-label', 'Chat de soporte P2L');
+      fab.innerHTML = '<span class="p2l-support-fab__mark">P2L</span><span>Soporte</span>';
+      fab.addEventListener('click', function () {
+        p2lSupportOpen = !p2lSupportOpen;
+        p2lSupportUnread = 0;
+        renderP2lSupport();
+      });
+      document.body.appendChild(fab);
+    }
+    renderP2lSupport();
+  }
+
+  function renderP2lSupport() {
+    var fab = document.getElementById('p2l-support-fab');
+    if (fab) fab.classList.toggle('has-unread', p2lSupportUnread > 0 && !p2lSupportOpen);
+    var box = document.getElementById('p2l-support-box');
+    if (!p2lSupportOpen) {
+      if (box) box.remove();
+      return;
+    }
+    if (!box) {
+      box = document.createElement('section');
+      box.id = 'p2l-support-box';
+      box.className = 'p2l-support';
+      box.setAttribute('role', 'dialog');
+      box.setAttribute('aria-label', 'Chat de soporte P2L');
+      document.body.appendChild(box);
+    }
+    var company = (state.company && state.company.name) || 'tu empresa';
+    var rows = p2lSupportRows.map(function (m) {
+      return '<div class="p2l-support__row ' + (m.mine ? 'is-mine' : 'is-theirs') + '"><p>' + esc(m.text) + '</p></div>';
+    }).join('');
+    box.innerHTML =
+      '<header class="p2l-support__head"><div><strong>Soporte P2L</strong><span>Devops · ' + esc(company) + '</span></div>' +
+      '<button type="button" id="p2l-support-close" aria-label="Cerrar">×</button></header>' +
+      '<div class="p2l-support__log" id="p2l-support-log">' +
+      (rows || '<p class="p2l-support__empty">Escribe a soporte P2L. La respuesta llega por el mismo chat del Semantic IDE.</p>') +
+      '</div>' +
+      '<form class="p2l-support__form" id="p2l-support-form">' +
+      '<input id="p2l-support-input" maxlength="2000" placeholder="Mensaje para soporte P2L" autocomplete="off" />' +
+      '<button type="submit">Enviar</button></form>';
+    var log = document.getElementById('p2l-support-log');
+    if (log) log.scrollTop = log.scrollHeight;
+    document.getElementById('p2l-support-close').addEventListener('click', function () {
+      p2lSupportOpen = false;
+      renderP2lSupport();
+    });
+    document.getElementById('p2l-support-form').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var input = document.getElementById('p2l-support-input');
+      var text = input && input.value ? input.value.trim() : '';
+      if (!text) return;
+      sendP2lSupport(text);
+      input.value = '';
+    });
+    var input = document.getElementById('p2l-support-input');
+    if (input) input.focus();
+  }
+
+  function sendP2lSupport(text) {
+    var me = p2lSupportMe();
+    var room = p2lSupportRoom();
+    var company = (state.company && state.company.name) || 'Empresa';
+    var message = {
+      id: 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+      text: text,
+      from: me,
+      to: P2L_SUPPORT_TO,
+      fromName: company,
+      fromProfile: 'techguard-wa-portal',
+      chatId: room,
+      roomId: room,
+      timestamp: new Date().toISOString()
+    };
+    var payload = {
+      message: message,
+      from: me,
+      to: P2L_SUPPORT_TO,
+      text: text,
+      chatId: room,
+      roomId: room
+    };
+    var row = { id: message.id, text: text, mine: true, pending: true, payload: payload };
+    p2lSupportRows.push(row);
+    saveP2lSupportRows();
+    renderP2lSupport();
+    flushP2lSupport();
+  }
+
+  function onP2lSupportMessage(data) {
+    if (!devopsChatEnabled()) return;
+    var msg = (data && data.message) || data || {};
+    var me = p2lSupportMe();
+    var from = String(msg.from || (data && data.from) || '');
+    var to = String(msg.to || (data && data.to) || '');
+    if (!from || from === me) return;
+    if (to && to !== me) return;
+    var text = String(msg.text || '').trim();
+    if (!text) return;
+    if (msg.id && p2lSupportRows.some(function (row) { return row.id === msg.id; })) return;
+    p2lSupportRows.push({ id: msg.id || ('in_' + Date.now()), text: text, mine: false });
+    saveP2lSupportRows();
+    if (!p2lSupportOpen) p2lSupportUnread += 1;
+    if (document.getElementById('p2l-support-fab')) renderP2lSupport();
+  }
+
   /* ── arranque ────────────────────────────────────────────────────────── */
 
   function boot() {
+    mountP2lSupportChat(false);
     state.companyId = readCompanyId();
     if (!state.companyId) {
       $('#tg-root').className = 'tg-co';
