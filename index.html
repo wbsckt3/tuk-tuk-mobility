@@ -637,6 +637,19 @@
       font-size: 1.85rem;
       line-height: 1;
     }
+    .wa-float.is-off {
+      background: #c5c1b8;
+      filter: grayscale(1);
+      opacity: 0.72;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .wa-float.is-off:hover,
+    .wa-float.is-off:focus-visible {
+      transform: none;
+      background: #c5c1b8;
+      box-shadow: none;
+    }
     @media (max-width: 420px) {
       .wa-float {
         width: 52px;
@@ -1192,16 +1205,7 @@
     </div>
   </footer>
 
-  <a
-    class="wa-float"
-    href="https://wa.me/573237804250?text=Hola%20agente%20de%20Tuk%20Tuk!%20quiero%20mas%20info%20para%20mi%20negocio"
-    target="_blank"
-    rel="noopener noreferrer"
-    data-i18n-aria="nav.whatsapp"
-    aria-label="Contactar por WhatsApp al 323 780 4250"
-    title="WhatsApp"
-  >
-    <i class="fa-brands fa-whatsapp wa-float__icon" aria-hidden="true"></i>
+  <a id="p2l-wa-float" class="wa-float is-off" href="#" data-company-id="6a9f2cf3f5bd72cfd668b99a" aria-disabled="true" aria-label="WhatsApp" title="Contrata o configura WhatsApp (WABA Meta) para activar este botón"><i class="fa-brands fa-whatsapp wa-float__icon" aria-hidden="true"></i>
   </a>
 
   <script src="https://unpkg.com/i18next@23.4.6/i18next.min.js"></script>
@@ -1411,5 +1415,30 @@
       setMode(currentMode, { skipScroll: true });
     }
   </script>
+
+  <script>
+    (function () {
+      var el = document.getElementById('p2l-wa-float');
+      if (!el) return;
+      var id = el.getAttribute('data-company-id') || '';
+      el.addEventListener('click', function (ev) {
+        if (el.classList.contains('is-off')) ev.preventDefault();
+      });
+      if (!id) return;
+      fetch('https://www.refactorii.com/p2l-tenant/api/p2l-techguard-whatsapp-bot/public/company/' + encodeURIComponent(id) + '/channels')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data || !data.whatsapp || !data.waLink) return;
+          el.classList.remove('is-off');
+          el.setAttribute('href', data.waLink);
+          el.setAttribute('target', '_blank');
+          el.setAttribute('rel', 'noopener noreferrer');
+          el.removeAttribute('aria-disabled');
+          el.removeAttribute('title');
+        })
+        .catch(function () {});
+    })();
+  </script>
+
 </body>
 </html>
