@@ -1033,30 +1033,38 @@
   }
 
   function mountP2lSupportChat(force) {
-    var on = force === false ? false : devopsChatEnabled();
     var oldFab = document.getElementById('p2l-support-fab');
     var oldBox = document.getElementById('p2l-support-box');
-    if (!on) {
+    if (force === false) {
       if (oldFab) oldFab.remove();
       if (oldBox) oldBox.remove();
       p2lSupportOpen = false;
       return;
     }
-    if (!p2lSupportRows.length) loadP2lSupportRows();
-    if (!oldFab) {
-      var fab = document.createElement('button');
-      fab.id = 'p2l-support-fab';
-      fab.type = 'button';
-      fab.setAttribute('aria-label', 'Chat de soporte P2L');
-      fab.innerHTML = '<span class="p2l-support-fab__mark">P2L</span><span>Soporte</span>';
+    var on = devopsChatEnabled();
+    if (!on && oldBox) oldBox.remove();
+    if (!on) p2lSupportOpen = false;
+    if (oldFab) oldFab.remove();
+    if (on && !p2lSupportRows.length) loadP2lSupportRows();
+    var fab = document.createElement('button');
+    fab.id = 'p2l-support-fab';
+    fab.type = 'button';
+    fab.setAttribute('aria-label', 'Chat de soporte P2L');
+    fab.innerHTML = '<span class="p2l-support-fab__mark">P2L</span><span>Soporte</span>';
+    if (!on) {
+      fab.className = 'is-locked';
+      fab.setAttribute('aria-disabled', 'true');
+      fab.title = 'Contrata Soporte Devops P2L Chat para activar este chat';
+    } else {
+      fab.title = 'Chat de soporte P2L';
       fab.addEventListener('click', function () {
         p2lSupportOpen = !p2lSupportOpen;
         p2lSupportUnread = 0;
         renderP2lSupport();
       });
-      document.body.appendChild(fab);
     }
-    renderP2lSupport();
+    document.body.appendChild(fab);
+    if (on) renderP2lSupport();
   }
 
   function renderP2lSupport() {
