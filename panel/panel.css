@@ -38,27 +38,29 @@ html, body {
 .tg-co__header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   margin-bottom: 12px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--line);
 }
-.tg-co__title { flex: 1; min-width: 0; }
-.tg-co__eyebrow {
-  margin: 0 0 2px;
-  color: var(--leaf-ink);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.tg-co h1 {
-  margin: 0 0 4px;
-  font-size: clamp(1.2rem, 2vw, 1.45rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
+.tg-co__headline {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
   color: var(--ink);
+  white-space: nowrap;
+  overflow-x: auto;
+}
+.tg-co__sep {
+  display: inline-block;
+  margin: 0 0.45em;
+  color: var(--leaf-ink);
+  font-weight: 800;
 }
 .tg-co__meta {
   display: flex;
@@ -298,6 +300,26 @@ html, body {
   text-align: center;
 }
 
+.tg-learn {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.tg-learn a {
+  margin-left: 8px;
+  color: var(--leaf-ink);
+  font-weight: 600;
+}
+.tg-float-kit { margin-top: 10px; }
+.tg-float-kit__code {
+  min-height: 120px;
+  max-height: 160px;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  white-space: pre;
+  overflow: auto;
+}
 .tg-ctx__lead {
   margin: 2px 0 0;
   font-size: 0.82rem;
@@ -721,7 +743,8 @@ html, body {
   box-shadow: 0 10px 24px rgba(20, 122, 76, 0.28);
   cursor: pointer;
 }
-#p2l-support-fab.has-unread { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--leaf); }#p2l-support-fab.is-locked {
+#p2l-support-fab.has-unread { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--leaf); }
+#p2l-support-fab.is-locked {
   background: #c5c1b8;
   color: #5c574e;
   box-shadow: none;
