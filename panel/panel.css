@@ -707,7 +707,17 @@ html, body {
   box-shadow: 0 10px 24px rgba(20, 122, 76, 0.28);
   cursor: pointer;
 }
-#p2l-support-fab.has-unread { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--leaf); }
+#p2l-support-fab.has-unread { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--leaf); }#p2l-support-fab.is-locked {
+  background: #c5c1b8;
+  color: #5c574e;
+  box-shadow: none;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+#p2l-support-fab.is-locked .p2l-support-fab__mark {
+  background: #eee;
+  color: #8a847a;
+}
 .p2l-support-fab__mark {
   display: grid;
   place-items: center;
