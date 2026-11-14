@@ -39,7 +39,7 @@
     [hidden] { display: none !important; }
 
     /* —— Entrada con Google —— */
-    .gate { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 32px 24px; text-align: center; }
+    .gate { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 32px 24px 96px; text-align: center; }
     .gate img { width: 96px; height: 96px; object-fit: contain; border-radius: 24px; background: #fff; padding: 10px; box-shadow: 0 10px 30px rgba(232, 93, 31, 0.18); }
     .gate h1 { font-size: 1.9rem; font-weight: 800; line-height: 1.15; }
     .gate p { color: var(--muted); font-size: 1rem; max-width: 22rem; }
@@ -57,7 +57,7 @@
     .me img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); }
     .me button { border: 0; background: rgba(255, 255, 255, 0.8); color: var(--muted); font: inherit; font-size: 0.8rem; font-weight: 600; padding: 6px 10px; border-radius: 999px; cursor: pointer; }
 
-    .sheet { background: #f7f7f9; border-radius: 28px 28px 0 0; padding: 22px 18px 40px; min-height: calc(100vh - 100px); }
+    .sheet { background: #f7f7f9; border-radius: 28px 28px 0 0; padding: 22px 18px 96px; min-height: calc(100vh - 100px); }
     .ask { position: relative; margin-bottom: 18px; }
     .ask__band { background: var(--sky); border-radius: 22px 22px 0 0; padding: 12px 18px 30px; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 8px; color: #1e3a8a; }
     .ask__band svg { width: 18px; height: 18px; flex: none; }
@@ -575,5 +575,18 @@
       }
     })();
   </script>
+
+  <!-- Nitro Cluster p2l-wa: quien prefiera hablar por WhatsApp (marca → empresa «Tuk Tuk», área ventas → skill). -->
+  <script src="https://www.refactorii.com/p2l-wa.js" defer
+    data-brand="Tuk Tuk"
+    data-phone="573237804250"
+    data-company="6a9f2cf3f5bd72cfd668b99a"
+    data-areas="ventas:Ventas"
+    data-context="landing Tuk Tuk · inicio (entrar con Google / ¿A dónde vamos?) · ventas"
+    data-title="Tuk Tuk"
+    data-logo="https://www.tuk-tuk.co/assets/tuki-logo.png"
+    data-fab="¿Prefieres WhatsApp?"
+    data-hello="👋 Hola, soy el asistente de Tuk Tuk. Si prefieres, pide tu viaje o pregunta por conductores y flotas aquí por WhatsApp."
+  ></script>
 </body>
 </html>
