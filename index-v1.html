@@ -579,6 +579,27 @@
       .nav-cta-mobile { display: none; }
     }
 
+    /* «Pedir un viaje» del hero baja al header al hacer scroll */
+    .header-ride-cta {
+      white-space: nowrap; overflow: hidden; max-width: 0; padding-left: 0; padding-right: 0; border-width: 0;
+      opacity: 0; transform: translateY(-6px); visibility: hidden; pointer-events: none;
+      transition: max-width .3s ease, padding .3s ease, opacity .25s ease, transform .3s ease, visibility .3s;
+    }
+    .header-ride-cta.is-shown {
+      max-width: 240px; padding-left: 20px; padding-right: 20px; border-width: 1px;
+      opacity: 1; transform: none; visibility: visible; pointer-events: auto;
+    }
+    @media (max-width: 720px) {
+      .header-ride-cta.is-shown { padding-left: 12px; padding-right: 12px; font-size: 0.85rem; min-height: 36px; }
+    }
+    @media (max-width: 420px) {
+      .site-header .header-ride-cta.is-shown { padding-left: 10px; padding-right: 10px; font-size: 0.8rem; }
+      .site-header .header-actions { gap: 6px; }
+    }
+    @media (max-width: 380px) {
+      .site-header .qa-lang-switch__btn { min-width: 1.7rem; padding: 4px 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .header-ride-cta { transition: none; } }
     .header-actions {
       display: flex;
       align-items: center;
@@ -676,7 +697,6 @@
         <a href="#passenger-como" data-nav="como" data-i18n="nav.how">Cómo funciona</a>
         <a href="#passenger-cta" id="navAudienceLink" data-nav="cta" data-i18n="nav.drivers">Conductores</a>
         <a href="tarifas-y-pagos.html" class="fleet-only" data-i18n="nav.payments">Tarifas y pagos</a>
-        <a class="btn btn--ghost nav-cta-mobile" id="headerCtaMobile" href="https://www.refactorii.com/p2l-tenant/login/tuki" data-i18n="nav.use_tuki">Usar Tuk Tuk</a>
       </nav>
 
       <div class="header-actions">
@@ -684,7 +704,7 @@
           <button type="button" class="qa-lang-switch__btn qa-lang-switch__btn--active" data-set-locale="es" aria-pressed="true">ES</button>
           <button type="button" class="qa-lang-switch__btn" data-set-locale="en" aria-pressed="false">EN</button>
         </div>
-        <a class="btn btn--primary header-cta-desktop" id="headerCta" href="https://www.refactorii.com/p2l-tenant/login/tuki" data-i18n="nav.use_tuki">Usar Tuk Tuk</a>
+        <a class="btn btn--primary header-ride-cta" id="headerCta" href="https://www.tuk-tuk.co/" data-i18n="modes.passenger" aria-hidden="true" tabindex="-1">Pedir un viaje</a>
       </div>
     </div>
   </header>
@@ -1232,7 +1252,6 @@
     const menuToggle = document.getElementById('menuToggle');
     const mainNav = document.getElementById('mainNav');
     const headerCta = document.getElementById('headerCta');
-    const headerCtaMobile = document.getElementById('headerCtaMobile');
     const navAudienceLink = document.getElementById('navAudienceLink');
 
     function t(key, fallback) {
@@ -1321,12 +1340,6 @@
         navAudienceLink.setAttribute('data-i18n', MODE_META[mode].navAudienceKey);
       }
 
-      headerCta.href = copy.ctaHref;
-      headerCtaMobile.href = copy.ctaHref;
-      if (copy.ctaLabel) {
-        headerCta.textContent = copy.ctaLabel;
-        headerCtaMobile.textContent = copy.ctaLabel;
-      }
 
       document.querySelectorAll('[data-nav]').forEach((link) => {
         const key = link.getAttribute('data-nav');
@@ -1377,6 +1390,21 @@
         }
       });
     });
+
+    (function () {
+      const heroRide = document.querySelector('.hero__ctas [data-mode="passenger"]');
+      if (!heroRide) return;
+      const setShown = (shown) => {
+        headerCta.classList.toggle('is-shown', shown);
+        headerCta.setAttribute('aria-hidden', shown ? 'false' : 'true');
+        headerCta.tabIndex = shown ? 0 : -1;
+      };
+      // Visible cuando el botón del hero ya quedó arriba, bajo el header fijo; oculto al volver.
+      const check = () => setShown(heroRide.getBoundingClientRect().bottom < header.offsetHeight);
+      window.addEventListener('scroll', check, { passive: true });
+      window.addEventListener('resize', check);
+      check();
+    })();
 
     window.addEventListener('scroll', () => {
       header.classList.toggle('is-scrolled', window.scrollY > 8);
