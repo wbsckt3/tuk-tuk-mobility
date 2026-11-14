@@ -1225,8 +1225,6 @@
     </div>
   </footer>
 
-  <a id="p2l-wa-float" class="wa-float is-off" href="#" data-company-id="6a9f2cf3f5bd72cfd668b99a" aria-disabled="true" aria-label="WhatsApp" title="Contrata o configura WhatsApp (WABA Meta) para activar este botón"><i class="fa-brands fa-whatsapp wa-float__icon" aria-hidden="true"></i>
-  </a>
 
   <script src="https://unpkg.com/i18next@23.4.6/i18next.min.js"></script>
   <script src="scripts/locales-embed.js?v=20260817f"></script>
@@ -1446,29 +1444,18 @@
     }
   </script>
 
-  <script>
-    (function () {
-      var el = document.getElementById('p2l-wa-float');
-      if (!el) return;
-      var id = el.getAttribute('data-company-id') || '';
-      el.addEventListener('click', function (ev) {
-        if (el.classList.contains('is-off')) ev.preventDefault();
-      });
-      if (!id) return;
-      fetch('https://www.refactorii.com/p2l-tenant/api/p2l-techguard-whatsapp-bot/public/company/' + encodeURIComponent(id) + '/channels')
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (data) {
-          if (!data || !data.whatsapp || !data.waLink) return;
-          el.classList.remove('is-off');
-          el.setAttribute('href', data.waLink);
-          el.setAttribute('target', '_blank');
-          el.setAttribute('rel', 'noopener noreferrer');
-          el.removeAttribute('aria-disabled');
-          el.removeAttribute('title');
-        })
-        .catch(function () {});
-    })();
-  </script>
+  <!-- Nitro Cluster p2l-wa: botón de WhatsApp con el skill de ventas (marca → empresa «Tuk Tuk», área → skill). -->
+  <script src="https://www.refactorii.com/p2l-wa.js" defer
+    data-brand="Tuk Tuk"
+    data-phone="573237804250"
+    data-company="6a9f2cf3f5bd72cfd668b99a"
+    data-areas="ventas:Ventas"
+    data-context="landing Tuk Tuk · página informativa (index-v1) · ventas"
+    data-title="Tuk Tuk"
+    data-logo="https://www.tuk-tuk.co/assets/tuki-logo.png"
+    data-fab="¿Quieres pedir un viaje o sumar tu flota?"
+    data-hello="👋 Hola, soy el asistente de Tuk Tuk. Cuéntanos si quieres pedir un viaje, conducir o sumar tu empresa de Tuk Tuks."
+  ></script>
 
 </body>
 </html>
