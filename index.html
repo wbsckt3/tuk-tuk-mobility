@@ -43,8 +43,12 @@
     .gate img { width: 96px; height: 96px; object-fit: contain; border-radius: 24px; background: #fff; padding: 10px; box-shadow: 0 10px 30px rgba(232, 93, 31, 0.18); }
     .gate h1 { font-size: 1.9rem; font-weight: 800; line-height: 1.15; }
     .gate p { color: var(--muted); font-size: 1rem; max-width: 22rem; }
-    .gate__btn { min-height: 44px; }
+    .gate__btn { min-height: 44px; transition: opacity 0.15s; }
+    .gate__btn.is-locked { opacity: 0.45; pointer-events: none; }
     .gate__err { color: #b91c1c; font-size: 0.85rem; max-width: 22rem; }
+    .gate__legal { display: flex; align-items: flex-start; gap: 10px; max-width: 22rem; text-align: left; font-size: 0.85rem; color: var(--muted); line-height: 1.4; cursor: pointer; }
+    .gate__legal input { width: 18px; height: 18px; margin-top: 1px; flex: none; accent-color: var(--brand); }
+    .gate__legal a { color: var(--brand-deep); font-weight: 600; }
 
     /* —— Inicio —— */
     .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 28px 22px 18px; }
@@ -74,6 +78,26 @@
     }
     .ask__go:active { transform: translateY(1px); }
     .ask__hint { margin-top: 10px; color: var(--ok); font-size: 0.85rem; font-weight: 600; }
+    .ask__hint.is-busy { color: var(--muted); }
+
+    /* Sugerencias de destino (Geoapify vía backend refactorii) */
+    .ask__field { position: relative; display: block; flex: 1; min-width: 0; }
+    .sugg {
+      position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 5; list-style: none;
+      background: #fff; border-radius: 14px; box-shadow: 0 14px 30px rgba(17, 24, 39, 0.14);
+      border: 1px solid var(--line); max-height: 280px; overflow-y: auto;
+    }
+    .sugg button {
+      display: flex; width: 100%; gap: 10px; align-items: flex-start; text-align: left; border: 0; background: transparent;
+      font: inherit; color: var(--ink); padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--line);
+    }
+    .sugg li:last-child button { border-bottom: 0; }
+    .sugg button:hover, .sugg button:focus-visible { background: #fff4ec; outline: none; }
+    .sugg__pin { color: var(--brand-deep); flex: none; margin-top: 2px; }
+    .sugg__main { display: block; font-size: 0.92rem; font-weight: 600; line-height: 1.3; }
+    .sugg__sub { display: block; font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+    .sugg__empty { padding: 10px 12px; font-size: 0.85rem; color: var(--muted); }
+    .ask__picked { margin-top: 8px; font-size: 0.82rem; color: var(--ok); font-weight: 600; }
 
     .about { color: var(--muted); font-size: 0.95rem; line-height: 1.5; padding: 4px 6px 18px; }
     .about b { color: var(--ink); }
@@ -91,6 +115,10 @@
     .offer strong { font-size: 1rem; line-height: 1.25; }
     .offer span { color: var(--muted); font-size: 0.82rem; line-height: 1.35; }
     .offer em { font-style: normal; color: var(--brand-deep); font-weight: 800; font-size: 0.85rem; }
+    .offer a.offer--wide { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 14px; }
+    .offer--wide .offer__body { display: flex; flex-direction: column; gap: 4px; min-width: 0; color: var(--ink); font-size: inherit; }
+    .offer--wide .offer__ico { flex: none; }
+    .offer__ico--lab { background: #ecfdf5; font-size: 24px; }
 
     .foot { margin-top: 26px; text-align: center; color: #9ca3af; font-size: 0.75rem; }
     .foot a { color: inherit; }
@@ -102,8 +130,15 @@
     <section class="gate" id="gate">
       <img src="assets/tuki-logo.png" alt="Tuk Tuk" />
       <h1>Muévete por tu ciudad en Tuk Tuk</h1>
-      <p>Entra con tu cuenta de Google para pedir tu viaje.</p>
-      <div class="gate__btn" id="gsiButton"></div>
+      <p id="gateLead">Entra con tu cuenta de Google para pedir tu viaje.</p>
+      <label class="gate__legal">
+        <input type="checkbox" id="legalOk" />
+        <span>
+          Acepto los <a href="https://www.refactorii.com/p2l-tenant/login/tuki?legal=terms" target="_blank" rel="noopener">Términos y condiciones</a>
+          y la <a href="https://www.refactorii.com/p2l-tenant/login/tuki?legal=privacy" target="_blank" rel="noopener">Política de privacidad</a>.
+        </span>
+      </label>
+      <div class="gate__btn is-locked" id="gsiButton"></div>
       <p class="gate__err" id="gateErr" hidden></p>
     </section>
 
@@ -126,13 +161,16 @@
           <div class="ask__card">
             <div class="ask__row">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-              <label>
-                <span class="ask__title">¿A dónde vamos?</span>
-                <input class="ask__input" id="dest" name="dest" type="text" placeholder="Escribe tu destino" maxlength="120" />
-              </label>
+              <div class="ask__field">
+                <label class="ask__title" for="dest">¿A dónde vamos?</label>
+                <input class="ask__input" id="dest" name="dest" type="text" placeholder="Escribe tu destino" maxlength="120"
+                  role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="destList" />
+                <ul class="sugg" id="destList" role="listbox" hidden></ul>
+                <p class="ask__picked" id="destPicked" hidden></p>
+              </div>
             </div>
-            <button class="ask__go" type="submit">Pedir Tuk Tuk</button>
-            <p class="ask__hint">Un conductor cercano acepta tu viaje y lo sigues en el mapa.</p>
+            <button class="ask__go" type="submit" id="askGo">Pedir Tuk Tuk</button>
+            <p class="ask__hint" id="askHint">Un conductor cercano acepta tu viaje y lo sigues en el mapa.</p>
           </div>
         </form>
 
@@ -141,17 +179,28 @@
         </p>
 
         <nav class="offer" aria-label="Ofrece tus servicios">
-          <a href="https://www.refactorii.com/p2l-tenant/login">
+          <!-- Conductor → mapa con el modal del código de su empresa -->
+          <a href="https://www.refactorii.com/p2l-tenant/login/tuki" data-perfil="driver">
             <span class="offer__ico"><img src="assets/tuki-driver-icon.png" alt="" /></span>
             <strong>¿Eres conductor?</strong>
             <span>Ofrece tus viajes en tu ciudad y recibe solicitudes cercanas.</span>
             <em>Ofrecer mis servicios →</em>
           </a>
-          <a href="https://www.refactorii.com/p2l-tenant/login">
+          <!-- Empresa / cooperativa → panel de empresa (/tuki-dashboard) -->
+          <a href="https://www.refactorii.com/p2l-tenant/login/tuki-dashboard" data-perfil="empresa">
             <span class="offer__ico offer__ico--fleet" aria-hidden="true">🛺</span>
             <strong>¿Tienes una empresa de Tuk Tuks?</strong>
             <span>Suma tu flota y administra conductores y viajes.</span>
             <em>Ofrecer mi flota →</em>
+          </a>
+          <!-- MockSpot: ambiente de pruebas (no requiere sesión) -->
+          <a class="offer--wide" href="https://wbsckt3.github.io/p2l-unidades-mobility/simulacion-lab-20260826.html">
+            <span class="offer__ico offer__ico--lab" aria-hidden="true">🧪</span>
+            <span class="offer__body">
+              <strong>MockSpot</strong>
+              <span>Ambiente de pruebas: simula pasajeros, conductores y viajes completos.</span>
+              <em>Entrar a MockSpot →</em>
+            </span>
           </a>
         </nav>
 
@@ -164,11 +213,27 @@
     (function () {
       var CLIENT_ID = '980822676255-vntch0t28qbesul2bp5oc1galtoi8a97.apps.googleusercontent.com';
       var STORE = 'tuktuk-user';
+      /** La app (mapa). Recibe la sesión por el fragmento #…: no viaja al servidor ni queda en logs. */
       var APP_URL = 'https://www.refactorii.com/p2l-tenant/login/tuki';
+      /** Geoapify vía backend refactorii (misma API que el campo destino de la app; CORS permite tuk-tuk.co). */
+      var AUTOCOMPLETE_URL = 'https://www.refactorii.com/p2l-tenant/api/autocomplete';
+      var AUTOCOMPLETE_RADIUS_M = 20000;
+      /** Debe coincidir con TERMS_VERSION:PRIVACY_VERSION de src/config/p2lLegalConsent.js */
+      var LEGAL_VERSION = '1.0:1.0';
+      /** Margen para que el ID token de Google no venza mientras carga la app. */
+      var CREDENTIAL_MIN_LIFE_MS = 2 * 60 * 1000;
 
       var gate = document.getElementById('gate');
       var home = document.getElementById('home');
       var gateErr = document.getElementById('gateErr');
+      var gateLead = document.getElementById('gateLead');
+      var legalOk = document.getElementById('legalOk');
+      var gsiButton = document.getElementById('gsiButton');
+      var destInput = document.getElementById('dest');
+      var destList = document.getElementById('destList');
+      var destPicked = document.getElementById('destPicked');
+      var askHint = document.getElementById('askHint');
+      var askHintText = askHint.textContent;
 
       function decodeJwt(token) {
         try {
@@ -191,20 +256,48 @@
         try { localStorage.setItem(STORE, JSON.stringify(u)); } catch (e) { /* almacenamiento bloqueado: sigue en memoria */ }
       }
 
+      var memUser = readUser();
+      function currentUser() { return readUser() || memUser; }
+
+      function firstName(user) {
+        return String((user && (user.given_name || user.name)) || '').trim().split(/\s+/)[0];
+      }
+
       function showHome(user) {
-        var first = String(user.given_name || user.name || '').trim().split(/\s+/)[0];
+        var first = firstName(user);
         document.getElementById('hello').textContent = first ? '¡Hola, ' + first + '!' : '¡Hola!';
         var avatar = document.getElementById('avatar');
         if (user.picture) { avatar.src = user.picture; avatar.hidden = false; }
         gate.hidden = true;
         home.hidden = false;
+        setBusy(false);
       }
 
-      function showGate() {
+      function showGate(message) {
         home.hidden = true;
         gate.hidden = false;
+        if (message) gateLead.textContent = message;
+        syncLegalLock();
         startGoogle();
       }
+
+      // —— Consentimiento: el botón de Google se habilita solo con el checkbox marcado ——
+      function syncLegalLock() {
+        gsiButton.classList.toggle('is-locked', !legalOk.checked);
+      }
+      legalOk.addEventListener('change', function () {
+        syncLegalLock();
+        if (legalOk.checked) {
+          gateErr.hidden = true;
+          // Con el consentimiento dado ya se puede ofrecer One Tap.
+          promptOneTap();
+        }
+      });
+
+      // —— Google Identity Services ——
+      /** Acción pendiente (ir al mapa / panel) mientras Google entrega una credencial fresca. */
+      var pendingGo = null;
+      var refreshTimer = null;
 
       function onCredential(res) {
         var p = decodeJwt(res && res.credential);
@@ -213,15 +306,35 @@
           gateErr.hidden = false;
           return;
         }
-        var user = { email: p.email, name: p.name || '', given_name: p.given_name || '', picture: p.picture || '' };
+        var prev = currentUser();
+        var legal = legalOk.checked ? LEGAL_VERSION : (prev && prev.email === p.email ? prev.legal : '');
+        if (!legal) {
+          gateErr.textContent = 'Para continuar acepta los Términos y la Política de privacidad.';
+          gateErr.hidden = false;
+          return;
+        }
+        var user = {
+          email: p.email, name: p.name || '', given_name: p.given_name || '', picture: p.picture || '',
+          credential: res.credential, exp: Number(p.exp || 0) * 1000, legal: legal
+        };
+        memUser = user;
         saveUser(user);
+        if (refreshTimer) { clearTimeout(refreshTimer); refreshTimer = null; }
+        if (pendingGo) {
+          var go = pendingGo;
+          pendingGo = null;
+          go(user);
+          return;
+        }
         showHome(user);
       }
 
+      var gsiReady = false;
       var tries = 0;
-      function startGoogle() {
+      function ensureGoogle(cb) {
+        if (gsiReady) return cb && cb();
         if (!(window.google && google.accounts && google.accounts.id)) {
-          if (tries++ < 40) return setTimeout(startGoogle, 150);
+          if (tries++ < 40) return setTimeout(function () { ensureGoogle(cb); }, 150);
           gateErr.textContent = 'No se pudo cargar el inicio de sesión de Google. Revisa tu conexión y recarga.';
           gateErr.hidden = false;
           return;
@@ -233,29 +346,233 @@
           cancel_on_tap_outside: false,
           ux_mode: 'popup'
         });
-        google.accounts.id.renderButton(document.getElementById('gsiButton'), {
-          theme: 'filled_black', size: 'large', shape: 'pill', text: 'continue_with', width: 280, locale: 'es'
-        });
-        // Al entrar se pide la cuenta de una vez (One Tap); el botón queda por si el navegador lo bloquea.
-        google.accounts.id.prompt();
+        gsiReady = true;
+        if (cb) cb();
       }
 
-      document.getElementById('logout').addEventListener('click', function () {
-        try { localStorage.removeItem(STORE); } catch (e) { /* nada */ }
-        try { google.accounts.id.disableAutoSelect(); } catch (e) { /* nada */ }
-        showGate();
+      function promptOneTap(onNotShown) {
+        ensureGoogle(function () {
+          try {
+            google.accounts.id.prompt(function (n) {
+              try {
+                if (onNotShown && n && ((n.isNotDisplayed && n.isNotDisplayed()) || (n.isSkippedMoment && n.isSkippedMoment()))) {
+                  onNotShown();
+                }
+              } catch (e) { /* FedCM: sin detalle del momento */ }
+            });
+          } catch (e) { if (onNotShown) onNotShown(); }
+        });
+      }
+
+      function startGoogle() {
+        ensureGoogle(function () {
+          gsiButton.innerHTML = '';
+          google.accounts.id.renderButton(gsiButton, {
+            theme: 'filled_black', size: 'large', shape: 'pill', text: 'continue_with', width: 280, locale: 'es'
+          });
+          // One Tap solo cuando ya aceptó términos (si no, el botón queda bloqueado).
+          if (legalOk.checked) promptOneTap();
+        });
+      }
+
+      /**
+       * El ID token de Google dura ~1 h. Si el guardado sigue vivo se usa; si no, se pide uno nuevo en
+       * silencio (One Tap con auto_select). Si Google no puede, se muestra de nuevo la entrada con Google.
+       */
+      function withFreshCredential(go) {
+        var user = currentUser();
+        if (user && user.credential && user.legal && Number(user.exp || 0) - Date.now() > CREDENTIAL_MIN_LIFE_MS) {
+          go(user);
+          return;
+        }
+        pendingGo = go;
+        setBusy(true, 'Confirmando tu cuenta de Google…');
+        var fallback = function () {
+          if (!pendingGo) return;
+          if (refreshTimer) { clearTimeout(refreshTimer); refreshTimer = null; }
+          legalOk.checked = !!(user && user.legal);
+          showGate('Confirma tu cuenta de Google para continuar.');
+        };
+        refreshTimer = setTimeout(fallback, 8000);
+        promptOneTap(fallback);
+      }
+
+      function setBusy(busy, text) {
+        askHint.textContent = busy ? (text || 'Abriendo Tuk Tuk…') : askHintText;
+        askHint.classList.toggle('is-busy', !!busy);
+      }
+
+      /** Pasa a la app con el perfil (y el destino) ya elegidos: allí solo se confirma. */
+      function goToApp(perfil) {
+        withFreshCredential(function (user) {
+          var p = new URLSearchParams();
+          p.set('credential', user.credential);
+          p.set('perfil', perfil);
+          p.set('legal', user.legal || LEGAL_VERSION);
+          var first = firstName(user);
+          if (first) p.set('nombre', first);
+          if (perfil === 'passenger') {
+            var d = selectedDest || (destInput.value.trim() ? { formatted: destInput.value.trim() } : null);
+            if (d && d.formatted) {
+              p.set('destino', d.formatted);
+              if (typeof d.lat === 'number' && typeof d.lng === 'number') {
+                p.set('dlat', String(d.lat));
+                p.set('dlng', String(d.lng));
+              }
+              if (d.city) p.set('dcity', d.city);
+            }
+          }
+          setBusy(true, 'Abriendo Tuk Tuk…');
+          location.href = APP_URL + '#' + p.toString();
+        });
+      }
+
+      // —— ¿A dónde vamos? (Geoapify) ——
+      var selectedDest = null;
+      var suggestions = [];
+      var searchTimer = null;
+      var searchSeq = 0;
+      var geo = null;
+      var geoAsked = false;
+
+      function askGeo() {
+        if (geoAsked || !navigator.geolocation) return;
+        geoAsked = true;
+        navigator.geolocation.getCurrentPosition(function (pos) {
+          geo = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        }, function () { /* sin GPS: búsqueda a nivel Colombia */ }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 });
+      }
+
+      function closeList() {
+        destList.hidden = true;
+        destInput.setAttribute('aria-expanded', 'false');
+      }
+
+      function renderList(items, emptyText) {
+        destList.innerHTML = '';
+        if (!items.length) {
+          if (!emptyText) return closeList();
+          var li = document.createElement('li');
+          li.className = 'sugg__empty';
+          li.textContent = emptyText;
+          destList.appendChild(li);
+        }
+        items.forEach(function (s, i) {
+          var li = document.createElement('li');
+          li.setAttribute('role', 'option');
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          var pin = document.createElement('span');
+          pin.className = 'sugg__pin';
+          pin.setAttribute('aria-hidden', 'true');
+          pin.textContent = '📍';
+          var txt = document.createElement('span');
+          var main = document.createElement('span');
+          main.className = 'sugg__main';
+          main.textContent = s.address_line1 || s.formatted;
+          var sub = document.createElement('span');
+          sub.className = 'sugg__sub';
+          sub.textContent = s.address_line2 || [s.city, s.country].filter(Boolean).join(', ');
+          txt.appendChild(main);
+          if (sub.textContent) txt.appendChild(sub);
+          btn.appendChild(pin);
+          btn.appendChild(txt);
+          // mousedown: elegir antes de que el blur cierre la lista
+          btn.addEventListener('mousedown', function (ev) { ev.preventDefault(); pickDest(i); });
+          btn.addEventListener('click', function () { pickDest(i); });
+          li.appendChild(btn);
+          destList.appendChild(li);
+        });
+        destList.hidden = false;
+        destInput.setAttribute('aria-expanded', 'true');
+      }
+
+      function pickDest(i) {
+        var s = suggestions[i];
+        if (!s) return;
+        selectedDest = {
+          formatted: s.formatted,
+          lat: Number(s.lat),
+          lng: Number(s.lng),
+          city: s.city || ''
+        };
+        destInput.value = s.formatted;
+        destPicked.textContent = '✓ Destino: ' + s.formatted;
+        destPicked.hidden = false;
+        closeList();
+      }
+
+      function search(text) {
+        var seq = ++searchSeq;
+        var params = new URLSearchParams({ text: text, radiusM: String(AUTOCOMPLETE_RADIUS_M) });
+        if (geo) { params.set('lat', String(geo.lat)); params.set('lng', String(geo.lng)); }
+        fetch(AUTOCOMPLETE_URL + '?' + params.toString())
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function (data) {
+            if (seq !== searchSeq) return; // respuesta vieja
+            suggestions = (data && Array.isArray(data.results) ? data.results : []).filter(function (s) {
+              return s && s.formatted && isFinite(Number(s.lat)) && isFinite(Number(s.lng));
+            }).slice(0, 6);
+            renderList(suggestions, 'Sin resultados cerca. Prueba con otro nombre.');
+          })
+          .catch(function () {
+            if (seq !== searchSeq) return;
+            suggestions = [];
+            renderList([], 'No pudimos buscar direcciones ahora. Puedes escribir el destino y seguir.');
+          });
+      }
+
+      destInput.addEventListener('focus', function () {
+        askGeo();
+        if (suggestions.length && !selectedDest) renderList(suggestions);
+      });
+      destInput.addEventListener('input', function () {
+        selectedDest = null;
+        destPicked.hidden = true;
+        if (searchTimer) clearTimeout(searchTimer);
+        var text = destInput.value.trim();
+        if (text.length < 2) { suggestions = []; searchSeq++; closeList(); return; }
+        searchTimer = setTimeout(function () { search(text); }, 300);
+      });
+      destInput.addEventListener('blur', function () { setTimeout(closeList, 150); });
+      destInput.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Escape') closeList();
       });
 
       document.getElementById('ask').addEventListener('submit', function (ev) {
         ev.preventDefault();
-        var dest = document.getElementById('dest').value.trim();
-        // Por ahora abre la app de Tuk Tuk; el destino viaja en la URL para la siguiente fase.
-        location.href = APP_URL + (dest ? '?destino=' + encodeURIComponent(dest) : '');
+        // Escribió pero no tocó una sugerencia: se toma la primera (como DiDi).
+        if (!selectedDest && destInput.value.trim() && suggestions.length) pickDest(0);
+        closeList();
+        goToApp('passenger');
       });
 
-      var user = readUser();
-      if (user) showHome(user);
-      else showGate();
+      // —— Conductor / empresa: misma sesión de Google, otro perfil ——
+      Array.prototype.forEach.call(document.querySelectorAll('.offer a[data-perfil]'), function (a) {
+        a.addEventListener('click', function (ev) {
+          ev.preventDefault();
+          goToApp(a.getAttribute('data-perfil'));
+        });
+      });
+
+      document.getElementById('logout').addEventListener('click', function () {
+        try { localStorage.removeItem(STORE); } catch (e) { /* nada */ }
+        memUser = null;
+        pendingGo = null;
+        legalOk.checked = false;
+        try { google.accounts.id.disableAutoSelect(); } catch (e) { /* nada */ }
+        showGate();
+      });
+
+      var user = currentUser();
+      // Sesiones previas al checkbox de términos: se pide de nuevo la entrada con consentimiento.
+      if (user && user.legal) {
+        legalOk.checked = true;
+        showHome(user);
+        ensureGoogle();
+      } else {
+        showGate();
+      }
     })();
   </script>
 </body>
