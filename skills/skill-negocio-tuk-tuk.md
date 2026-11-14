@@ -63,7 +63,7 @@ Si no tiene que ver con mototaxis, la app o una flota, responde en una frase y p
 
 CONTACTO
 Web: https://www.tuk-tuk.co
-App pasajero y conductor: https://www.refactorii.com/p2l-tenant/login/tuki
-Panel de flota: https://www.refactorii.com/p2l-tenant/login
+App pasajero y conductor (entra con Google y elige perfil): https://www.tuk-tuk.co
+Panel de flota (tarjeta «¿Tienes una empresa de Tuk Tuks?»): https://www.tuk-tuk.co
 Tarifas y pagos: https://www.tuk-tuk.co/tarifas-y-pagos.html
 WhatsApp: 318 781 3116
