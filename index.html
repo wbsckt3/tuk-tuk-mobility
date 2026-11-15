@@ -127,13 +127,15 @@
     .offer__ico--lab { width: 104px; display: flex; align-items: center; justify-content: center; gap: 2px; background: #ecfdf5; }
     .offer__ico--lab img { width: 58px; }
     .offer .offer__flask { font-size: 32px; line-height: 1; color: inherit; filter: drop-shadow(0 2px 3px rgba(17, 24, 39, 0.18)); }
-    .offer-lab { grid-column: 1 / -1; display: flex; gap: 14px; align-items: flex-start; background: var(--card); border-radius: 22px; padding: 16px; box-shadow: 0 4px 14px rgba(17, 24, 39, 0.06); border: 1px solid #fff; }
+    .offer-lab { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 14px; align-items: stretch; background: var(--card); border-radius: 22px; padding: 16px; box-shadow: 0 4px 14px rgba(17, 24, 39, 0.06); border: 1px solid #fff; }
     .offer-lab .offer__ico { flex: none; }
     .offer-lab .offer__body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
     .offer-lab strong { font-size: 1rem; line-height: 1.25; color: var(--ink); }
     .offer-lab .offer__body > span { color: var(--muted); font-size: 0.82rem; line-height: 1.35; }
-    .offer .offer-lab__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-    .offer .offer-lab__actions a { display: inline-flex; flex-direction: row; padding: 8px 12px; border-radius: 999px; background: #ecfdf5; color: #047857; font-weight: 800; font-size: 0.82rem; box-shadow: none; border: 0; }
+    .offer-lab__top { display: flex; gap: 14px; align-items: center; }
+    @media (max-width: 420px) { .offer .offer-lab .offer-lab__actions a { font-size: 0.72rem; padding: 11px 2px; letter-spacing: -0.01em; } }
+    .offer .offer-lab__actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin: 0; }
+    .offer .offer-lab__actions a { display: inline-flex; flex-direction: row; justify-content: center; align-items: center; text-align: center; white-space: normal; text-wrap: balance; line-height: 1.2; padding: 11px 6px; border-radius: 999px; background: #ecfdf5; color: #047857; font-weight: 800; font-size: 0.82rem; box-shadow: none; border: 0; }
 
     .foot { margin-top: 26px; text-align: center; color: #9ca3af; font-size: 0.75rem; }
     .foot a { color: inherit; }
@@ -210,15 +212,17 @@
           </a>
           <!-- MockSpot · Test drive: la misma app de Tuk Tuk; la otra punta del viaje es automática -->
           <div class="offer-lab" role="group" aria-labelledby="labTitle">
-            <span class="offer__ico offer__ico--lab" aria-hidden="true"><img src="assets/tuki-driver-icon.png" alt="" /><span class="offer__flask">🧪</span></span>
-            <span class="offer__body">
-              <strong id="labTitle">Test Drive | MockSpot</strong>
-              <span>Prueba un viaje completo en la app real. Nosotros hacemos de la otra persona.</span>
-              <span class="offer-lab__actions">
-                <a href="https://www.refactorii.com/p2l-tenant/login/tuki" data-perfil="passenger" data-mockspot="1">Probar como pasajero →</a>
-                <a href="https://www.refactorii.com/p2l-tenant/login/tuki" data-perfil="driver" data-mockspot="1">Probar como conductor →</a>
+            <div class="offer-lab__top">
+              <span class="offer__ico offer__ico--lab" aria-hidden="true"><img src="assets/tuki-driver-icon.png" alt="" /><span class="offer__flask">🧪</span></span>
+              <span class="offer__body">
+                <strong id="labTitle">Test Drive | MockSpot</strong>
+                <span>Prueba un viaje completo en la app real. Nosotros hacemos de la otra persona.</span>
               </span>
-            </span>
+            </div>
+            <div class="offer-lab__actions">
+              <a href="https://www.refactorii.com/p2l-tenant/login/tuki" data-perfil="passenger" data-mockspot="1">Probar como pasajero</a>
+              <a href="https://www.refactorii.com/p2l-tenant/login/tuki" data-perfil="driver" data-mockspot="1">Probar como conductor</a>
+            </div>
           </div>
         </nav>
 
