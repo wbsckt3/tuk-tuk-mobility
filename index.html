@@ -119,6 +119,13 @@
     .offer--wide .offer__body { display: flex; flex-direction: column; gap: 4px; min-width: 0; color: var(--ink); font-size: inherit; }
     .offer--wide .offer__ico { flex: none; }
     .offer__ico--lab { background: #ecfdf5; font-size: 24px; }
+    .offer-lab { grid-column: 1 / -1; display: flex; gap: 14px; align-items: flex-start; background: var(--card); border-radius: 22px; padding: 16px; box-shadow: 0 4px 14px rgba(17, 24, 39, 0.06); border: 1px solid #fff; }
+    .offer-lab .offer__ico { flex: none; }
+    .offer-lab .offer__body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .offer-lab strong { font-size: 1rem; line-height: 1.25; color: var(--ink); }
+    .offer-lab .offer__body > span { color: var(--muted); font-size: 0.82rem; line-height: 1.35; }
+    .offer .offer-lab__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .offer .offer-lab__actions a { display: inline-flex; flex-direction: row; padding: 8px 12px; border-radius: 999px; background: #ecfdf5; color: #047857; font-weight: 800; font-size: 0.82rem; box-shadow: none; border: 0; }
 
     .foot { margin-top: 26px; text-align: center; color: #9ca3af; font-size: 0.75rem; }
     .foot a { color: inherit; }
@@ -193,15 +200,18 @@
             <span>Suma tu flota y administra conductores y viajes.</span>
             <em>Ofrecer mi flota →</em>
           </a>
-          <!-- MockSpot: ambiente de pruebas (no requiere sesión) -->
-          <a class="offer--wide" href="https://wbsckt3.github.io/p2l-unidades-mobility/simulacion-lab-20260826.html">
-            <span class="offer__ico offer__ico--lab" aria-hidden="true">🧪</span>
+          <!-- MockSpot · Test drive: la misma app de Tuk Tuk; la otra punta del viaje es automática -->
+          <div class="offer-lab" role="group" aria-labelledby="labTitle">
+            <span class="offer__ico offer__ico--lab" aria-hidden="true">🛺</span>
             <span class="offer__body">
-              <strong>MockSpot</strong>
-              <span>Ambiente de pruebas: simula pasajeros, conductores y viajes completos.</span>
-              <em>Entrar a MockSpot →</em>
+              <strong id="labTitle">🧪 Test Drive | MockSpot</strong>
+              <span>Prueba un viaje completo en la app real. Nosotros hacemos de la otra persona.</span>
+              <span class="offer-lab__actions">
+                <a href="https://www.refactorii.com/p2l-tenant/login/tuki" data-perfil="passenger" data-mockspot="1">Probar como pasajero →</a>
+                <a href="https://www.refactorii.com/p2l-tenant/login/tuki" data-perfil="driver" data-mockspot="1">Probar como conductor →</a>
+              </span>
             </span>
-          </a>
+          </div>
         </nav>
 
         <p class="foot">Tuk Tuk · <a href="index-v1.html">más información</a></p>
@@ -403,11 +413,12 @@
       }
 
       /** Pasa a la app con el perfil (y el destino) ya elegidos: allí solo se confirma. */
-      function goToApp(perfil) {
+      function goToApp(perfil, mockspot) {
         withFreshCredential(function (user) {
           var p = new URLSearchParams();
           p.set('credential', user.credential);
           p.set('perfil', perfil);
+          if (mockspot) p.set('modo', 'mockspot');
           p.set('legal', user.legal || LEGAL_VERSION);
           var first = firstName(user);
           if (first) p.set('nombre', first);
@@ -551,7 +562,7 @@
       Array.prototype.forEach.call(document.querySelectorAll('.offer a[data-perfil]'), function (a) {
         a.addEventListener('click', function (ev) {
           ev.preventDefault();
-          goToApp(a.getAttribute('data-perfil'));
+          goToApp(a.getAttribute('data-perfil'), a.getAttribute('data-mockspot') === '1');
         });
       });
 
