@@ -680,6 +680,14 @@
       }
       .wa-float__icon { font-size: 1.65rem; }
     }
+    /* Test Drive | MockSpot */
+    .btn--testdrive { border-color: #0e7490; color: #0e7490; }
+    .btn--testdrive:hover, .btn--testdrive:focus-visible { background: #ecfeff; }
+    .section--testdrive { background: linear-gradient(180deg, #ecfeff 0%, #f0fdf4 100%); scroll-margin-top: 80px; }
+    .testdrive__eyebrow { display: inline-block; margin-bottom: 10px; padding: 6px 12px; border-radius: 999px; background: #0f172a; color: #a5f3fc; font-weight: 800; font-size: 0.85rem; letter-spacing: 0.02em; }
+    .testdrive__steps { margin-top: 28px; }
+    .testdrive__note { margin: 24px auto 0; max-width: 560px; text-align: center; color: #155e75; font-weight: 600; }
+    .testdrive__ctas { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 18px; }
   </style>
 </head>
 <body>
@@ -723,6 +731,7 @@
             <a class="btn btn--primary btn--lg is-active" href="https://www.tuk-tuk.co/" data-go="https://www.tuk-tuk.co/" data-mode="passenger" aria-pressed="true" data-i18n="modes.passenger">Pedir un viaje</a>
             <button type="button" class="btn btn--outline btn--lg" data-mode="driver" aria-pressed="false" data-i18n="modes.driver">Soy conductor</button>
             <button type="button" class="btn btn--outline btn--lg" data-mode="fleet" aria-pressed="false" data-i18n="modes.fleet">Panel de flota</button>
+            <a class="btn btn--outline btn--lg btn--testdrive" href="#test-drive" data-i18n="modes.testdrive">🧪 Test Drive | MockSpot</a>
           </div>
           <div class="hero__actions fleet-only">
             <a class="btn btn--primary btn--lg" href="tarifas-y-pagos.html" data-i18n="nav.payments">Tarifas y pagos</a>
@@ -1182,6 +1191,55 @@
         </div>
       </section>
     </div>
+    <!-- ========== TEST DRIVE | MOCKSPOT ========== -->
+    <section class="section section--testdrive" id="test-drive">
+      <div class="container">
+        <div class="section__head">
+          <span class="testdrive__eyebrow" data-i18n="testdrive.eyebrow">🧪 Test Drive | MockSpot</span>
+          <h2 data-i18n="testdrive.title">Prueba Tuk Tuk antes de tu primer viaje real</h2>
+          <p data-i18n="testdrive.lead">Haz un viaje completo en la app real, desde tu celular y sin esperar a nadie: nosotros hacemos de la otra persona del viaje y un asistente te guía paso a paso.</p>
+        </div>
+        <div class="benefits">
+          <article class="benefit">
+            <div class="benefit__icon">🙋</div>
+            <h3 data-i18n="testdrive.p_title">Pruébalo como pasajero</h3>
+            <p data-i18n="testdrive.p_text">Pides tu tuk tuk y un conductor de prueba acepta, llega por ti y te lleva a tu destino. Lo sigues en el mapa como en un viaje de verdad.</p>
+          </article>
+          <article class="benefit">
+            <div class="benefit__icon">🛺</div>
+            <h3 data-i18n="testdrive.d_title">Pruébalo como conductor</h3>
+            <p data-i18n="testdrive.d_text">Entras con el código de tu empresa, te llega la solicitud de un pasajero de prueba, la aceptas, lo recoges y cierras el viaje.</p>
+          </article>
+          <article class="benefit">
+            <div class="benefit__icon">🏢</div>
+            <h3 data-i18n="testdrive.f_title">Ideal para tu flota</h3>
+            <p data-i18n="testdrive.f_text">Antes de salir a la calle, tus conductores practican el flujo completo: aceptar, recoger, iniciar y cerrar un viaje.</p>
+          </article>
+        </div>
+        <div class="steps testdrive__steps">
+          <article class="step">
+            <div class="step__num">1</div>
+            <h3 data-i18n="testdrive.s1_title">Elige tu perfil</h3>
+            <p data-i18n="testdrive.s1_text">Pasajero o conductor: tú decides qué lado del viaje vivir.</p>
+          </article>
+          <article class="step">
+            <div class="step__num">2</div>
+            <h3 data-i18n="testdrive.s2_title">Entra con Google</h3>
+            <p data-i18n="testdrive.s2_text">Es la misma entrada de la app. Sin formularios largos.</p>
+          </article>
+          <article class="step">
+            <div class="step__num">3</div>
+            <h3 data-i18n="testdrive.s3_title">Sigue al asistente</h3>
+            <p data-i18n="testdrive.s3_text">La etiqueta MockSpot te dice en qué va tu viaje y qué sigue, en todo momento.</p>
+          </article>
+        </div>
+        <p class="testdrive__note" data-i18n="testdrive.note">Gratis. No se mueve dinero real: es un viaje de práctica dentro de la app de Tuk Tuk.</p>
+        <div class="testdrive__ctas">
+          <a class="btn btn--primary btn--lg" href="https://www.tuk-tuk.co/" data-i18n="testdrive.cta_passenger">Probar como pasajero</a>
+          <a class="btn btn--outline btn--lg" href="https://www.tuk-tuk.co/" data-i18n="testdrive.cta_driver">Probar como conductor</a>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="footer">
@@ -1217,6 +1275,7 @@
             <li><a data-i18n="modes.fleet" href="#" data-mode="fleet">Panel de flota</a></li>
             <li><a data-i18n="nav.payments" href="tarifas-y-pagos.html">Tarifas y pagos</a></li>
             <li><a data-i18n="footer.admin_dash" href="https://www.refactorii.com/p2l-tenant/login/tuki-dashboard">Dashboard admin</a></li>
+            <li><a href="#test-drive" data-i18n="footer.testdrive">Test Drive | MockSpot</a></li>
             <li><a data-i18n="footer.plans" href="#fleet-servicios" data-mode="fleet">Planes</a></li>
           </ul>
         </div>
@@ -1227,7 +1286,7 @@
 
 
   <script src="https://unpkg.com/i18next@23.4.6/i18next.min.js"></script>
-  <script src="scripts/locales-embed.js?v=20260817f"></script>
+  <script src="scripts/locales-embed.js?v=20261115a"></script>
   <script src="scripts/i18n.js?v=20260817a"></script>
   <script>
     const TUKI_LINKS = {

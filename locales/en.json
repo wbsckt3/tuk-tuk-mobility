@@ -25,7 +25,8 @@
   "modes": {
     "passenger": "Request a ride",
     "driver": "I'm a driver",
-    "fleet": "Fleet panel"
+    "fleet": "Fleet panel",
+    "testdrive": "🧪 Test Drive | MockSpot"
   },
   "hero": {
     "passenger": {
@@ -275,7 +276,8 @@
     "admin_dash": "Admin dashboard",
     "plans": "Plans",
     "how": "How it works",
-    "copy": "Tuk Tuk · Powered by P2L Mobility"
+    "copy": "Tuk Tuk · Powered by P2L Mobility",
+    "testdrive": "Test Drive | MockSpot"
   },
   "payments": {
     "meta_title": "Fares and payments — P2L Business",
@@ -514,5 +516,25 @@
     "cta_btn": "Go to Explee",
     "source": "Reference source:",
     "back": "Back to Tuk Tuk"
+  },
+  "testdrive": {
+    "eyebrow": "🧪 Test Drive | MockSpot",
+    "title": "Try Tuk Tuk before your first real ride",
+    "lead": "Take a full ride in the real app, from your phone and without waiting for anyone: we play the other person in the ride and an assistant guides you step by step.",
+    "p_title": "Try it as a passenger",
+    "p_text": "Request your tuk tuk and a test driver accepts, picks you up and takes you to your destination. Follow it on the map just like a real ride.",
+    "d_title": "Try it as a driver",
+    "d_text": "Sign in with your company's code, get a request from a test passenger, accept it, pick them up and close the ride.",
+    "f_title": "Great for your fleet",
+    "f_text": "Before hitting the street, your drivers practice the whole flow: accept, pick up, start and close a ride.",
+    "s1_title": "Pick your profile",
+    "s1_text": "Passenger or driver: you choose which side of the ride to live.",
+    "s2_title": "Sign in with Google",
+    "s2_text": "Same sign-in as the app. No long forms.",
+    "s3_title": "Follow the assistant",
+    "s3_text": "The MockSpot label tells you where your ride is and what comes next, at all times.",
+    "note": "Free. No real money moves: it is a practice ride inside the Tuk Tuk app.",
+    "cta_passenger": "Try as a passenger",
+    "cta_driver": "Try as a driver"
   }
 }

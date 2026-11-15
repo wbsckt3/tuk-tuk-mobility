@@ -25,7 +25,8 @@
   "modes": {
     "passenger": "Pedir un viaje",
     "driver": "Soy conductor",
-    "fleet": "Panel de flota"
+    "fleet": "Panel de flota",
+    "testdrive": "🧪 Test Drive | MockSpot"
   },
   "hero": {
     "passenger": {
@@ -275,7 +276,8 @@
     "admin_dash": "Dashboard admin",
     "plans": "Planes",
     "how": "Cómo funciona",
-    "copy": "Tuk Tuk · Powered by P2L Mobility"
+    "copy": "Tuk Tuk · Powered by P2L Mobility",
+    "testdrive": "Test Drive | MockSpot"
   },
   "payments": {
     "meta_title": "Tarifas y pagos — P2L Empresa",
@@ -514,5 +516,25 @@
     "cta_btn": "Ir a Explee",
     "source": "Fuente de referencia:",
     "back": "Volver a Tuk Tuk"
+  },
+  "testdrive": {
+    "eyebrow": "🧪 Test Drive | MockSpot",
+    "title": "Prueba Tuk Tuk antes de tu primer viaje real",
+    "lead": "Haz un viaje completo en la app real, desde tu celular y sin esperar a nadie: nosotros hacemos de la otra persona del viaje y un asistente te guía paso a paso.",
+    "p_title": "Pruébalo como pasajero",
+    "p_text": "Pides tu tuk tuk y un conductor de prueba acepta, llega por ti y te lleva a tu destino. Lo sigues en el mapa como en un viaje de verdad.",
+    "d_title": "Pruébalo como conductor",
+    "d_text": "Entras con el código de tu empresa, te llega la solicitud de un pasajero de prueba, la aceptas, lo recoges y cierras el viaje.",
+    "f_title": "Ideal para tu flota",
+    "f_text": "Antes de salir a la calle, tus conductores practican el flujo completo: aceptar, recoger, iniciar y cerrar un viaje.",
+    "s1_title": "Elige tu perfil",
+    "s1_text": "Pasajero o conductor: tú decides qué lado del viaje vivir.",
+    "s2_title": "Entra con Google",
+    "s2_text": "Es la misma entrada de la app. Sin formularios largos.",
+    "s3_title": "Sigue al asistente",
+    "s3_text": "La etiqueta MockSpot te dice en qué va tu viaje y qué sigue, en todo momento.",
+    "note": "Gratis. No se mueve dinero real: es un viaje de práctica dentro de la app de Tuk Tuk.",
+    "cta_passenger": "Probar como pasajero",
+    "cta_driver": "Probar como conductor"
   }
 }
