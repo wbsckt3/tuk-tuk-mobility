@@ -109,16 +109,24 @@
       border: 1px solid #fff;
     }
     .offer a:active { transform: translateY(1px); }
-    .offer__ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: #fff3ea; }
-    .offer__ico img { width: 34px; height: 34px; object-fit: contain; }
-    .offer__ico--fleet { background: #eef4ff; font-size: 24px; }
+    .offer__ico { width: 78px; height: 60px; border-radius: 16px; display: grid; place-items: center; background: #fff3ea; }
+    .offer__ico img { width: 64px; height: auto; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(17, 24, 39, 0.18)); }
+    /* Empresa: flota de 3 tuk tuks (dos atrás, uno al frente) */
+    .offer__ico--fleet { position: relative; width: 100px; background: #eef4ff; }
+    .offer__ico--fleet img { position: absolute; width: 46px; }
+    .offer__ico--fleet .fleet-back-l { left: 6px; top: 7px; opacity: 0.9; }
+    .offer__ico--fleet .fleet-back-r { right: 6px; top: 7px; opacity: 0.9; transform: scaleX(-1); }
+    .offer__ico--fleet .fleet-front { left: 50%; bottom: 5px; width: 56px; transform: translateX(-50%); z-index: 1; }
     .offer strong { font-size: 1rem; line-height: 1.25; }
     .offer span { color: var(--muted); font-size: 0.82rem; line-height: 1.35; }
     .offer em { font-style: normal; color: var(--brand-deep); font-weight: 800; font-size: 0.85rem; }
     .offer a.offer--wide { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 14px; }
     .offer--wide .offer__body { display: flex; flex-direction: column; gap: 4px; min-width: 0; color: var(--ink); font-size: inherit; }
     .offer--wide .offer__ico { flex: none; }
-    .offer__ico--lab { background: #ecfdf5; font-size: 24px; }
+    /* Test Drive: tuk tuk + probeta */
+    .offer__ico--lab { width: 104px; display: flex; align-items: center; justify-content: center; gap: 2px; background: #ecfdf5; }
+    .offer__ico--lab img { width: 58px; }
+    .offer .offer__flask { font-size: 32px; line-height: 1; color: inherit; filter: drop-shadow(0 2px 3px rgba(17, 24, 39, 0.18)); }
     .offer-lab { grid-column: 1 / -1; display: flex; gap: 14px; align-items: flex-start; background: var(--card); border-radius: 22px; padding: 16px; box-shadow: 0 4px 14px rgba(17, 24, 39, 0.06); border: 1px solid #fff; }
     .offer-lab .offer__ico { flex: none; }
     .offer-lab .offer__body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
@@ -195,16 +203,16 @@
           </a>
           <!-- Empresa / cooperativa → panel de empresa (/tuki-dashboard) -->
           <a href="https://www.refactorii.com/p2l-tenant/login/tuki-dashboard" data-perfil="empresa">
-            <span class="offer__ico offer__ico--fleet" aria-hidden="true">🛺</span>
+            <span class="offer__ico offer__ico--fleet" aria-hidden="true"><img class="fleet-back-l" src="assets/tuki-driver-icon.png" alt="" /><img class="fleet-back-r" src="assets/tuki-driver-icon.png" alt="" /><img class="fleet-front" src="assets/tuki-driver-icon.png" alt="" /></span>
             <strong>¿Tienes una empresa de Tuk Tuks?</strong>
             <span>Suma tu flota y administra conductores y viajes.</span>
             <em>Ofrecer mi flota →</em>
           </a>
           <!-- MockSpot · Test drive: la misma app de Tuk Tuk; la otra punta del viaje es automática -->
           <div class="offer-lab" role="group" aria-labelledby="labTitle">
-            <span class="offer__ico offer__ico--lab" aria-hidden="true">🛺</span>
+            <span class="offer__ico offer__ico--lab" aria-hidden="true"><img src="assets/tuki-driver-icon.png" alt="" /><span class="offer__flask">🧪</span></span>
             <span class="offer__body">
-              <strong id="labTitle">🧪 Test Drive | MockSpot</strong>
+              <strong id="labTitle">Test Drive | MockSpot</strong>
               <span>Prueba un viaje completo en la app real. Nosotros hacemos de la otra persona.</span>
               <span class="offer-lab__actions">
                 <a href="https://www.refactorii.com/p2l-tenant/login/tuki" data-perfil="passenger" data-mockspot="1">Probar como pasajero →</a>
