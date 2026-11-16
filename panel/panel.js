@@ -22,7 +22,8 @@
     selectedWaFrom: '',
     chatSocketOk: false,
     chatStickToBottom: true,
-    flashingWaFrom: ''
+    flashingWaFrom: '',
+    panelPane: 'mcp'
   };
   var chatPollTimer = null;
   var chatFlashTimer = null;
@@ -83,6 +84,10 @@
   }
 
   function stopChatLive() {
+    if (analyticsTimer) {
+      clearInterval(analyticsTimer);
+      analyticsTimer = null;
+    }
     if (chatPollTimer) {
       clearInterval(chatPollTimer);
       chatPollTimer = null;
@@ -477,6 +482,135 @@
     chatPollTimer = setInterval(pollConversations, 3000);
     chatLiveTimer = setInterval(updateLiveClassesOnly, 8000);
     aiUsageTimer = setInterval(pollAiUsage, 8000);
+    if (analyticsAllowed()) {
+      pollAnalytics();
+      analyticsTimer = setInterval(pollAnalytics, 5000);
+    }
+  }
+
+  /* ——— Analytics en tiempo real (capacidad del plan, desde Growth Agent) ———
+   * Mismo monitoreo de sabelotodo-clases, por empresa: el botón p2l-wa.js de la landing reporta
+   * visitas y presencia; aquí se ven en vivo junto a usuarios y conversaciones.
+   */
+  var analyticsTimer = null;
+
+  function analyticsAllowed() {
+    var caps = state.company && state.company.planSpec && state.company.planSpec.agentCapabilities;
+    return isEnterprise() || !!(caps && caps.analytics === true);
+  }
+
+  function analyticsSectionHtml() {
+    var c = state.company || {};
+    var url = c.monitorUrlEffective || c.monitorUrl || c.landingUrl || '';
+    if (!analyticsAllowed()) {
+      return (
+        '<section class="tg-panel tg-board__live tg-live tg-live--locked">' +
+        '<div class="tg-panel__head"><h2>Usuarios en tiempo real</h2><span class="tg-chip tg-chip--off">No incluido</span></div>' +
+        '<p class="tg-ctx__lead">Mira quién entra a tu landing, en vivo: en línea, visitas de hoy, de dónde llegan y qué páginas ven.</p>' +
+        '<p class="tg-live__hint">Disponible desde el plan <strong>Growth Agent</strong> (MC «Analytics en tiempo real»).</p>' +
+        '</section>'
+      );
+    }
+    return (
+      '<section class="tg-panel tg-board__live tg-live">' +
+      '<div class="tg-panel__head"><div><h2>Usuarios en tiempo real</h2>' +
+      '<p class="tg-ctx__lead">Visitas a tu landing (las reporta el botón de WhatsApp).</p></div>' +
+      '<span class="tg-chats__live" id="tg-live-dot">○ Conectando</span></div>' +
+      (url
+        ? '<p class="tg-live__url">Monitoreando: <a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(url.replace(/^https?:\/\//, '')) + '</a></p>'
+        : '<p class="tg-live__url">Sin URL de monitoreo: cuenta cualquier página con tu botón de WhatsApp.</p>') +
+      '<div id="tg-live-body"><p class="tg-chats__empty">Cargando visitas…</p></div>' +
+      '</section>'
+    );
+  }
+
+  function liveAgo(iso) {
+    var s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
+    if (s < 60) return 'hace ' + s + ' s';
+    var m = Math.round(s / 60);
+    if (m < 60) return 'hace ' + m + ' min';
+    var h = Math.round(m / 60);
+    if (h < 24) return 'hace ' + h + ' h';
+    return 'hace ' + Math.round(h / 24) + ' d';
+  }
+
+  var LIVE_STATE = { online: 'En línea', idle: 'Inactivo', left: 'Salió', offline: 'Fuera' };
+
+  function liveChips(rows, label) {
+    if (!rows || !rows.length) return '';
+    return (
+      '<p class="tg-live__chips"><span class="tg-live__lbl">' + label + '</span>' +
+      rows.map(function (r) {
+        return '<span class="tg-chip">' + esc(r.value) + ' · ' + r.count + '</span>';
+      }).join('') +
+      '</p>'
+    );
+  }
+
+  function renderAnalytics(d) {
+    var body = document.getElementById('tg-live-body');
+    var dot = document.getElementById('tg-live-dot');
+    if (!body) return;
+    if (dot) {
+      dot.textContent = '● En vivo';
+      dot.classList.add('is-on');
+    }
+    var k = (d && d.counters) || {};
+    var tiles = [
+      ['En línea ahora', k.online || 0, 'is-online'],
+      ['Inactivos', k.idle || 0, 'is-idle'],
+      ['Visitas hoy', k.visitsToday || 0, ''],
+      ['Visitantes hoy', k.visitorsToday || 0, '']
+    ];
+    var html =
+      '<ul class="tg-live__tiles">' +
+      tiles.map(function (t) {
+        return '<li class="tg-live__tile ' + t[2] + '"><b>' + t[1] + '</b><span>' + t[0] + '</span></li>';
+      }).join('') +
+      '</ul>' +
+      '<p class="tg-live__week">Últimos 7 días: <strong>' + (k.visitsWeek || 0) + '</strong> visitas · <strong>' + (k.visitorsWeek || 0) + '</strong> visitantes</p>' +
+      liveChips(d && d.sources, 'Origen') +
+      liveChips(d && d.countries, 'País') +
+      liveChips(d && d.topPaths, 'Páginas');
+    var rows = (d && d.visitors) || [];
+    if (!rows.length) {
+      html += '<p class="tg-chats__empty">Aún no hay visitas. Cuando alguien entre a tu landing aparece aquí, en vivo.</p>';
+    } else {
+      html +=
+        '<ul class="tg-live__list">' +
+        rows.slice(0, 30).map(function (v) {
+          var st = v.state || 'offline';
+          return (
+            '<li class="tg-live__row">' +
+            '<span class="tg-live__dot is-' + esc(st) + '" title="' + esc(LIVE_STATE[st] || st) + '"></span>' +
+            '<span class="tg-live__who">' +
+            '<strong>Visitante ' + esc(String(v.visitor || '').slice(0, 6)) + '</strong>' +
+            '<small>' + esc(LIVE_STATE[st] || st) + ' · ' + esc(liveAgo(v.lastAt)) +
+            (v.country ? ' · ' + esc(v.country) : '') +
+            (v.device ? ' · ' + (v.device === 'mobile' ? 'móvil' : 'escritorio') : '') +
+            (v.source ? ' · ' + esc(v.source) : '') + '</small>' +
+            (v.paths && v.paths.length ? '<small class="tg-live__paths">' + v.paths.map(esc).join(' · ') + '</small>' : '') +
+            '</span>' +
+            '<span class="tg-chip">' + v.visits + ' visita' + (v.visits === 1 ? '' : 's') + '</span>' +
+            '</li>'
+          );
+        }).join('') +
+        '</ul>';
+    }
+    body.innerHTML = html;
+  }
+
+  function pollAnalytics() {
+    if (!state.token || !document.getElementById('tg-live-body')) return;
+    api('/public/portal/analytics')
+      .then(renderAnalytics)
+      .catch(function () {
+        var dot = document.getElementById('tg-live-dot');
+        if (dot) {
+          dot.textContent = '○ Sin conexión';
+          dot.classList.remove('is-on');
+        }
+      });
   }
 
   function chatsSectionHtml() {
@@ -829,6 +963,7 @@
   }
 
   function planOn(id) {
+    if (isEnterprise() && id !== 'github' && id !== 'landing') return true;
     var caps = state.company && state.company.planSpec && state.company.planSpec.agentCapabilities;
     if (caps && typeof caps[id] === 'boolean') return caps[id] === true;
     return id !== 'devopsChat';
@@ -866,18 +1001,684 @@
       markPlanOff(document.querySelector('.tg-board__tutorial'));
       markPlanOff(document.querySelector('.tg-float-kit'));
     }
+    if (!planOn('dropbox')) markPlanOff(document.querySelector('.tg-board__dropbox'));
     var ctxSave = document.getElementById('tg-save-ctx');
     if (ctxSave && !planOn('skill') && !planOn('capabilities')) ctxSave.disabled = true;
   }
 
+  function isEnterprise() {
+    var c = state.company || {};
+    if (c.enterprise) return true;
+    var spec = c.planSpec || {};
+    var code = String(spec.code || '').toLowerCase();
+    var name = String(spec.name || '').toLowerCase();
+    return code === 'enterprise' || name === 'enterprise' || Number(c.plan) === 4;
+  }
+
   function companyHeadline(c) {
     var name = (c && c.name) || 'Empresa';
-    var plan = (c && c.planSpec && c.planSpec.name) || (c && c.plan) || '';
+    var plan = (c && c.planSpec && c.planSpec.name) || '';
     var bits = [name, 'Bot WhatsApp IA'];
     if (plan) bits.push('Plan ' + plan);
-    if (c && c.waManagedBy) bits.push('WA ' + c.waManagedBy);
-    if (c && c.subscriptionStatus) bits.push(String(c.subscriptionStatus));
     return bits.map(function (bit) { return esc(bit); }).join('<span class="tg-co__sep">|</span>');
+  }
+
+  function dropboxSectionHtml(c) {
+    var at = (c && c.agentTech) || {};
+    var on = planOn('dropbox');
+    return (
+      '<section class="tg-panel tg-board__dropbox">' +
+      '<div class="tg-panel__head"><div><h2>Dropbox</h2>' +
+      '<p class="tg-muted">' +
+      (on
+        ? 'App key, app secret, refresh token y carpeta de esta empresa. El cluster también puede cargarlos en la tarjeta Dropbox.'
+        : 'Tu plan no incluye Dropbox.') +
+      '</p></div>' +
+      (on ? '<button type="button" class="tg-btn sm" id="tg-save-dropbox">Guardar Dropbox</button>' : '') +
+      '</div>' +
+      (on
+        ? '<div class="tg-grid">' +
+          '<label class="tg-field"><span>App key</span><input id="tg-dbx-key" value="' + esc(at.dropboxAppKey) + '" placeholder="DROPBOX_APP_KEY" /></label>' +
+          '<label class="tg-field"><span>Carpeta</span><input id="tg-dbx-folder" value="' + esc(at.dropboxAppFolder) + '" placeholder="DROPBOX_APP_FOLDER" /></label>' +
+          '<label class="tg-field"><span>App secret</span><input id="tg-dbx-secret" type="password" autocomplete="off" placeholder="' + esc(at.hasDropboxAppSecret ? 'App secret · ••••' : 'DROPBOX_APP_SECRET') + '" /></label>' +
+          '<label class="tg-field"><span>Refresh token</span><input id="tg-dbx-refresh" type="password" autocomplete="off" placeholder="' + esc(at.hasDropboxRefreshToken ? 'Refresh token · ••••' : 'DROPBOX_REFRESH_TOKEN') + '" /></label>' +
+          '</div>'
+        : '') +
+      '</section>'
+    );
+  }
+
+  var LOGO = {
+    groq: '<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="#F55036"/><path fill="#fff" d="M7.2 16.4 12 5.6l4.8 10.8h-2.1l-.9-2.1H10.2l-.9 2.1H7.2zm4.8-9.1-1.6 3.8h3.2L12 7.3z"/></svg>',
+    dropbox: '<svg viewBox="0 0 24 24"><path fill="#0061FF" d="M6 1.5 12 5.4 6 9.3 0 5.4 6 1.5zm12 0 6 3.9-6 3.9-6-3.9 6-3.9zM0 13.2 6 9.3l6 3.9L6 17.1 0 13.2zm18-3.9 6 3.9L18 17.1l-6-3.9 6-3.9zM6 18.4l6-3.9 6 3.9-6 3.9-6-3.9z"/></svg>',
+    whatsapp: '<svg viewBox="0 0 24 24"><path fill="#25D366" d="M12.04 2C6.58 2 2.15 6.4 2.15 11.83c0 1.74.46 3.44 1.34 4.94L2 22l5.39-1.41a10.1 10.1 0 0 0 4.65 1.18h.01c5.46 0 9.89-4.4 9.89-9.83C21.94 6.4 17.5 2 12.04 2zm5.76 13.86c-.24.68-1.4 1.25-1.94 1.33-.5.07-1.12.1-1.81-.11-.41-.13-.94-.31-1.62-.6-2.85-1.23-4.71-4.1-4.85-4.29-.14-.19-1.15-1.53-1.15-2.92 0-1.39.73-2.07 1-2.36.24-.26.64-.38 1.02-.38.12 0 .23 0 .33.01.3.01.45.03.65.5.24.58.82 2 .89 2.15.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.16-.29.36-.41.48-.14.14-.28.28-.12.55.16.26.71 1.17 1.52 1.9 1.05.93 1.93 1.22 2.2 1.36.28.14.44.12.6-.07.16-.19.69-.8.87-1.08.19-.26.37-.22.62-.13.26.1 1.62.76 1.9.9.28.14.46.21.53.33.07.12.07.68-.17 1.36z"/></svg>',
+    atlas: '<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="#001E2B"/><path fill="#00ED64" d="M12.2 3.2c.6 2.2-.2 3.6-1.4 5.1 2.4.2 4.8-.4 7.2-2.2-.4 5.2-.2 9.6-2.8 12.8-1.7 2.2-4 3.2-6.4 2.8.1-2.1.6-5 2.3-8.6-1.7 2.7-2.6 5.2-2.9 7.5-2.3-.4-3.8-2.2-3.8-4.8 0-4.4 2.4-8.4 6.6-11.8.4-.3.8-.6 1.2-.8z"/></svg>',
+    geoapify: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#0B6E4F"/><path fill="#fff" d="M12 4.6c-3.1 0-5.4 2.3-5.4 5.3 0 4 5.4 9.5 5.4 9.5s5.4-5.5 5.4-9.5c0-3-2.3-5.3-5.4-5.3zm0 7.2a1.9 1.9 0 1 1 0-3.8 1.9 1.9 0 0 1 0 3.8z"/></svg>',
+    p2l: '<svg viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#1a9f63"/><text x="16" y="21" text-anchor="middle" fill="#fff" font-size="11" font-weight="700" font-family="Inter,Arial">P2L</text></svg>'
+  };
+
+  var CARD_THREADS = [
+    { from: 'groq', to: 'skill', color: '#f97316', label: 'La inferencia lee el skill' },
+    { from: 'groq', to: 'capabilities', color: '#f97316', label: 'La inferencia usa las capacidades' },
+    { from: 'groq', to: 'chat', color: '#f97316', label: 'La inferencia responde en las conversaciones de WhatsApp' },
+    { from: 'dropbox', to: 'capabilities', color: '#0061FF', label: 'Dropbox entra en las capacidades si está activo' },
+    { from: 'whatsapp', to: 'skill', color: '#25D366', label: 'El skill es el asistente de esa cuenta de WhatsApp' },
+    { from: 'whatsapp', to: 'capabilities', color: '#25D366', label: 'WhatsApp usa las capacidades del agente' },
+    { from: 'whatsapp', to: 'chat', color: '#25D366', label: 'Las conversaciones salen de la cuenta de WhatsApp' },
+    { from: 'atlas', to: 'chat', color: '#d8b4fe', label: 'Los hilos se guardan en la base de datos' },
+    { from: 'geoapify', to: 'mobility', color: '#0B6E4F', label: 'Movilidad geocodifica con Geoapify' },
+    { from: 'geoapify', to: 'cad', color: '#0B6E4F', label: 'CAD alert panel usa Geoapify' }
+  ];
+
+  var modalKind = '';
+
+  function on(v) {
+    return v ? 'Activo' : 'Apagado';
+  }
+
+  function enterpriseCards(c, conn) {
+    var waOn = Boolean(conn && conn.phoneNumberId);
+    var at = (c && c.agentTech) || {};
+    var list = Array.isArray(c.productCapabilities && c.productCapabilities.capabilities)
+      ? c.productCapabilities.capabilities
+      : [];
+    var dropboxCap = list.some(function (item) {
+      return String((item && item.id) || '').toLowerCase() === 'dropbox';
+    });
+    var services = [
+      { kind: 'groq', logo: 'groq', wallpaper: false, label: 'Inferencia IA | Agente', state: at.groqAccountEmail || (at.hasGroqKey ? 'Clave guardada' : 'Sin clave'), active: Boolean(at.hasGroqKey) },
+      { kind: 'dropbox', logo: 'dropbox', wallpaper: false, label: 'Dropbox | Almacenamiento de imagenes', state: at.hasDropboxRefreshToken ? 'OAuth de la empresa' : 'Sin refresh token', active: Boolean(at.hasDropboxRefreshToken) },
+      { kind: 'whatsapp', logo: 'whatsapp', wallpaper: false, label: 'Whatsapp | META Business Account', state: 'WhatsApp Business Account', items: ['Configuración de tu app META y Whatsapp business acount', 'link de tu agente Whatsapp'], active: waOn },
+      { kind: 'atlas', logo: 'atlas', wallpaper: false, label: 'Base de datos | Almacenamiento Conversaciones Agente', state: c.hasDataMongo ? 'Atlas propio' : 'BD del tenant', active: Boolean(c.hasDataMongo) },
+      { kind: 'geoapify', logo: 'geoapify', wallpaper: false, label: 'Geoapify | Georreferenciación API', state: on(c.components && c.components.geoapify && c.components.geoapify.enabled), active: Boolean(c.components && c.components.geoapify && c.components.geoapify.enabled) }
+    ];
+    var cafe = [
+      { kind: 'plans', logo: 'p2l', wallpaper: true, label: 'Panel de empresa', state: (c.panelGithub && c.panelGithub.pagesUrl) ? 'Panel publicado' : 'Publica tu panel', inCompanyPanel: true, active: Boolean(c.panelGithub && c.panelGithub.pagesUrl) },
+      { kind: 'skill', logo: 'p2l', wallpaper: true, label: 'Skill del agente IA (Asistente de Whatsapp)', state: waOn ? 'Skill del agente' : 'Saludo del agente', inCompanyPanel: true, active: Boolean(c.skills && c.skills[0] && String(c.skills[0].content || '').trim()) },
+      { kind: 'capabilities', logo: 'p2l', wallpaper: true, label: 'Capacidades del agente IA (Asistente de Whatsapp)', state: dropboxCap ? 'Dropbox en la lista' : (list.length + ' en la lista'), inCompanyPanel: true, active: list.length > 0 },
+      { kind: 'chat', logo: 'p2l', wallpaper: true, label: 'Conversaciones en Whatsapp', state: 'Hilos del panel', inCompanyPanel: true, active: waOn },
+      { kind: 'mobility', logo: 'p2l', wallpaper: true, label: 'Movilidad', state: on(c.components && c.components.mobility && c.components.mobility.enabled), inCompanyPanel: true, active: Boolean(c.components && c.components.mobility && c.components.mobility.enabled) },
+      { kind: 'cad', logo: 'p2l', wallpaper: true, label: 'CAD alert panel', state: on(c.components && c.components.cad && c.components.cad.enabled), active: Boolean(c.components && c.components.cad && c.components.cad.enabled) },
+      { kind: 'devopsChat', logo: 'p2l', wallpaper: true, label: 'Soporte Devops P2L Chat', state: 'Incluido en el plan', inCompanyPanel: true, active: true }
+    ];
+    return { services: services, cafe: cafe };
+  }
+
+  function cardHtml(card) {
+    var items = (card.items || []).map(function (item) {
+      return '<span class="tg-comp__item">– ' + esc(item) + '</span>';
+    }).join('');
+    return (
+      '<div class="tg-comp-slot" data-kind="' + card.kind + '">' +
+      '<button type="button" class="tg-comp' + (card.wallpaper ? ' tg-comp--wa' : '') + '" data-open="' + card.kind + '">' +
+      '<span class="tg-comp__logo">' + (LOGO[card.logo] || LOGO.p2l) + '</span>' +
+      '<span class="tg-comp__body"><strong>' + esc(card.label) + '</strong>' +
+      '<span class="tg-comp__state">' + esc(card.state) + '</span>' +
+      (card.inCompanyPanel ? '<em>disponible en panel de empresa</em>' : '') +
+      items +
+      '</span>' +
+      '<span class="tg-switch' + (card.active ? ' tg-switch--on' : '') + '" aria-hidden="true"></span>' +
+      '</button></div>'
+    );
+  }
+
+  function toolsBoardHtml(c, conn) {
+    var groups = enterpriseCards(c, conn);
+    return (
+      '<section class="tg-panel tg-tools"><h2>Componentes MCP (Model Context Protocol) · ' + esc(c.name || 'Empresa') + '</h2>' +
+      '<div class="tg-comp-board" id="tg-comp-board">' +
+      '<div class="tg-comp-grid">' + groups.services.map(cardHtml).join('') + '</div>' +
+      '<div class="tg-threads-gap" aria-hidden="true"></div>' +
+      '<div class="tg-comp-grid tg-comp-grid--p2l">' + groups.cafe.map(cardHtml).join('') + '</div>' +
+      '<svg class="tg-threads" id="tg-threads"></svg>' +
+      '</div></section>'
+    );
+  }
+
+  function fieldVal(id) {
+    var n = document.getElementById(id);
+    return n ? String(n.value || '').trim() : '';
+  }
+
+  function fieldChecked(id) {
+    var n = document.getElementById(id);
+    return !!(n && n.checked);
+  }
+
+  function accountFields(kind) {
+    if (kind === 'skill' || kind === 'chat' || kind === 'mobility' || kind === 'capabilities' || kind === 'devopsChat') return '';
+    return (
+      '<label class="tg-field">Correo de la cuenta<input id="tg-m-email" type="text" autocomplete="off" placeholder="correo de la cuenta" /></label>' +
+      '<label class="tg-field">Contraseña<input id="tg-m-pass" type="text" autocomplete="off" placeholder="contraseña" /></label>'
+    );
+  }
+
+  function modalInner(kind, c, conn) {
+    var at = c.agentTech || {};
+    var pack = floatPack(c, conn);
+    if (kind === 'groq') {
+      return (
+        accountFields(kind) +
+        '<a class="tg-ext-link" href="https://groq.com/" target="_blank" rel="noopener">Abrir Groq → groq.com</a>' +
+        '<p class="tg-muted tg-field--wide">Inferencia IA de ' + esc(c.name) + '. Si dejas la clave vacía, sigue la cuenta Groq actual.</p>' +
+        '<label class="tg-field tg-field--wide">GROQ_API_KEY<input id="tg-m-groq-key" type="password" placeholder="' + esc(at.hasGroqKey ? 'Groq · ••••' : 'gsk_…') + '" /></label>' +
+        '<label class="tg-field tg-field--wide">GROQ_ENDPOINT<input id="tg-m-groq-ep" placeholder="https://api.groq.com/openai/v1" value="' + esc(at.groqEndpoint) + '" /></label>' +
+        '<label class="tg-field tg-field--wide">GROQ_MODEL<input id="tg-m-groq-model" placeholder="openai/gpt-oss-20b" value="' + esc(at.groqModel) + '" /></label>' +
+        '<label class="tg-field">GROQ_RPM_LIMIT<input id="tg-m-groq-rpm" type="number" min="0" value="' + esc(at.groqRpmLimit || '') + '" /></label>' +
+        '<label class="tg-field">GROQ_TPM_LIMIT<input id="tg-m-groq-tpm" type="number" min="0" value="' + esc(at.groqTpmLimit || '') + '" /></label>' +
+        '<label class="tg-field">GROQ_REASONING_EFFORT<input id="tg-m-groq-effort" placeholder="low" value="' + esc(at.groqReasoningEffort) + '" /></label>' +
+        '<label class="tg-field">SABELOTODO_AI_DAILY_REQUEST_LIMIT<input id="tg-m-groq-dreq" type="number" min="0" value="' + esc(at.groqDailyRequestLimit || '') + '" /></label>' +
+        '<label class="tg-field">SABELOTODO_AI_DAILY_TOKEN_LIMIT<input id="tg-m-groq-dtok" type="number" min="0" value="' + esc(at.groqDailyTokenLimit || '') + '" /></label>' +
+        '<label class="tg-check tg-field--wide"><input id="tg-m-groq-tls" type="checkbox"' + (at.groqInsecureTls ? ' checked' : '') + ' /> GROQ_INSECURE_TLS</label>'
+      );
+    }
+    if (kind === 'dropbox') {
+      return (
+        accountFields(kind) +
+        '<a class="tg-ext-link" href="https://www.dropbox.com/" target="_blank" rel="noopener">Abrir Dropbox → dropbox.com</a>' +
+        '<p class="tg-muted tg-field--wide">App key, app secret, refresh token y carpeta. El access token se renueva solo.</p>' +
+        '<label class="tg-field">App key<input id="tg-m-dbx-key" value="' + esc(at.dropboxAppKey) + '" placeholder="DROPBOX_APP_KEY" /></label>' +
+        '<label class="tg-field">Carpeta<input id="tg-m-dbx-folder" value="' + esc(at.dropboxAppFolder) + '" placeholder="DROPBOX_APP_FOLDER" /></label>' +
+        '<label class="tg-field">App secret<input id="tg-m-dbx-secret" type="password" placeholder="' + esc(at.hasDropboxAppSecret ? 'App secret · ••••' : 'DROPBOX_APP_SECRET') + '" /></label>' +
+        '<label class="tg-field">Refresh token<input id="tg-m-dbx-refresh" type="password" placeholder="' + esc(at.hasDropboxRefreshToken ? 'Refresh token · ••••' : 'DROPBOX_REFRESH_TOKEN') + '" /></label>'
+      );
+    }
+    if (kind === 'whatsapp') {
+      conn = conn || {};
+      return (
+        accountFields(kind) +
+        '<div class="tg-wa-kit"><p class="tg-wa-kit__title">Enlace para compartir</p>' +
+        '<p class="tg-muted">Comparte este enlace del agente de ' + esc(c.name) + '.</p>' +
+        '<p class="tg-wa-kit__link">' + esc(pack.link) + '</p>' +
+        '<button type="button" class="tg-btn ghost sm" id="tg-m-copy-link">Copiar enlace</button>' +
+        '<p class="tg-wa-kit__title">HTML del botón flotante</p>' +
+        '<pre class="tg-wa-kit__code" id="tg-m-float">' + esc(pack.html) + '</pre>' +
+        '<button type="button" class="tg-btn ghost sm" id="tg-m-copy-html">Copiar HTML</button></div>' +
+        '<p class="tg-muted tg-field--wide">Salud: <strong>' + esc(conn.health || 'unknown') + '</strong> · Último webhook: ' +
+        (conn.lastWebhookAt ? esc(formatWhen(conn.lastWebhookAt)) : 'aún no llega ninguno') + '</p>' +
+        '<label class="tg-field">Meta App ID<input id="tg-m-wa-app" value="' + esc(conn.metaAppId) + '" /></label>' +
+        '<label class="tg-field">WABA ID<input id="tg-m-wa-waba" value="' + esc(conn.wabaId) + '" /></label>' +
+        '<label class="tg-field">Phone Number ID<input id="tg-m-wa-phone" value="' + esc(conn.phoneNumberId) + '" /></label>' +
+        '<label class="tg-field">Número visible<input id="tg-m-wa-display" value="' + esc(conn.displayPhone) + '" placeholder="+57…" /></label>' +
+        '<label class="tg-field tg-field--wide">Webhook<span class="tg-wa-ro"><input readonly value="' + esc(conn.webhookUrl || '') + '" /><button type="button" class="tg-btn ghost sm" id="tg-m-copy-hook">Copiar</button></span></label>' +
+        '<label class="tg-field tg-field--wide">Verify token<span class="tg-wa-ro"><input readonly value="' + esc(conn.verifyToken || '') + '" /><button type="button" class="tg-btn ghost sm" id="tg-m-copy-verify">Copiar</button></span></label>' +
+        '<label class="tg-field">App Secret<input id="tg-m-wa-secret" type="password" placeholder="' + esc(conn.hasAppSecret ? '•••• guardado' : 'App Secret') + '" /></label>' +
+        '<label class="tg-field">Access Token<input id="tg-m-wa-token" type="password" placeholder="' + esc(conn.hasAccessToken ? '•••• guardado' : 'Access Token') + '" /></label>'
+      );
+    }
+    if (kind === 'atlas') {
+      return (
+        accountFields(kind) +
+        '<a class="tg-ext-link" href="https://account.mongodb.com/account/login" target="_blank" rel="noopener">Abrir MongoDB Atlas</a>' +
+        '<p class="tg-muted tg-field--wide">Vacío: hilos y borradores siguen en la base del tenant.</p>' +
+        '<label class="tg-field tg-field--wide">URL de Mongo Atlas<input id="tg-m-mongo" type="password" placeholder="' + esc(c.hasDataMongo ? 'mongodb · ••••' : 'mongodb+srv://…') + '" /></label>' +
+        (c.hasDataMongo ? '<label class="tg-check tg-field--wide"><input id="tg-m-mongo-clear" type="checkbox" /> Quitar la URL y volver a la base del tenant</label>' : '')
+      );
+    }
+    if (kind === 'geoapify') {
+      var geo = (c.components && c.components.geoapify) || {};
+      return (
+        accountFields(kind) +
+        '<a class="tg-ext-link" href="https://www.geoapify.com/" target="_blank" rel="noopener">Abrir Geoapify</a>' +
+        '<label class="tg-check tg-field--wide"><input id="tg-m-geo-on" type="checkbox"' + (geo.enabled ? ' checked' : '') + ' /> Geocodificar con la key de esta empresa</label>' +
+        '<label class="tg-field tg-field--wide">API key<input id="tg-m-geo-key" type="password" placeholder="' + esc(geo.hasKey ? 'Geoapify · ••••' : 'API key') + '" /></label>'
+      );
+    }
+    if (kind === 'skill') {
+      return (
+        '<p class="tg-muted tg-field--wide">El mismo texto del panel. Se puede editar aquí.</p>' +
+        '<label class="tg-field tg-field--wide">Skill<textarea id="tg-m-skill" class="tg-skill-area"></textarea></label>'
+      );
+    }
+    if (kind === 'capabilities') {
+      return (
+        '<p class="tg-muted tg-field--wide">Al activar un MCP, queda disponible como herramienta del agente.</p>' +
+        '<label class="tg-field tg-field--wide">Capacidades de producto<textarea id="tg-m-caps" class="tg-skill-area"></textarea></label>'
+      );
+    }
+    if (kind === 'chat') {
+      var rows = (state.conversations || []).map(function (t) {
+        return '<li>' + esc(t.label || ('+' + t.waFrom)) + ' · ' + esc(t.preview || '—') + '</li>';
+      }).join('');
+      return '<p class="tg-muted tg-field--wide">Las conversaciones ya viven en el panel.</p>' +
+        (rows ? '<ul class="tg-field--wide">' + rows + '</ul>' : '<p class="tg-muted tg-field--wide">Sin hilos todavía.</p>');
+    }
+    if (kind === 'mobility') {
+      var m = (c.components && c.components.mobility) || {};
+      return (
+        '<label class="tg-check tg-field--wide"><input id="tg-m-mob-on" type="checkbox"' + (m.enabled ? ' checked' : '') + ' /> Pedir ubicación y viaje por WhatsApp</label>' +
+        '<label class="tg-field tg-field--wide">URL que el agente entrega<input id="tg-m-mob-req" value="' + esc(m.requestUrl) + '" /></label>' +
+        '<label class="tg-field tg-field--wide">White label pasajero/conductor<input id="tg-m-mob-pass" value="' + esc(m.passengerWhiteLabelUrl) + '" /></label>' +
+        '<label class="tg-field tg-field--wide">White label panel empresa<input id="tg-m-mob-co" value="' + esc(m.companyPanelWhiteLabelUrl) + '" /></label>'
+      );
+    }
+    if (kind === 'cad') {
+      var cad = (c.components && c.components.cad) || {};
+      var types = cad.types || [];
+      return (
+        accountFields(kind) +
+        '<label class="tg-check tg-field--wide"><input id="tg-m-cad-on" type="checkbox"' + (cad.enabled ? ' checked' : '') + ' /> Recibir tipos de solicitud en el panel CAD</label>' +
+        '<label class="tg-field tg-field--wide">URL del panel<input id="tg-m-cad-url" value="' + esc(cad.panelUrl) + '" /></label>' +
+        '<label class="tg-check"><input id="tg-m-cad-panico" type="checkbox"' + (types.indexOf('panico') >= 0 ? ' checked' : '') + ' /> Pánico</label>' +
+        '<label class="tg-check"><input id="tg-m-cad-dom" type="checkbox"' + (types.indexOf('domicilio') >= 0 ? ' checked' : '') + ' /> Domicilio</label>'
+      );
+    }
+    if (kind === 'plans') {
+      var plans = Array.isArray(c.landingPlans) ? c.landingPlans : [];
+      var rowsHtml = plans.map(function (p, i) {
+        return '<div class="tg-field--wide" data-plan="' + i + '">' +
+          '<input data-k="name" value="' + esc(p.name) + '" placeholder="Nombre" />' +
+          '<input data-k="priceCop" type="number" value="' + esc(p.priceCop || 0) + '" placeholder="Precio COP" />' +
+          '<input data-k="seats" value="' + esc(p.seats) + '" placeholder="Cupos" />' +
+          '<input data-k="text" value="' + esc(p.text) + '" placeholder="Texto" />' +
+          '<label class="tg-check"><input data-k="active" type="checkbox"' + (p.active ? ' checked' : '') + ' /> Activo</label>' +
+          '</div>';
+      }).join('');
+      return (
+        accountFields(kind) +
+        '<p class="tg-muted tg-field--wide">Estos planes van a planes.json del panel. No cambian el catálogo del cluster.</p>' +
+        '<label class="tg-field tg-field--wide">Landing URL<input id="tg-m-landing-url" value="' + esc(c.landingUrl) + '" placeholder="https://…" /></label>' +
+        '<div id="tg-m-plans">' + rowsHtml + '</div>' +
+        '<button type="button" class="tg-btn ghost sm" id="tg-m-add-plan">Agregar plan</button>'
+      );
+    }
+    if (kind === 'devopsChat') {
+      return '<p class="tg-muted tg-field--wide">Incluido en Enterprise. El chat de soporte del panel se puede usar.</p>';
+    }
+    return '';
+  }
+
+  var MODAL_TITLES = {
+    groq: 'Inferencia IA | Agente',
+    dropbox: 'Dropbox | Almacenamiento de imagenes',
+    whatsapp: 'Whatsapp | META Business Account',
+    atlas: 'Base de datos | Almacenamiento Conversaciones Agente',
+    geoapify: 'Geoapify | Georreferenciación API',
+    plans: 'Panel de empresa',
+    skill: 'Skill del agente IA',
+    capabilities: 'Capacidades del agente IA',
+    chat: 'Conversaciones en Whatsapp',
+    mobility: 'Movilidad',
+    cad: 'CAD alert panel',
+    devopsChat: 'Soporte Devops P2L Chat'
+  };
+
+  function closeToolModal() {
+    modalKind = '';
+    var node = document.getElementById('tg-tool-modal');
+    if (node) node.remove();
+  }
+
+  function openToolModal(kind) {
+    var c = state.company || {};
+    var conn = state.connection || {};
+    var pack = floatPack(c, conn);
+    closeToolModal();
+    modalKind = kind;
+    var wrap = document.createElement('div');
+    wrap.id = 'tg-tool-modal';
+    wrap.className = 'tg-modal';
+    wrap.innerHTML =
+      '<div class="tg-modal__card" role="dialog" aria-modal="true">' +
+      '<div class="tg-modal__head"><div class="tg-modal__head-main">' +
+      '<span class="tg-modal__logo">' + (LOGO[kind] || LOGO.p2l) + '</span>' +
+      '<div><p class="tg-modal__company">Empresa: <strong>' + esc(c.name) + '</strong></p>' +
+      '<h3>' + esc(MODAL_TITLES[kind] || kind) +
+      (LOGO[kind] && kind !== 'p2l' ? ' <span class="tg-modal__ext-tag">| Componente externo - API</span>' : '') +
+      '</h3></div></div>' +
+      '<button type="button" class="tg-btn ghost sm" id="tg-m-close">Cerrar</button></div>' +
+      '<div class="tg-plan-fields--modal">' + modalInner(kind, c, conn) + '</div>' +
+      '<div class="tg-modal__foot">' +
+      (kind === 'dropbox' ? '<button type="button" class="tg-btn ghost sm" id="tg-m-test-dbx">Probar conexión</button>' : '') +
+      (kind === 'chat' || kind === 'devopsChat' ? '' : '<button type="button" class="tg-btn sm" id="tg-m-save">Guardar</button>') +
+      '</div></div>';
+    wrap.addEventListener('click', function (ev) {
+      if (ev.target === wrap) closeToolModal();
+    });
+    document.body.appendChild(wrap);
+    if (kind === 'skill') {
+      var skillEl = document.getElementById('tg-m-skill');
+      if (skillEl) skillEl.value = (c.skills && c.skills[0] && c.skills[0].content) || '';
+    }
+    if (kind === 'capabilities') {
+      var capsEl = document.getElementById('tg-m-caps');
+      if (capsEl) {
+        capsEl.value = JSON.stringify(
+          c.productCapabilities && typeof c.productCapabilities === 'object'
+            ? c.productCapabilities
+            : { capabilities: [] },
+          null,
+          2
+        );
+      }
+    }
+    document.getElementById('tg-m-close').addEventListener('click', closeToolModal);
+    var saveBtn = document.getElementById('tg-m-save');
+    if (saveBtn) saveBtn.addEventListener('click', function () { saveToolModal(false); });
+    var testBtn = document.getElementById('tg-m-test-dbx');
+    if (testBtn) testBtn.addEventListener('click', testDropboxModal);
+    bindModalCopies(pack, conn);
+    var addPlan = document.getElementById('tg-m-add-plan');
+    if (addPlan) {
+      addPlan.addEventListener('click', function () {
+        var host = document.getElementById('tg-m-plans');
+        if (!host) return;
+        var i = host.children.length;
+        var row = document.createElement('div');
+        row.className = 'tg-field--wide';
+        row.setAttribute('data-plan', String(i));
+        row.innerHTML = '<input data-k="name" placeholder="Nombre" /><input data-k="priceCop" type="number" placeholder="Precio COP" /><input data-k="seats" placeholder="Cupos" /><input data-k="text" placeholder="Texto" /><label class="tg-check"><input data-k="active" type="checkbox" /> Activo</label>';
+        host.appendChild(row);
+      });
+    }
+  }
+
+  function bindModalCopies(pack, conn) {
+    function copy(id, text) {
+      var btn = document.getElementById(id);
+      if (!btn || !text || !navigator.clipboard) return;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(text).then(function () { flash('note', 'Copiado'); });
+      });
+    }
+    copy('tg-m-copy-link', pack && pack.link);
+    copy('tg-m-copy-html', pack && pack.html);
+    copy('tg-m-copy-hook', conn && conn.webhookUrl);
+    copy('tg-m-copy-verify', conn && conn.verifyToken);
+  }
+
+  function saveAccountIfNeeded(kind) {
+    if (kind === 'skill' || kind === 'chat' || kind === 'mobility' || kind === 'capabilities' || kind === 'devopsChat') {
+      return Promise.resolve();
+    }
+    var email = fieldVal('tg-m-email');
+    var password = fieldVal('tg-m-pass');
+    if (!email && !password) return Promise.resolve();
+    return api('/public/portal/section', {
+      method: 'PUT',
+      body: { section: 'serviceAccount', kind: kind, email: email, password: password }
+    }).then(function (out) {
+      if (out.company) state.company = out.company;
+    });
+  }
+
+  function testDropboxModal() {
+    saveToolModal(true).then(function () {
+      return api('/public/portal/dropbox/test', { method: 'POST', body: {} });
+    }).then(function (out) {
+      var minutes = Math.round(Number((out && out.expiresIn) || 0) / 60);
+      flash('note', 'Dropbox renovó el token (~' + minutes + ' min). Carpeta: ' + ((out && out.folder) || '—') + '.');
+    }).catch(onError);
+  }
+
+  function saveToolModal(keepOpen) {
+    var kind = modalKind;
+    var c = state.company || {};
+    var next;
+    if (kind === 'groq') {
+      next = api('/public/portal/agent-tech', {
+        method: 'PUT',
+        body: {
+          groqAccountEmail: fieldVal('tg-m-email'),
+          groqKey: fieldVal('tg-m-groq-key'),
+          groqEndpoint: fieldVal('tg-m-groq-ep'),
+          groqModel: fieldVal('tg-m-groq-model'),
+          groqReasoningEffort: fieldVal('tg-m-groq-effort'),
+          groqRpmLimit: fieldVal('tg-m-groq-rpm'),
+          groqTpmLimit: fieldVal('tg-m-groq-tpm'),
+          groqDailyRequestLimit: fieldVal('tg-m-groq-dreq'),
+          groqDailyTokenLimit: fieldVal('tg-m-groq-dtok'),
+          groqInsecureTls: fieldChecked('tg-m-groq-tls')
+        }
+      });
+    } else if (kind === 'dropbox') {
+      next = api('/public/portal/dropbox', {
+        method: 'PUT',
+        body: {
+          dropboxAccountEmail: fieldVal('tg-m-email'),
+          dropboxAppKey: fieldVal('tg-m-dbx-key'),
+          dropboxAppFolder: fieldVal('tg-m-dbx-folder'),
+          dropboxAppSecret: fieldVal('tg-m-dbx-secret'),
+          dropboxRefreshToken: fieldVal('tg-m-dbx-refresh')
+        }
+      });
+    } else if (kind === 'whatsapp') {
+      var waBody = {
+        metaAppId: fieldVal('tg-m-wa-app'),
+        wabaId: fieldVal('tg-m-wa-waba'),
+        phoneNumberId: fieldVal('tg-m-wa-phone'),
+        displayPhone: fieldVal('tg-m-wa-display')
+      };
+      var secret = fieldVal('tg-m-wa-secret');
+      var tok = fieldVal('tg-m-wa-token');
+      if (secret) waBody.appSecret = secret;
+      if (tok) waBody.accessToken = tok;
+      next = api('/public/portal/connection', { method: 'PUT', body: waBody });
+    } else if (kind === 'atlas') {
+      next = api('/public/portal/section', {
+        method: 'PUT',
+        body: { section: 'atlas', mongoUri: fieldVal('tg-m-mongo'), clear: fieldChecked('tg-m-mongo-clear') }
+      });
+    } else if (kind === 'geoapify') {
+      next = api('/public/portal/section', {
+        method: 'PUT',
+        body: { section: 'geoapify', enabled: fieldChecked('tg-m-geo-on'), apiKey: fieldVal('tg-m-geo-key') }
+      });
+    } else if (kind === 'skill') {
+      next = api('/public/portal/section', {
+        method: 'PUT',
+        body: { section: 'skill', content: (document.getElementById('tg-m-skill') || {}).value || '' }
+      });
+    } else if (kind === 'capabilities') {
+      var parsed;
+      try {
+        parsed = JSON.parse((document.getElementById('tg-m-caps') || {}).value || '{"capabilities":[]}');
+      } catch (e) {
+        flash('err', 'Capacidades JSON inválido');
+        return Promise.reject(e);
+      }
+      next = api('/public/portal/section', {
+        method: 'PUT',
+        body: { section: 'capabilities', productCapabilities: parsed }
+      });
+    } else if (kind === 'mobility') {
+      next = api('/public/portal/section', {
+        method: 'PUT',
+        body: {
+          section: 'mobility',
+          enabled: fieldChecked('tg-m-mob-on'),
+          requestUrl: fieldVal('tg-m-mob-req'),
+          passengerWhiteLabelUrl: fieldVal('tg-m-mob-pass'),
+          companyPanelWhiteLabelUrl: fieldVal('tg-m-mob-co')
+        }
+      });
+    } else if (kind === 'cad') {
+      var types = [];
+      if (fieldChecked('tg-m-cad-panico')) types.push('panico');
+      if (fieldChecked('tg-m-cad-dom')) types.push('domicilio');
+      next = api('/public/portal/section', {
+        method: 'PUT',
+        body: { section: 'cad', enabled: fieldChecked('tg-m-cad-on'), panelUrl: fieldVal('tg-m-cad-url'), types: types }
+      });
+    } else if (kind === 'plans') {
+      var planRows = [];
+      var host = document.getElementById('tg-m-plans');
+      if (host) {
+        Array.prototype.forEach.call(host.children, function (row, i) {
+          planRows.push({
+            id: 'plan-' + (i + 1),
+            name: (row.querySelector('[data-k="name"]') || {}).value || '',
+            priceCop: Number((row.querySelector('[data-k="priceCop"]') || {}).value || 0),
+            seats: (row.querySelector('[data-k="seats"]') || {}).value || '',
+            text: (row.querySelector('[data-k="text"]') || {}).value || '',
+            active: !!(row.querySelector('[data-k="active"]') || {}).checked
+          });
+        });
+      }
+      next = api('/public/portal/section', {
+        method: 'PUT',
+        body: { section: 'landingPlans', landingUrl: fieldVal('tg-m-landing-url'), landingPlans: planRows }
+      });
+    } else {
+      return Promise.resolve();
+    }
+    return saveAccountIfNeeded(kind)
+      .then(function () { return next; })
+      .then(function (out) {
+        if (out && out.company) state.company = out.company;
+        if (out && out.connection) state.connection = out.connection;
+        if (keepOpen === true) return out;
+        closeToolModal();
+        afterSave(out || {});
+        return out;
+      })
+      .catch(onError);
+  }
+
+  function measureEnterpriseThreads() {
+    var board = document.getElementById('tg-comp-board');
+    var svg = document.getElementById('tg-threads');
+    if (!board || !svg || window.matchMedia('(max-width: 900px)').matches) {
+      if (svg) svg.innerHTML = '';
+      return;
+    }
+    var box = board.getBoundingClientRect();
+    if (box.width < 80 || box.height < 80) return;
+    var cards = enterpriseCards(state.company || {}, state.connection || {});
+    var active = {};
+    cards.services.forEach(function (card) {
+      if (card.active) active[card.kind] = true;
+    });
+    function anchor(kind, edge) {
+      var slot = board.querySelector('[data-kind="' + kind + '"] .tg-comp');
+      if (!slot) return null;
+      var r = slot.getBoundingClientRect();
+      return {
+        x: r.left + r.width / 2 - box.left,
+        y: edge === 'bottom' ? r.bottom - box.top : r.top - box.top
+      };
+    }
+    var rows = CARD_THREADS.map(function (link) {
+      return { link: link, a: anchor(link.from, 'bottom'), b: anchor(link.to, 'top') };
+    }).filter(function (row) { return row.a && row.b; });
+    var fromCount = {};
+    var toCount = {};
+    rows.forEach(function (row) {
+      fromCount[row.link.from] = (fromCount[row.link.from] || 0) + 1;
+      toCount[row.link.to] = (toCount[row.link.to] || 0) + 1;
+    });
+    var fromSeen = {};
+    var toSeen = {};
+    var parts = rows.map(function (row) {
+      var fi = fromSeen[row.link.from] || 0;
+      var ti = toSeen[row.link.to] || 0;
+      fromSeen[row.link.from] = fi + 1;
+      toSeen[row.link.to] = ti + 1;
+      var x1 = row.a.x + (fi - (fromCount[row.link.from] - 1) / 2) * 8;
+      var x2 = row.b.x + (ti - (toCount[row.link.to] - 1) / 2) * 8;
+      var y1 = row.a.y;
+      var y2 = row.b.y;
+      var muted = !active[row.link.from];
+      return (
+        '<g><title>' + esc(row.link.label) + '</title>' +
+        '<path d="M ' + x1.toFixed(1) + ' ' + y1.toFixed(1) + ' L ' + x2.toFixed(1) + ' ' + y2.toFixed(1) + '"' +
+        (muted ? ' class="is-idle"' : ' style="stroke:' + row.link.color + '"') + ' />' +
+        '<circle cx="' + x1 + '" cy="' + y1 + '" r="3.5"' +
+        (muted ? ' class="is-idle"' : ' style="fill:' + row.link.color + '"') + ' />' +
+        '<circle cx="' + x2 + '" cy="' + y2 + '" r="3.5"' +
+        (muted ? ' class="is-idle"' : ' style="fill:' + row.link.color + '"') + ' />' +
+        '</g>'
+      );
+    }).join('');
+    svg.setAttribute('width', String(box.width));
+    svg.setAttribute('height', String(box.height));
+    svg.setAttribute('viewBox', '0 0 ' + box.width + ' ' + box.height);
+    svg.innerHTML = parts;
+  }
+
+  function bindEnterpriseBoard() {
+    var board = document.getElementById('tg-comp-board');
+    if (!board) return;
+    board.addEventListener('click', function (ev) {
+      var btn = ev.target.closest('[data-open]');
+      if (!btn) return;
+      var kind = btn.getAttribute('data-open');
+      if (CLUSTER_ONLY[kind]) {
+        flash('note', CLUSTER_ONLY[kind] + ' se configura desde el Nitro Cluster (Componentes MCP · capacidades del plan).');
+        return;
+      }
+      openToolModal(kind);
+    });
+    measureEnterpriseThreads();
+    if (!bindEnterpriseBoard.boundResize) {
+      bindEnterpriseBoard.boundResize = true;
+      window.addEventListener('resize', function () {
+        measureEnterpriseThreads();
+      });
+    }
+  }
+
+  /** Componentes que solo administra el Nitro Cluster (no se editan desde este panel). */
+  var CLUSTER_ONLY = {
+    skill: 'El skill del agente',
+    capabilities: 'Las capacidades del agente',
+    whatsapp: 'WhatsApp Cloud API (WABA)',
+    dropbox: 'Dropbox'
+  };
+
+  function clusterOnlyNoteHtml() {
+    return (
+      '<section class="tg-panel tg-board__cluster-note">' +
+      '<h2>Configuración del agente</h2>' +
+      '<p class="tg-muted">El contexto del bot (skill y capacidades), WhatsApp Cloud API, el tutorial de Meta y Dropbox ' +
+      'se configuran desde el <strong>Nitro Cluster</strong>, en Componentes MCP según las capacidades de tu plan. ' +
+      'Pide los cambios al administrador del cluster.</p>' +
+      '</section>'
+    );
+  }
+
+  function wrapPane(id, html) {
+    if (!html) return '';
+    if (!isEnterprise()) return html;
+    var on = (state.panelPane || 'mcp') === id;
+    return '<div class="tg-pane' + (on ? ' is-on' : '') + '" data-pane="' + id + '">' + html + '</div>';
+  }
+
+  function enterpriseMenuHtml(c) {
+    var items = [
+      ['mcp', 'Componentes MCP'],
+      ['brand', 'Marca del bot'],
+      ['ai', 'Consumo de IA']
+    ];
+    if (geoUsageHtml(c)) items.push(['geo', 'Consumo Geoapify']);
+    items.push(['chats', 'Conversaciones']);
+    items.push(['live', 'Usuarios en tiempo real']);
+    return (
+      '<nav class="tg-co__menu" aria-label="Secciones del panel">' +
+      items.map(function (item) {
+        var on = (state.panelPane || 'mcp') === item[0];
+        return '<button type="button" class="tg-co__tab' + (on ? ' is-on' : '') + '" data-pane="' + item[0] + '">' + item[1] + '</button>';
+      }).join('') +
+      '</nav>'
+    );
+  }
+
+  function bindEnterpriseMenu() {
+    var menu = document.querySelector('.tg-co__menu');
+    if (!menu) return;
+    menu.addEventListener('click', function (ev) {
+      var btn = ev.target.closest('[data-pane]');
+      if (!btn || !menu.contains(btn)) return;
+      var id = btn.getAttribute('data-pane');
+      state.panelPane = id;
+      menu.querySelectorAll('.tg-co__tab').forEach(function (tab) {
+        tab.classList.toggle('is-on', tab.getAttribute('data-pane') === id);
+      });
+      document.querySelectorAll('.tg-pane').forEach(function (pane) {
+        pane.classList.toggle('is-on', pane.getAttribute('data-pane') === id);
+      });
+      if (id === 'mcp') measureEnterpriseThreads();
+    });
   }
 
   function renderPanel() {
@@ -890,12 +1691,14 @@
     root.innerHTML =
       '<header class="tg-co__header">' +
       '<h1 class="tg-co__headline">' + companyHeadline(c) + '</h1>' +
+      (isEnterprise() ? enterpriseMenuHtml(c) : '') +
       '<div class="tg-co__nav"><button type="button" class="tg-btn ghost" id="tg-logout">Salir</button></div>' +
       '</header>' +
       '<p class="tg-err tg-hidden" id="tg-err"></p>' +
       '<p class="tg-note tg-hidden" id="tg-note"></p>' +
-      '<div class="tg-board">' +
-      '<section class="tg-panel tg-board__brand">' +
+      '<div class="tg-board' + (isEnterprise() ? ' tg-board--panes' : '') + '">' +
+      wrapPane('mcp', isEnterprise() ? toolsBoardHtml(c, conn) : '') +
+      wrapPane('brand', '<section class="tg-panel tg-board__brand">' +
       '<div class="tg-panel__head"><h2>Marca del bot</h2>' +
       '<button type="button" class="tg-btn sm" id="tg-save-brand">Guardar marca</button></div>' +
       '<div class="tg-grid tg-grid--brand">' +
@@ -904,54 +1707,12 @@
       '<label class="tg-field"><span>Idioma</span><input id="tg-b-lang" value="' + esc(b.language) + '" placeholder="es" /></label>' +
       '<label class="tg-field"><span>Horario</span><input id="tg-b-hours" value="' + esc(b.hours) + '" placeholder="Lun-Vie…" /></label>' +
       '<label class="tg-field tg-field--wide"><span>Disclaimer</span><input id="tg-b-disc" value="' + esc(b.disclaimer) + '" placeholder="Disclaimer" /></label>' +
-      '</div></section>' +
-      aiUsageHtml(c.aiUsage) +
-      geoUsageHtml(c) +
-      chatsSectionHtml() +
-      '<section class="tg-panel tg-board__ctx">' +
-      '<div class="tg-panel__head"><div><h2>Contexto del bot</h2>' +
-      '<p class="tg-ctx__lead">Skill, capacidades y enlaces que usa el agente para responder.</p></div>' +
-      '<button type="button" class="tg-btn sm" id="tg-save-ctx">Guardar contexto</button></div>' +
-      '<div class="tg-ctx__row">' +
-      '<div class="tg-ctx__block">' +
-      '<div class="tg-panel__head tg-panel__head--sub"><h3>Skill negocio</h3><span class="tg-chip">markdown</span></div>' +
-      skillLearnHtml() +
-      '<textarea id="tg-skill" class="tg-area tg-area--fill"></textarea>' +
-      '<div class="tg-float-kit">' +
-      '<div class="tg-panel__head tg-panel__head--sub"><h3>Botón flotante</h3>' +
-      '<button type="button" class="tg-btn ghost sm" id="tg-copy-float">Copiar HTML</button></div>' +
-      '<p class="tg-muted">HTML y CSS del botón de WhatsApp de ' + esc(c.name || 'esta empresa') + '. Pégalo en la página.</p>' +
-      '<textarea id="tg-float-html" class="tg-area tg-float-kit__code" rows="8" readonly></textarea></div></div>' +
-      '<div class="tg-ctx__block">' +
-      '<div class="tg-panel__head tg-panel__head--sub"><h3>Capacidades de producto</h3>' +
-      '<span class="tg-chip">product-capabilities.json</span></div>' +
-      '<textarea id="tg-caps" class="tg-area tg-area--fill" placeholder=\'{"capabilities":[]}\'></textarea></div>' +
-      '</div>' +
-      '<div class="tg-ctx__block tg-ctx__block--links">' +
-      '<div class="tg-panel__head tg-panel__head--sub"><h3>MCP · Link de pago</h3></div>' +
-      '<div class="tg-grid tg-grid--links">' +
-      '<label class="tg-field"><span>MCP URL (opcional)</span><input id="tg-mcp" placeholder="https://…/mcp" /></label>' +
-      '<label class="tg-field"><span>Link de pago</span><input id="tg-pay" placeholder="https://checkout…" /></label>' +
-      '</div></div></section>' +
-      '<section class="tg-panel tg-board__tutorial tg-tutorial">' +
-      '<h2>Tutorial Meta Cloud API</h2>' +
-      '<p class="tg-muted tg-tutorial__lead">Tu empresa configura Meta; el cluster es el <strong>webhook</strong> que recibe y responde.</p>' +
-      '<ol class="tg-tutorial__steps">' +
-      '<li><strong>App Meta</strong>' +
-      '<a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener">My Apps</a> → WhatsApp · ' +
-      '<a href="https://developers.facebook.com/docs/whatsapp/cloud-api/get-started/" target="_blank" rel="noopener">Get started</a></li>' +
-      '<li><strong>Número</strong>Phone Number ID + WABA · ' +
-      '<a href="https://developers.facebook.com/docs/whatsapp/cloud-api/phone-numbers/" target="_blank" rel="noopener">docs</a></li>' +
-      '<li><strong>Token permanente</strong>' +
-      '<a href="https://business.facebook.com/settings/system-users" target="_blank" rel="noopener">System Users</a></li>' +
-      '<li><strong>Datos abajo</strong>App ID, Secret, WABA, Phone ID, token, Verify Token</li>' +
-      '<li><strong>Webhook</strong>Callback = <code>' + esc((conn && conn.webhookUrl) || '…/wa/webhook') +
-      '</code> · suscribe <code>messages</code></li>' +
-      '<li><strong>Tarifas Meta</strong>' +
-      '<a href="https://developers.facebook.com/docs/whatsapp/pricing" target="_blank" rel="noopener">precios oficiales</a></li>' +
-      '</ol>' +
-      '</section>' +
-      waSectionHtml(c, conn) +
+      '</div></section>') +
+      wrapPane('ai', aiUsageHtml(c.aiUsage)) +
+      wrapPane('geo', geoUsageHtml(c)) +
+      wrapPane('chats', chatsSectionHtml()) +
+      wrapPane('live', analyticsSectionHtml()) +
+      clusterOnlyNoteHtml() +
       /* Más adelante: Orquestador · RUNBOOK (OpenCode / Anomaly)
       '<section class="tg-panel tg-board__orch"><h2>RUNBOOK</h2>' +
       '<textarea class="tg-area tg-area--fill" id="tg-runbook" readonly></textarea></section>' +
@@ -959,18 +1720,8 @@
       '</div>';
 
     // textareas por valor, no por atributo, para no romper con < y &
-    $('#tg-skill').value = (c.skills && c.skills[0] && c.skills[0].content) || '';
-    var floatBox = $('#tg-float-html');
-    if (floatBox) floatBox.value = floatPack(c, conn).html;
-    $('#tg-caps').value = JSON.stringify(
-      c.productCapabilities && typeof c.productCapabilities === 'object'
-        ? c.productCapabilities
-        : { capabilities: [] },
-      null,
-      2
-    );
-    $('#tg-mcp').value = (c.mcpServers && c.mcpServers[0] && c.mcpServers[0].url) || '';
-    $('#tg-pay').value = (c.paymentLinks && c.paymentLinks[0] && c.paymentLinks[0].url) || '';
+    /* Skill, capacidades, WhatsApp y Dropbox se gestionan solo desde el Nitro Cluster:
+       este panel ya no pinta esos campos. */
     // Más adelante: $('#tg-flows') / $('#tg-runbook')
 
     $('#tg-logout').addEventListener('click', function () {
@@ -982,15 +1733,20 @@
       renderGate('');
     });
     $('#tg-save-brand').addEventListener('click', saveBrand);
-    $('#tg-save-ctx').addEventListener('click', saveContext);
     var waBtn = $('#tg-save-wa');
     if (waBtn) waBtn.addEventListener('click', saveWa);
+    var dbxBtn = $('#tg-save-dropbox');
+    if (dbxBtn) dbxBtn.addEventListener('click', saveDropbox);
     bindCopy('#tg-copy-float', '#tg-float-html', 'HTML del botón flotante copiado');
     bindCopy('#tg-copy-webhook', '#tg-wa-webhook', 'Webhook copiado. Pégalo en «URL de devolución de llamada» en Meta');
     bindCopy('#tg-copy-verify', '#tg-wa-verify', 'Verify token copiado. Pégalo en el Paso 2 de developers.facebook.com');
     startChatLive();
     applyPlanLocks();
     mountP2lSupportChat();
+    if (isEnterprise()) {
+      bindEnterpriseBoard();
+      bindEnterpriseMenu();
+    }
   }
 
   function bindCopy(btnSel, inputSel, msg) {
@@ -1080,6 +1836,21 @@
     }).then(afterSave).catch(onError);
   }
 
+  function saveDropbox() {
+    if (!planOn('dropbox')) return flash('err', 'Tu plan no incluye Dropbox.');
+    var body = {
+      dropboxAppKey: $('#tg-dbx-key').value.trim(),
+      dropboxAppFolder: $('#tg-dbx-folder').value.trim()
+    };
+    var secret = $('#tg-dbx-secret').value.trim();
+    var refresh = $('#tg-dbx-refresh').value.trim();
+    if (secret) body.dropboxAppSecret = secret;
+    if (refresh) body.dropboxRefreshToken = refresh;
+    api('/public/portal/dropbox', { method: 'PUT', body: body })
+      .then(afterSave)
+      .catch(onError);
+  }
+
   function saveWa() {
     if (!planOn('whatsapp')) return flash('err', 'Tu plan no incluye WhatsApp.');
     var body = {
@@ -1114,6 +1885,7 @@
   }
 
   function devopsChatEnabled() {
+    if (isEnterprise()) return true;
     var caps = state.company && state.company.planSpec && state.company.planSpec.agentCapabilities;
     return !!(caps && caps.devopsChat === true);
   }
