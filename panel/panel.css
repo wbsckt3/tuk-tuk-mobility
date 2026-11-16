@@ -39,28 +39,54 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 12px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--line);
 }
+.tg-co__menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1 1 280px;
+}
+.tg-co__tab {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.tg-co__tab.is-on {
+  background: var(--leaf-soft);
+  color: var(--leaf-ink);
+  border-color: var(--leaf);
+}
+.tg-pane { display: none; }
+.tg-pane.is-on { display: block; width: 100%; min-width: 0; }
 .tg-co__headline {
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
   margin: 0;
-  font-size: clamp(1.2rem, 2.4vw, 1.6rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
+  padding: 6px 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.2;
   color: var(--ink);
   white-space: nowrap;
   overflow-x: auto;
 }
 .tg-co__sep {
   display: inline-block;
-  margin: 0 0.45em;
+  margin: 0 0.35em;
   color: var(--leaf-ink);
-  font-weight: 800;
+  font-weight: 700;
 }
 .tg-co__meta {
   display: flex;
@@ -112,19 +138,59 @@ html, body {
 .tg-board {
   display: grid;
   grid-template-columns: 1.15fr 1.15fr 0.95fr;
-  grid-template-rows: auto minmax(320px, 0.85fr) minmax(280px, 1fr) auto;
+  grid-template-rows: auto minmax(320px, 1fr) auto;
   grid-template-areas:
     'brand brand ai'
-    'chats chats chats'
-    'ctx   ctx   wa'
-    'ctx   ctx   tutorial';
+    'chats chats live'
+    'note  note  note';
   gap: 10px;
   width: 100%;
   min-height: calc(100vh - 110px);
   align-items: stretch;
 }
+.tg-board--panes {
+  display: block;
+  width: 100%;
+  min-height: 0;
+}
+.tg-board--panes > .tg-pane.is-on > .tg-panel {
+  width: 100%;
+}
 .tg-board__brand { grid-area: brand; }
 .tg-board__chats { grid-area: chats; min-height: 0; }
+.tg-board__live { grid-area: live; min-height: 0; }
+
+/* ── Usuarios en tiempo real (Analytics del Nitro Cluster) ─────────── */
+.tg-live { overflow: hidden; }
+.tg-live__url { margin: 0; font-size: 0.75rem; color: var(--muted); word-break: break-all; }
+.tg-live__url a { color: var(--leaf-ink); font-weight: 600; }
+.tg-live__hint { margin: 0; font-size: 0.8rem; color: var(--ink-2); }
+.tg-live--locked { opacity: 0.85; }
+.tg-chip--off { color: var(--muted); background: #f3f4f6; border-color: var(--line); }
+.tg-live__tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.tg-live__tile { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 10px; background: #f8fafc; border: 1px solid var(--line); }
+.tg-live__tile b { font-size: 1.3rem; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tg-live__tile span { font-size: 0.7rem; color: var(--muted); }
+.tg-live__tile.is-online { background: var(--leaf-soft); border-color: #bbf0d5; }
+.tg-live__tile.is-online b { color: var(--leaf-deep); }
+.tg-live__tile.is-idle b { color: #b45309; }
+.tg-live__week { margin: 0; font-size: 0.75rem; color: var(--ink-2); }
+.tg-live__chips { margin: 0; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.tg-live__lbl { font-size: 0.7rem; font-weight: 600; color: var(--muted); margin-right: 2px; }
+.tg-live__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; max-height: 340px; }
+.tg-live__row { display: flex; align-items: flex-start; gap: 8px; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+.tg-live__who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.tg-live__who strong { font-size: 0.8rem; color: var(--ink); }
+.tg-live__who small { font-size: 0.7rem; color: var(--muted); }
+.tg-live__paths { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tg-live__dot { width: 9px; height: 9px; border-radius: 50%; margin-top: 4px; flex: none; background: #cbd5e1; }
+.tg-live__dot.is-online { background: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.22); }
+.tg-live__dot.is-idle { background: #f59e0b; }
+.tg-live__dot.is-left { background: #94a3b8; }
+#tg-live-dot.is-on { color: var(--leaf-ink); }
+/* Skill, capacidades, WhatsApp y Dropbox: solo desde el Nitro Cluster. */
+.tg-board__cluster-note { grid-area: note; }
+.tg-board--panes .tg-board__cluster-note { margin-top: 10px; }
 .tg-board__ctx { grid-area: ctx; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
 .tg-board__flows { grid-area: flows; } /* más adelante */
 .tg-board__tutorial { grid-area: tutorial; }
@@ -633,8 +699,8 @@ html, body {
     grid-template-areas:
       'brand ai'
       'chats chats'
-      'ctx ctx'
-      'wa tutorial';
+      'live live'
+      'note note';
     min-height: 0;
   }
   .tg-grid--brand { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -649,9 +715,8 @@ html, body {
       'brand'
       'ai'
       'chats'
-      'ctx'
-      'wa'
-      'tutorial';
+      'live'
+      'note';
   }
   .tg-chats__body { grid-template-columns: 1fr; }
   .tg-chats__list { max-height: 160px; border-right: 0; border-bottom: 1px solid var(--line); }
@@ -844,4 +909,233 @@ html, body {
   font: inherit;
   font-weight: 650;
   cursor: pointer;
+}
+
+/* Cards MCP Enterprise (mismo esquema del cluster) */
+.tg-tools {
+  margin: 0 0 16px;
+}
+.tg-tools h2 {
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: 600;
+}
+.tg-comp-board { position: relative; }
+.tg-comp-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+.tg-comp-grid--p2l {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+.tg-threads-gap { height: 40px; }
+.tg-threads {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
+}
+.tg-threads path {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.9;
+}
+.tg-threads circle { opacity: 0.9; }
+.tg-threads path.is-idle {
+  stroke: #64748b;
+  stroke-width: 1.75;
+  stroke-dasharray: 5 4;
+}
+.tg-threads circle.is-idle { fill: #64748b; }
+.tg-comp-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  height: 100%;
+}
+.tg-comp {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 78px;
+  text-align: left;
+  padding: 10px 10px 10px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+}
+.tg-comp__logo {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  display: grid;
+  place-items: center;
+}
+.tg-comp__logo svg { width: 18px; height: 18px; display: block; }
+.tg-comp__body { flex: 1; min-width: 0; }
+.tg-comp strong {
+  display: block;
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+.tg-comp span {
+  color: var(--muted);
+  font-size: 0.64rem;
+  line-height: 1.3;
+}
+.tg-comp em {
+  display: block;
+  margin-top: 4px;
+  font-style: normal;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #075e54;
+}
+.tg-comp__item {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.62rem;
+  color: #1d4ed8;
+}
+.tg-comp--wa {
+  background: #ece5dd;
+  border-color: #d6ccc2;
+}
+.tg-switch {
+  position: relative;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 999px;
+  background: #d1d5db;
+}
+.tg-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.25);
+}
+.tg-switch--on { background: #2563eb; }
+.tg-switch--on::after { left: 18px; }
+.tg-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+}
+.tg-modal__card {
+  width: min(720px, 100%);
+  max-height: min(90vh, 820px);
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+}
+.tg-modal__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.tg-modal__head-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+.tg-modal__logo {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+}
+.tg-modal__logo svg { width: 28px; height: 28px; display: block; }
+.tg-modal__company {
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.tg-modal__head h3 { margin: 0; font-size: 1.05rem; }
+.tg-modal__ext-tag {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.tg-modal__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+}
+.tg-plan-fields--modal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 12px;
+}
+.tg-plan-fields--modal .tg-field--wide,
+.tg-muted.tg-field--wide,
+.tg-ext-link,
+.tg-wa-kit { grid-column: 1 / -1; }
+.tg-modal .tg-field { display: flex; flex-direction: column; gap: 4px; font-size: 0.82rem; }
+.tg-modal input,
+.tg-modal select,
+.tg-modal textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+}
+.tg-modal textarea.tg-skill-area { min-height: 220px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.82rem; }
+.tg-check { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+.tg-check input { width: auto; }
+.tg-ext-link { color: var(--leaf-ink); font-weight: 700; font-size: 0.88rem; }
+.tg-wa-kit__code {
+  margin: 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 0.72rem;
+}
+.tg-wa-ro {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.tg-wa-ro input { flex: 1; }
+@media (max-width: 900px) {
+  .tg-comp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tg-threads-gap,
+  .tg-threads { display: none; }
+  .tg-plan-fields--modal { grid-template-columns: 1fr; }
 }
