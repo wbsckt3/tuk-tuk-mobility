@@ -569,21 +569,21 @@
   function liveChips(rows, label, labelOf) {
     if (!rows || !rows.length) return '';
     return (
-      '<p class="tg-live__chips"><span class="tg-live__lbl">' + label + '</span>' +
+      '<div class="tg-live__facet"><span class="tg-live__lbl">' + label + '</span><div class="tg-live__vals">' +
       rows.map(function (r) {
         var text = labelOf ? labelOf(r.value) : r.value;
-        return '<span class="tg-chip">' + esc(text) + ' · ' + r.count + '</span>';
+        return '<span class="tg-chip">' + esc(text) + ' <b>' + r.count + '</b></span>';
       }).join('') +
-      '</p>'
+      '</div></div>'
     );
   }
 
   function liveCountries(rows) {
     if (!rows || !rows.length) return '';
     return (
-      '<p class="tg-live__chips"><span class="tg-live__lbl">País</span>' +
+      '<div class="tg-live__facet"><span class="tg-live__lbl">País</span><div class="tg-live__vals">' +
       rows.map(function (r) { return liveCountryChip(r.value, r.count); }).join('') +
-      '</p>'
+      '</div></div>'
     );
   }
 
@@ -631,27 +631,22 @@
       ['En línea ahora', k.online || 0, 'is-online'],
       ['Inactivos', k.idle || 0, 'is-idle'],
       ['Visitas hoy', k.visitsToday || 0, ''],
-      ['Visitantes hoy', k.visitorsToday || 0, '']
+      ['Visitantes hoy', k.visitorsToday || 0, ''],
+      ['Visitas · 7 días', k.visitsWeek || 0, 'is-week'],
+      ['Visitantes · 7 días', k.visitorsWeek || 0, 'is-week']
     ];
-    var html =
-      '<ul class="tg-live__tiles">' +
-      tiles.map(function (t) {
-        return '<li class="tg-live__tile ' + t[2] + '"><b>' + t[1] + '</b><span>' + t[0] + '</span></li>';
-      }).join('') +
-      '</ul>' +
-      '<p class="tg-live__week">Últimos 7 días: <strong>' + (k.visitsWeek || 0) + '</strong> visitas · <strong>' + (k.visitorsWeek || 0) + '</strong> visitantes</p>' +
+    var nowRows = ((d && d.live) || []).filter(function (p) { return p.state === 'online' || p.state === 'idle'; });
+    var rows = (d && d.visitors) || [];
+    var facets =
       liveCountries(d && d.countries) +
       liveChips(d && d.sources, 'Origen', function (v) { return LIVE_SOURCE[v] || v; }) +
       liveChips(d && d.devices, 'Dispositivo', function (v) { return LIVE_DEVICE[v] || v; }) +
-      liveChips(d && d.topPaths, 'Páginas') +
-      '<h3 class="tg-live__h">Ahora en la landing</h3>' +
-      liveNowHtml(d && d.live) +
-      '<h3 class="tg-live__h">Visitantes · últimos 7 días</h3>';
-    var rows = (d && d.visitors) || [];
+      liveChips(d && d.topPaths, 'Páginas');
+    var listHtml;
     if (!rows.length) {
-      html += '<p class="tg-chats__empty">Aún no hay visitas. Cuando alguien entre a tu landing aparece aquí, en vivo.</p>';
+      listHtml = '<p class="tg-live__none">Aún no hay visitas. Cuando alguien entre a tu landing aparece aquí, en vivo.</p>';
     } else {
-      html +=
+      listHtml =
         '<ul class="tg-live__list">' +
         rows.slice(0, 40).map(function (v) {
           var st = v.state || 'offline';
@@ -665,14 +660,33 @@
             ' · ' + esc(liveCountryName(v.country)) +
             (v.device ? ' · ' + esc(LIVE_DEVICE[v.device] || v.device) : '') +
             (v.source ? ' · ' + esc(LIVE_SOURCE[v.source] || v.source) : '') + '</small>' +
-            (v.paths && v.paths.length ? '<small class="tg-live__paths">' + v.paths.map(esc).join(' · ') + '</small>' : '') +
+            (v.paths && v.paths.length
+              ? '<span class="tg-live__paths">' + v.paths.map(function (p) { return '<code>' + esc(p) + '</code>'; }).join('') + '</span>'
+              : '') +
             '</span>' +
-            '<span class="tg-chip">' + v.visits + ' visita' + (v.visits === 1 ? '' : 's') + '</span>' +
+            '<span class="tg-chip tg-live__visits">' + v.visits + ' visita' + (v.visits === 1 ? '' : 's') + '</span>' +
             '</li>'
           );
         }).join('') +
         '</ul>';
     }
+    var html =
+      '<ul class="tg-live__tiles">' +
+      tiles.map(function (t) {
+        return '<li class="tg-live__tile ' + t[2] + '"><b>' + t[1] + '</b><span>' + t[0] + '</span></li>';
+      }).join('') +
+      '</ul>' +
+      (facets ? '<div class="tg-live__facets">' + facets + '</div>' : '') +
+      '<div class="tg-live__split">' +
+      '<div class="tg-live__col">' +
+      '<h3 class="tg-live__h">Ahora en la landing <span class="tg-live__count">' + nowRows.length + '</span></h3>' +
+      liveNowHtml(d && d.live) +
+      '</div>' +
+      '<div class="tg-live__col">' +
+      '<h3 class="tg-live__h">Visitantes · últimos 7 días <span class="tg-live__count">' + rows.length + '</span></h3>' +
+      listHtml +
+      '</div>' +
+      '</div>';
     body.innerHTML = html;
   }
 
