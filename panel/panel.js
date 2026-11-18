@@ -535,22 +535,93 @@
   }
 
   var LIVE_STATE = { online: 'En línea', idle: 'Inactivo', left: 'Salió', offline: 'Fuera' };
+  var LIVE_SOURCE = { directo: '🔗 Directo', buscador: '🔎 Buscador', redes: '📣 Redes', whatsapp: '💬 WhatsApp' };
+  var LIVE_DEVICE = { mobile: '📱 Móvil', desktop: '💻 Escritorio' };
 
-  function liveChips(rows, label) {
+  /* País: bandera en imagen (Windows no dibuja los emojis de banderas) + nombre en español. */
+  var liveRegionNames = null;
+  try {
+    liveRegionNames = new Intl.DisplayNames(['es'], { type: 'region' });
+  } catch (_) {
+    liveRegionNames = null;
+  }
+  function liveCountryName(code) {
+    var c = String(code || '').toUpperCase();
+    if (!/^[A-Z]{2}$/.test(c)) return 'Sin país';
+    try {
+      return (liveRegionNames && liveRegionNames.of(c)) || c;
+    } catch (_) {
+      return c;
+    }
+  }
+  function liveFlag(code) {
+    var c = String(code || '').toLowerCase();
+    if (!/^[a-z]{2}$/.test(c)) return '<span class="tg-flag tg-flag--none" aria-hidden="true">🌐</span>';
+    return '<img class="tg-flag" src="https://flagcdn.com/24x18/' + c + '.png" width="24" height="18" alt="" onerror="this.style.display=\'none\'" />';
+  }
+  function liveCountryChip(code, extra) {
+    return (
+      '<span class="tg-country" title="' + esc(liveCountryName(code)) + '">' +
+      liveFlag(code) + '<span>' + esc(liveCountryName(code)) + (extra != null ? ' · ' + extra : '') + '</span></span>'
+    );
+  }
+
+  function liveChips(rows, label, labelOf) {
     if (!rows || !rows.length) return '';
     return (
       '<p class="tg-live__chips"><span class="tg-live__lbl">' + label + '</span>' +
       rows.map(function (r) {
-        return '<span class="tg-chip">' + esc(r.value) + ' · ' + r.count + '</span>';
+        var text = labelOf ? labelOf(r.value) : r.value;
+        return '<span class="tg-chip">' + esc(text) + ' · ' + r.count + '</span>';
       }).join('') +
       '</p>'
     );
   }
 
+  function liveCountries(rows) {
+    if (!rows || !rows.length) return '';
+    return (
+      '<p class="tg-live__chips"><span class="tg-live__lbl">País</span>' +
+      rows.map(function (r) { return liveCountryChip(r.value, r.count); }).join('') +
+      '</p>'
+    );
+  }
+
+  function liveNowHtml(live) {
+    var rows = (live || []).filter(function (p) { return p.state === 'online' || p.state === 'idle'; });
+    if (!rows.length) return '<p class="tg-live__none">Nadie en la landing en este momento.</p>';
+    return (
+      '<ul class="tg-live__now">' +
+      rows.slice(0, 12).map(function (p) {
+        return (
+          '<li class="tg-live__now-row">' +
+          '<span class="tg-live__dot is-' + esc(p.state) + '" title="' + esc(LIVE_STATE[p.state] || p.state) + '"></span>' +
+          liveFlag(p.country) +
+          '<span class="tg-live__who"><strong>Visitante ' + esc(String(p.visitor || '').slice(0, 6)) +
+          ' <em class="tg-live__badge is-' + esc(p.state) + '">' + esc(LIVE_STATE[p.state] || p.state) + '</em></strong>' +
+          '<small>' + esc(liveCountryName(p.country)) + ' · ' + esc(LIVE_DEVICE[p.device] || p.device || '') +
+          ' · viendo <code>' + esc(p.path || '/') + '</code> · ' + esc(liveAgo(p.at)) + '</small></span>' +
+          '</li>'
+        );
+      }).join('') +
+      '</ul>'
+    );
+  }
+
+  /* Redibuja solo si cambiaron los datos (o cada 30 s para refrescar los «hace X min»): sin parpadeo de banderas. */
+  var liveLastSig = '';
+  var liveLastAt = 0;
   function renderAnalytics(d) {
     var body = document.getElementById('tg-live-body');
     var dot = document.getElementById('tg-live-dot');
     if (!body) return;
+    var sig = '';
+    try {
+      sig = JSON.stringify([d && d.counters, d && d.live, d && d.visitors, d && d.countries, d && d.sources, d && d.devices, d && d.topPaths]);
+    } catch (_) {}
+    if (sig && sig === liveLastSig && Date.now() - liveLastAt < 30000 && body.querySelector('.tg-live__tiles')) return;
+    liveLastSig = sig;
+    liveLastAt = Date.now();
     if (dot) {
       dot.textContent = '● En vivo';
       dot.classList.add('is-on');
@@ -569,26 +640,31 @@
       }).join('') +
       '</ul>' +
       '<p class="tg-live__week">Últimos 7 días: <strong>' + (k.visitsWeek || 0) + '</strong> visitas · <strong>' + (k.visitorsWeek || 0) + '</strong> visitantes</p>' +
-      liveChips(d && d.sources, 'Origen') +
-      liveChips(d && d.countries, 'País') +
-      liveChips(d && d.topPaths, 'Páginas');
+      liveCountries(d && d.countries) +
+      liveChips(d && d.sources, 'Origen', function (v) { return LIVE_SOURCE[v] || v; }) +
+      liveChips(d && d.devices, 'Dispositivo', function (v) { return LIVE_DEVICE[v] || v; }) +
+      liveChips(d && d.topPaths, 'Páginas') +
+      '<h3 class="tg-live__h">Ahora en la landing</h3>' +
+      liveNowHtml(d && d.live) +
+      '<h3 class="tg-live__h">Visitantes · últimos 7 días</h3>';
     var rows = (d && d.visitors) || [];
     if (!rows.length) {
       html += '<p class="tg-chats__empty">Aún no hay visitas. Cuando alguien entre a tu landing aparece aquí, en vivo.</p>';
     } else {
       html +=
         '<ul class="tg-live__list">' +
-        rows.slice(0, 30).map(function (v) {
+        rows.slice(0, 40).map(function (v) {
           var st = v.state || 'offline';
           return (
             '<li class="tg-live__row">' +
             '<span class="tg-live__dot is-' + esc(st) + '" title="' + esc(LIVE_STATE[st] || st) + '"></span>' +
+            liveFlag(v.country) +
             '<span class="tg-live__who">' +
             '<strong>Visitante ' + esc(String(v.visitor || '').slice(0, 6)) + '</strong>' +
             '<small>' + esc(LIVE_STATE[st] || st) + ' · ' + esc(liveAgo(v.lastAt)) +
-            (v.country ? ' · ' + esc(v.country) : '') +
-            (v.device ? ' · ' + (v.device === 'mobile' ? 'móvil' : 'escritorio') : '') +
-            (v.source ? ' · ' + esc(v.source) : '') + '</small>' +
+            ' · ' + esc(liveCountryName(v.country)) +
+            (v.device ? ' · ' + esc(LIVE_DEVICE[v.device] || v.device) : '') +
+            (v.source ? ' · ' + esc(LIVE_SOURCE[v.source] || v.source) : '') + '</small>' +
             (v.paths && v.paths.length ? '<small class="tg-live__paths">' + v.paths.map(esc).join(' · ') + '</small>' : '') +
             '</span>' +
             '<span class="tg-chip">' + v.visits + ' visita' + (v.visits === 1 ? '' : 's') + '</span>' +
