@@ -1106,26 +1106,16 @@
   }
 
   /* ——— Paneles traspilados (MCP de white labels contratados en el Nitro Cluster) ———
-   * Copia de src/config/mcpAssetCatalog.js (este archivo no tiene build). Mantener los ids iguales:
-   * el test src/config/__tests__/mcpAssetCatalog.test.js lo verifica.
+   * El catálogo llega como window.TG_PANEL_ASSETS (lo inyecta clusterWaPanelPublish al publicar).
    * Contratado = fila { name: 'asset:<id>', type: 'panel', url, kind: '' } en company.mcpServers.
    */
   var ASSET_PREFIX = 'asset:';
   var MAX_MCP_ROWS = 20;
   var WHITE_LABEL_BASE = 'https://www.refactorii.com/p2l-tenant';
-  var MCP_ASSET_CATALOG = [
-    { id: 'fsm', label: 'Mobility MCP · FSM back', path: '/baas-tenant-dashboard', hint: 'flota, estados y despacho (BaaS tenant)' },
-    { id: 'metroRutas', label: 'Rutas · transporte masivo', path: '/metro-rutas-bogota', hint: 'rutas y paraderos (Metro Rutas Bogotá)' },
-    { id: 'wpf', label: 'AVL escritorio', path: '/dashboard-wpf', hint: 'seguimiento de unidades en escritorio' },
-    { id: 'medusa', label: 'Medusa · documentos y analytics', path: '/medusa-analytics', hint: 'documentos en Dropbox + analítica' },
-    { id: 'jobCopilot', label: 'Job Copilot', path: '/job-copilot-dashboard', hint: 'vacantes y entrevistas con IA' },
-    { id: 'seoCoverage', label: 'AI SEO Coverage', path: '/seo-coverage-dashboard', hint: 'prospección en motores de IA' },
-    { id: 'semanticIde', label: 'Agente de código · IDE semántico', path: '/semantic-ide-factory-dashboard', hint: 'fábrica de cambios sobre repos' },
-    { id: 'prahna', label: 'Pedidos · restaurante', path: '/prahna-dashboard', hint: 'menú y pedidos por WhatsApp' },
-    { id: 'logistica', label: 'Logística y compras', path: '/logistica-compras', hint: 'órdenes, proveedores e inventario' },
-    { id: 'rpa', label: 'RPA', path: '/rpa-dashboard', hint: 'robots de proceso' },
-    { id: 'plgAnalytics', label: 'Analytics PLG', path: '/plg-analytics', hint: 'embudo de producto y uso de IA' }
-  ];
+  /* Catálogo único inyectado al publicar (modelos_back/config/panelAssets.json). */
+  var MCP_ASSET_CATALOG = Array.isArray(window.TG_PANEL_ASSETS) ? window.TG_PANEL_ASSETS.filter(function (a) {
+    return a && typeof a.id === 'string' && typeof a.path === 'string';
+  }) : [];
   /* Ids de capacidades de plan del cluster (PLAN_CAPABILITY_DEFS). */
   var PLAN_CAPABILITY_IDS = ['github', 'groq', 'dropbox', 'whatsapp', 'atlas', 'geoapify', 'plans', 'skill', 'capabilities', 'chat', 'mobility', 'cad', 'devopsChat', 'landing', 'coachMonitor', 'analytics'];
 
@@ -1372,17 +1362,31 @@
     return !!(n && n.checked);
   }
 
-  /* Cards sin cuenta de servicio propia (el back rechaza serviceAccount para ellas). */
+  /*
+   * Cuenta que gestiona el MCP: solo los servicios externos principales tienen cuenta propia editable
+   * (la compartida de P2L o una que la empresa crea y contrata). Solo el correo, sin contraseña.
+   * GitHub lo administra el cluster. El resto usa la cuenta de la empresa (solo lectura).
+   */
+  var EXTERNAL_ACCOUNT_KINDS = ['groq', 'dropbox', 'whatsapp', 'atlas', 'geoapify'];
   function noServiceAccount(kind) {
-    return kind === 'skill' || kind === 'chat' || kind === 'mobility' || kind === 'capabilities' || kind === 'devopsChat' ||
-      kind === 'github' || kind === 'areas' || kind === 'coachMonitor' || kind === 'landing' || kind === 'analytics' || isAssetKind(kind);
+    return EXTERNAL_ACCOUNT_KINDS.indexOf(kind) < 0;
   }
 
   function accountFields(kind) {
-    if (noServiceAccount(kind)) return '';
+    if (kind === 'skill' || kind === 'chat' || kind === 'capabilities' || kind === 'areas' || kind === 'analytics' || isAssetKind(kind)) {
+      return '';
+    }
+    if (noServiceAccount(kind)) {
+      var admin = (state.company && state.company.adminEmail) || '';
+      return (
+        '<label class="tg-field">Cuenta que gestiona este MCP · la de la empresa' +
+        '<input readonly tabindex="-1" value="' + esc(admin) + '" /></label>'
+      );
+    }
     return (
-      '<label class="tg-field">Correo de la cuenta<input id="tg-m-email" type="text" autocomplete="off" placeholder="correo de la cuenta" /></label>' +
-      '<label class="tg-field">Contraseña<input id="tg-m-pass" type="text" autocomplete="off" placeholder="contraseña" /></label>'
+      '<label class="tg-field">Cuenta que gestiona este MCP · correo' +
+      '<span class="tg-field__hint">la compartida de P2L o la propia con la que la empresa contrata el servicio (vacío = no cambiar)</span>' +
+      '<input id="tg-m-email" type="email" autocomplete="off" placeholder="correo de la cuenta" /></label>'
     );
   }
 
@@ -1433,7 +1437,7 @@
         '<label class="tg-field">WABA ID<input id="tg-m-wa-waba" value="' + esc(conn.wabaId) + '" /></label>' +
         '<label class="tg-field">Phone Number ID<input id="tg-m-wa-phone" value="' + esc(conn.phoneNumberId) + '" /></label>' +
         '<label class="tg-field">Número visible<input id="tg-m-wa-display" value="' + esc(conn.displayPhone) + '" placeholder="+57…" /></label>' +
-        '<label class="tg-field tg-field--wide">Webhook<span class="tg-wa-ro"><input readonly value="' + esc(conn.webhookUrl || '') + '" /><button type="button" class="tg-btn ghost sm" id="tg-m-copy-hook">Copiar</button></span></label>' +
+        '<label class="tg-field tg-field--wide">Webhook ' + (conn.webhookShared ? '(compartido · nitro-cluster)' : '(propio de tu empresa)') + '<span class="tg-wa-ro"><input readonly value="' + esc(conn.webhookUrl || '') + '" /><button type="button" class="tg-btn ghost sm" id="tg-m-copy-hook">Copiar</button></span></label>' +
         '<label class="tg-field tg-field--wide">Verify token<span class="tg-wa-ro"><input readonly value="' + esc(conn.verifyToken || '') + '" /><button type="button" class="tg-btn ghost sm" id="tg-m-copy-verify">Copiar</button></span></label>' +
         '<label class="tg-field">App Secret<input id="tg-m-wa-secret" type="password" placeholder="' + esc(conn.hasAppSecret ? '•••• guardado' : 'App Secret') + '" /></label>' +
         '<label class="tg-field">Access Token<input id="tg-m-wa-token" type="password" placeholder="' + esc(conn.hasAccessToken ? '•••• guardado' : 'Access Token') + '" /></label>'
@@ -1563,7 +1567,7 @@
         '<label class="tg-field tg-field--wide">URL del panel (https)<input id="tg-m-asset-url" value="' + esc(url) + '" /></label>' +
         (row
           ? '<label class="tg-check tg-field--wide"><input id="tg-m-asset-keep" type="checkbox" checked /> Mantener este panel contratado</label>'
-          : '<label class="tg-check tg-field--wide"><input id="tg-m-asset-keep" type="checkbox" /> Contratar este panel (incluido en tu plan)</label>') +
+          : '<label class="tg-asset-toggle is-in-plan tg-field--wide"><input id="tg-m-asset-keep" type="checkbox" /> <span>Encender panel de esta capacidad disponible en el plan actual</span></label>') +
         '<div class="tg-asset-actions tg-field--wide">' +
         '<a class="tg-ext-link" id="tg-m-asset-open" href="' + esc(assetPanelUrl(url, c.id, aid)) + '" target="_blank" rel="noopener noreferrer">Abrir panel →</a>' +
         '<button type="button" class="tg-btn ghost sm" id="tg-m-asset-preview">Vista previa embebida</button></div>' +
@@ -1724,11 +1728,10 @@
       return Promise.resolve();
     }
     var email = fieldVal('tg-m-email');
-    var password = fieldVal('tg-m-pass');
-    if (!email && !password) return Promise.resolve();
+    if (!email) return Promise.resolve();
     return api('/public/portal/section', {
       method: 'PUT',
-      body: { section: 'serviceAccount', kind: kind, email: email, password: password }
+      body: { section: 'serviceAccount', kind: kind, email: email }
     }).then(function (out) {
       if (out.company) state.company = out.company;
     });
