@@ -1105,12 +1105,118 @@
     return code === 'enterprise' || name === 'enterprise' || Number(c.plan) === 4;
   }
 
+  /* ——— Paneles traspilados (MCP de white labels contratados en el Nitro Cluster) ———
+   * Copia de src/config/mcpAssetCatalog.js (este archivo no tiene build). Mantener los ids iguales:
+   * el test src/config/__tests__/mcpAssetCatalog.test.js lo verifica.
+   * Contratado = fila { name: 'asset:<id>', type: 'panel', url, kind: '' } en company.mcpServers.
+   */
+  var ASSET_PREFIX = 'asset:';
+  var MAX_MCP_ROWS = 20;
+  var WHITE_LABEL_BASE = 'https://www.refactorii.com/p2l-tenant';
+  var MCP_ASSET_CATALOG = [
+    { id: 'fsm', label: 'Mobility MCP · FSM back', path: '/baas-tenant-dashboard', hint: 'flota, estados y despacho (BaaS tenant)' },
+    { id: 'metroRutas', label: 'Rutas · transporte masivo', path: '/metro-rutas-bogota', hint: 'rutas y paraderos (Metro Rutas Bogotá)' },
+    { id: 'wpf', label: 'AVL escritorio', path: '/dashboard-wpf', hint: 'seguimiento de unidades en escritorio' },
+    { id: 'medusa', label: 'Medusa · documentos y analytics', path: '/medusa-analytics', hint: 'documentos en Dropbox + analítica' },
+    { id: 'jobCopilot', label: 'Job Copilot', path: '/job-copilot-dashboard', hint: 'vacantes y entrevistas con IA' },
+    { id: 'seoCoverage', label: 'AI SEO Coverage', path: '/seo-coverage-dashboard', hint: 'prospección en motores de IA' },
+    { id: 'semanticIde', label: 'Agente de código · IDE semántico', path: '/semantic-ide-factory-dashboard', hint: 'fábrica de cambios sobre repos' },
+    { id: 'prahna', label: 'Pedidos · restaurante', path: '/prahna-dashboard', hint: 'menú y pedidos por WhatsApp' },
+    { id: 'logistica', label: 'Logística y compras', path: '/logistica-compras', hint: 'órdenes, proveedores e inventario' },
+    { id: 'rpa', label: 'RPA', path: '/rpa-dashboard', hint: 'robots de proceso' },
+    { id: 'plgAnalytics', label: 'Analytics PLG', path: '/plg-analytics', hint: 'embudo de producto y uso de IA' }
+  ];
+  /* Ids de capacidades de plan del cluster (PLAN_CAPABILITY_DEFS). */
+  var PLAN_CAPABILITY_IDS = ['github', 'groq', 'dropbox', 'whatsapp', 'atlas', 'geoapify', 'plans', 'skill', 'capabilities', 'chat', 'mobility', 'cad', 'devopsChat', 'landing', 'coachMonitor', 'analytics'];
+
+  function assetById(id) {
+    for (var i = 0; i < MCP_ASSET_CATALOG.length; i++) if (MCP_ASSET_CATALOG[i].id === id) return MCP_ASSET_CATALOG[i];
+    return null;
+  }
+  function isAssetKind(kind) {
+    return typeof kind === 'string' && kind.indexOf(ASSET_PREFIX) === 0 && Boolean(assetById(kind.slice(ASSET_PREFIX.length)));
+  }
+  function assetIdOf(kind) {
+    return isAssetKind(kind) ? kind.slice(ASSET_PREFIX.length) : '';
+  }
+  function sanitizePanelUrl(raw) {
+    var s = String(raw == null ? '' : raw).trim();
+    if (!s || s.length > 500 || /\s/.test(s)) return '';
+    try {
+      var u = new URL(s);
+      return u.protocol === 'https:' ? u.toString() : '';
+    } catch (e) {
+      return '';
+    }
+  }
+  /* La vista previa embebida solo carga paneles de refactorii.com; el resto se abre en pestaña nueva. */
+  function isTrustedPanelHost(raw) {
+    var safe = sanitizePanelUrl(raw);
+    if (!safe) return false;
+    var host = new URL(safe).hostname.toLowerCase();
+    return host === 'refactorii.com' || /\.refactorii\.com$/.test(host);
+  }
+  function mcpRows(c) {
+    return (Array.isArray(c && c.mcpServers) ? c.mcpServers : []).filter(function (r) { return r && typeof r === 'object'; });
+  }
+  /* El panel se abre con la empresa que lo contrató: el white label carga su configuración. */
+  function assetPanelUrl(url, companyId, assetId) {
+    var safe = sanitizePanelUrl(url);
+    if (!safe) return '';
+    if (!/^[a-f\d]{24}$/i.test(String(companyId || '')) || !assetById(assetId)) return safe;
+    var u = new URL(safe);
+    u.searchParams.set('nitroCompany', String(companyId));
+    u.searchParams.set('nitroAsset', assetId);
+    return u.toString();
+  }
+  function cleanMcpRow(r) {
+    return { name: String(r.name || ''), type: String(r.type || 'sse'), url: String(r.url || ''), kind: String(r.kind || '') };
+  }
+  function assetRowOf(c, id) {
+    var rows = mcpRows(c);
+    for (var i = 0; i < rows.length; i++) if (rows[i].name === ASSET_PREFIX + id) return rows[i];
+    return null;
+  }
+  function contractedAssets(c) {
+    return MCP_ASSET_CATALOG.filter(function (a) { return Boolean(assetRowOf(c, a.id)); }).map(function (a) {
+      return { id: a.id, label: a.label, hint: a.hint, url: sanitizePanelUrl(assetRowOf(c, a.id).url) || (WHITE_LABEL_BASE + a.path) };
+    });
+  }
+  /* Lista completa para section:'mcp' (reemplaza): conserva todas las filas y cambia solo la del panel. */
+  function mcpWithAsset(c, id, url, keep) {
+    var rest = mcpRows(c).filter(function (r) { return r.name !== ASSET_PREFIX + id; }).map(cleanMcpRow);
+    if (!keep) return rest;
+    if (rest.length >= MAX_MCP_ROWS) throw new Error('Ya hay ' + MAX_MCP_ROWS + ' MCP: quita uno primero.');
+    var a = assetById(id);
+    rest.push({ name: ASSET_PREFIX + id, type: 'panel', url: sanitizePanelUrl(url) || (WHITE_LABEL_BASE + a.path), kind: '' });
+    return rest;
+  }
+  /* Filas asset:* que hay que conservar cuando otro formulario reescribe mcpServers. */
+  function assetRowsToKeep(c) {
+    return mcpRows(c).filter(function (r) { return typeof r.name === 'string' && r.name.indexOf(ASSET_PREFIX) === 0; }).map(cleanMcpRow);
+  }
+  /* Autogestión: el plan incluye el panel (agentCapabilities[id] === true, o enterprise). */
+  function assetSelfManaged(id) {
+    if (isEnterprise()) return true;
+    var caps = state.company && state.company.planSpec && state.company.planSpec.agentCapabilities;
+    return Boolean(caps && caps[id] === true);
+  }
+  function capacityCount(c) {
+    var included = PLAN_CAPABILITY_IDS.filter(function (id) { return planOn(id); }).length;
+    var assets = contractedAssets(c).length;
+    return { included: included, total: PLAN_CAPABILITY_IDS.length, assets: assets, acquired: included + assets };
+  }
+
   function companyHeadline(c) {
     var name = (c && c.name) || 'Empresa';
     var plan = (c && c.planSpec && c.planSpec.name) || '';
     var bits = [name, 'Bot WhatsApp IA'];
     if (plan) bits.push('Plan ' + plan);
-    return bits.map(function (bit) { return esc(bit); }).join('<span class="tg-co__sep">|</span>');
+    var cap = capacityCount(c || {});
+    return bits.map(function (bit) { return esc(bit); }).join('<span class="tg-co__sep">|</span>') +
+      '<span class="tg-cap-count" title="' + esc(cap.included + ' de ' + cap.total + ' capacidades incluidas en el plan · ' + cap.assets + ' paneles traspilados contratados') + '">' +
+      '<strong>' + cap.acquired + '</strong> capacidades adquiridas' +
+      '<small>' + cap.included + '/' + cap.total + (cap.assets ? ' · ' + cap.assets + ' panel' + (cap.assets === 1 ? '' : 'es') : '') + '</small></span>';
   }
 
   function dropboxSectionHtml(c) {
@@ -1191,7 +1297,32 @@
       { kind: 'cad', logo: 'p2l', wallpaper: true, label: 'CAD alert panel', state: on(c.components && c.components.cad && c.components.cad.enabled), active: Boolean(c.components && c.components.cad && c.components.cad.enabled) },
       { kind: 'devopsChat', logo: 'p2l', wallpaper: true, label: 'Soporte Devops P2L Chat', state: 'Incluido en el plan', inCompanyPanel: true, active: true }
     ];
-    return { services: services, cafe: cafe };
+    /* Paridad con el cluster: las cards que el panel de empresa no mostraba. */
+    var areas = Array.isArray(c.areas) ? c.areas : [];
+    var areasOn = areas.filter(function (a) { return a && a.active !== false; }).length;
+    var gh = c.panelGithub || {};
+    var parity = [
+      { kind: 'github', logo: 'p2l', wallpaper: true, label: 'Github | Repo panel de empresa', state: gh.pagesUrl ? 'Panel publicado' : 'Sin panel', active: Boolean(gh.pagesUrl), plan: 'github' },
+      { kind: 'areas', logo: 'p2l', wallpaper: true, label: 'Áreas · skills por landing', state: areas.length ? (areasOn + ' de ' + areas.length + ' activas') : 'Sin áreas · usa el Skill negocio', active: areasOn > 0, plan: 'skill' },
+      { kind: 'coachMonitor', logo: 'p2l', wallpaper: true, label: 'Language Coach monitor', state: planOn('coachMonitor') ? 'Área «coach» activa' : 'Solo en planes enterprise', active: planOn('coachMonitor'), plan: 'coachMonitor' },
+      { kind: 'landing', logo: 'p2l', wallpaper: true, label: 'Landing', state: planOn('landing') ? 'Incluida en el plan' : 'No incluida en el plan', active: planOn('landing'), plan: 'landing' },
+      { kind: 'analytics', logo: 'p2l', wallpaper: true, label: 'Analytics en tiempo real', state: planOn('analytics') ? ('Monitoreando ' + (c.monitorUrl || 'la landing con p2l-wa.js')) : 'Desde el plan Growth Agent', inCompanyPanel: true, active: planOn('analytics'), plan: 'analytics' }
+    ].map(function (card) {
+      if (planOn(card.plan)) return card;
+      card.active = false;
+      card.locked = true;
+      card.state = 'No incluido en el plan';
+      return card;
+    });
+    /* Paneles traspilados contratados + los que el plan deja contratar a la empresa (autogestión). */
+    var assets = contractedAssets(c).map(function (a) {
+      return { kind: ASSET_PREFIX + a.id, logo: 'p2l', wallpaper: true, asset: true, label: a.label, state: 'Panel traspilado · contratado', items: [a.hint], inCompanyPanel: true, active: true };
+    }).concat(MCP_ASSET_CATALOG.filter(function (a) {
+      return !assetRowOf(c, a.id) && assetSelfManaged(a.id);
+    }).map(function (a) {
+      return { kind: ASSET_PREFIX + a.id, logo: 'p2l', wallpaper: true, asset: true, label: a.label, state: 'Incluido en tu plan · contrátalo aquí', items: [a.hint], inCompanyPanel: true, active: false };
+    }));
+    return { services: services, cafe: cafe.concat(parity), assets: assets };
   }
 
   function cardHtml(card) {
@@ -1200,7 +1331,9 @@
     }).join('');
     return (
       '<div class="tg-comp-slot" data-kind="' + card.kind + '">' +
-      '<button type="button" class="tg-comp' + (card.wallpaper ? ' tg-comp--wa' : '') + '" data-open="' + card.kind + '">' +
+      '<button type="button" class="tg-comp' + (card.wallpaper ? ' tg-comp--wa' : '') + (card.locked ? ' is-plan-off' : '') + (card.asset ? ' tg-comp--asset' : '') + '"' +
+      (card.locked ? ' aria-disabled="true" title="Tu plan no incluye esta capacidad"' : ' data-open="' + esc(card.kind) + '"') + '>' +
+      (card.asset ? '<span class="tg-comp__asset-tag">Panel traspilado</span>' : '') +
       '<span class="tg-comp__logo">' + (LOGO[card.logo] || LOGO.p2l) + '</span>' +
       '<span class="tg-comp__body"><strong>' + esc(card.label) + '</strong>' +
       '<span class="tg-comp__state">' + esc(card.state) + '</span>' +
@@ -1220,6 +1353,10 @@
       '<div class="tg-comp-grid">' + groups.services.map(cardHtml).join('') + '</div>' +
       '<div class="tg-threads-gap" aria-hidden="true"></div>' +
       '<div class="tg-comp-grid tg-comp-grid--p2l">' + groups.cafe.map(cardHtml).join('') + '</div>' +
+      (groups.assets.length
+        ? '<h3 class="tg-assets__title">Paneles traspilados del Nitro Cluster (' + contractedAssets(state.company || {}).length + ' contratados)</h3>' +
+          '<div class="tg-comp-grid tg-comp-grid--p2l tg-comp-grid--assets">' + groups.assets.map(cardHtml).join('') + '</div>'
+        : '') +
       '<svg class="tg-threads" id="tg-threads"></svg>' +
       '</div></section>'
     );
@@ -1235,8 +1372,14 @@
     return !!(n && n.checked);
   }
 
+  /* Cards sin cuenta de servicio propia (el back rechaza serviceAccount para ellas). */
+  function noServiceAccount(kind) {
+    return kind === 'skill' || kind === 'chat' || kind === 'mobility' || kind === 'capabilities' || kind === 'devopsChat' ||
+      kind === 'github' || kind === 'areas' || kind === 'coachMonitor' || kind === 'landing' || kind === 'analytics' || isAssetKind(kind);
+  }
+
   function accountFields(kind) {
-    if (kind === 'skill' || kind === 'chat' || kind === 'mobility' || kind === 'capabilities' || kind === 'devopsChat') return '';
+    if (noServiceAccount(kind)) return '';
     return (
       '<label class="tg-field">Correo de la cuenta<input id="tg-m-email" type="text" autocomplete="off" placeholder="correo de la cuenta" /></label>' +
       '<label class="tg-field">Contraseña<input id="tg-m-pass" type="text" autocomplete="off" placeholder="contraseña" /></label>'
@@ -1375,6 +1518,58 @@
     if (kind === 'devopsChat') {
       return '<p class="tg-muted tg-field--wide">Incluido en Enterprise. El chat de soporte del panel se puede usar.</p>';
     }
+    if (kind === 'github') {
+      var ghp = c.panelGithub || {};
+      return (
+        '<p class="tg-muted tg-field--wide">Este panel se publica en el repo de GitHub de la empresa desde el Nitro Cluster.</p>' +
+        '<p class="tg-field--wide">Repo: <code>' + esc((ghp.owner || '—') + '/' + (ghp.repo || '—')) + '</code> · rama <code>' + esc(ghp.branch || 'gh-pages') + '</code></p>' +
+        (sanitizePanelUrl(ghp.pagesUrl) ? '<a class="tg-ext-link" href="' + esc(sanitizePanelUrl(ghp.pagesUrl)) + '" target="_blank" rel="noopener noreferrer">Abrir panel publicado →</a>' : '') +
+        (ghp.publishedAt ? '<p class="tg-muted tg-field--wide">Última publicación: ' + esc(formatWhen(ghp.publishedAt)) + '</p>' : '')
+      );
+    }
+    if (kind === 'areas') {
+      var list = (Array.isArray(c.areas) ? c.areas : []).map(function (a) {
+        return '<li><code>' + esc(a.key) + '</code> · ' + esc(a.label || a.key) + (a.active === false ? ' (apagada)' : '') + '</li>';
+      }).join('');
+      return (
+        '<p class="tg-muted tg-field--wide">Cada área elige el skill según la landing que escribe al WhatsApp (marca + área → skill · script p2l-wa).</p>' +
+        (list ? '<ul class="tg-field--wide">' + list + '</ul>' : '<p class="tg-muted tg-field--wide">Sin áreas: responde el Skill negocio.</p>') +
+        '<p class="tg-muted tg-field--wide">Las áreas se editan en «Contexto del agente» de este panel o desde el Nitro Cluster.</p>'
+      );
+    }
+    if (kind === 'coachMonitor') {
+      return '<p class="tg-muted tg-field--wide">Área «coach» del widget p2l-wa con skill de onboarding. Se activa con el plan enterprise desde el Nitro Cluster.</p>';
+    }
+    if (kind === 'landing') {
+      var land = sanitizePanelUrl(c.landingUrl);
+      return (
+        '<p class="tg-muted tg-field--wide">Landing de la empresa publicada en GitHub Pages. Los planes de la landing se editan en la card «Panel de empresa».</p>' +
+        (land ? '<a class="tg-ext-link" href="' + esc(land) + '" target="_blank" rel="noopener noreferrer">Abrir landing →</a>' : '<p class="tg-muted tg-field--wide">Sin URL de landing.</p>')
+      );
+    }
+    if (kind === 'analytics') {
+      return (
+        '<p class="tg-muted tg-field--wide">El botón p2l-wa.js de tus páginas reporta visitas y presencia en vivo. Vacío = usar la landing de GitHub.</p>' +
+        '<label class="tg-field tg-field--wide">URL que se monitorea (https)<input id="tg-m-monitor-url" value="' + esc(c.monitorUrl) + '" placeholder="https://…" /></label>'
+      );
+    }
+    if (isAssetKind(kind)) {
+      var aid = assetIdOf(kind);
+      var asset = assetById(aid);
+      var row = assetRowOf(c, aid);
+      var url = sanitizePanelUrl(row && row.url) || (WHITE_LABEL_BASE + asset.path);
+      return (
+        '<p class="tg-muted tg-field--wide">' + esc(asset.label) + ' · ' + esc(asset.hint) + (row ? '. Contratado en el Nitro Cluster; la misma configuración se ve en los dos lados.' : '. Tu plan te deja contratarlo y gestionarlo desde aquí.') + '</p>' +
+        '<label class="tg-field tg-field--wide">URL del panel (https)<input id="tg-m-asset-url" value="' + esc(url) + '" /></label>' +
+        (row
+          ? '<label class="tg-check tg-field--wide"><input id="tg-m-asset-keep" type="checkbox" checked /> Mantener este panel contratado</label>'
+          : '<label class="tg-check tg-field--wide"><input id="tg-m-asset-keep" type="checkbox" /> Contratar este panel (incluido en tu plan)</label>') +
+        '<div class="tg-asset-actions tg-field--wide">' +
+        '<a class="tg-ext-link" id="tg-m-asset-open" href="' + esc(assetPanelUrl(url, c.id, aid)) + '" target="_blank" rel="noopener noreferrer">Abrir panel →</a>' +
+        '<button type="button" class="tg-btn ghost sm" id="tg-m-asset-preview">Vista previa embebida</button></div>' +
+        '<div id="tg-m-asset-frame" class="tg-field--wide"></div>'
+      );
+    }
     return '';
   }
 
@@ -1390,8 +1585,18 @@
     chat: 'Conversaciones en Whatsapp',
     mobility: 'Movilidad',
     cad: 'CAD alert panel',
-    devopsChat: 'Soporte Devops P2L Chat'
+    devopsChat: 'Soporte Devops P2L Chat',
+    github: 'Github | Repo panel de empresa',
+    areas: 'Áreas · skills por landing',
+    coachMonitor: 'Language Coach monitor',
+    landing: 'Landing',
+    analytics: 'Analytics en tiempo real'
   };
+
+  function modalTitleOf(kind) {
+    if (isAssetKind(kind)) return assetById(assetIdOf(kind)).label + ' · Panel traspilado';
+    return MODAL_TITLES[kind] || kind;
+  }
 
   function closeToolModal() {
     modalKind = '';
@@ -1413,14 +1618,16 @@
       '<div class="tg-modal__head"><div class="tg-modal__head-main">' +
       '<span class="tg-modal__logo">' + (LOGO[kind] || LOGO.p2l) + '</span>' +
       '<div><p class="tg-modal__company">Empresa: <strong>' + esc(c.name) + '</strong></p>' +
-      '<h3>' + esc(MODAL_TITLES[kind] || kind) +
+      '<h3>' + esc(modalTitleOf(kind)) +
       (LOGO[kind] && kind !== 'p2l' ? ' <span class="tg-modal__ext-tag">| Componente externo - API</span>' : '') +
       '</h3></div></div>' +
       '<button type="button" class="tg-btn ghost sm" id="tg-m-close">Cerrar</button></div>' +
       '<div class="tg-plan-fields--modal">' + modalInner(kind, c, conn) + '</div>' +
       '<div class="tg-modal__foot">' +
       (kind === 'dropbox' ? '<button type="button" class="tg-btn ghost sm" id="tg-m-test-dbx">Probar conexión</button>' : '') +
-      (kind === 'chat' || kind === 'devopsChat' ? '' : '<button type="button" class="tg-btn sm" id="tg-m-save">Guardar</button>') +
+      (kind === 'chat' || kind === 'devopsChat' || kind === 'github' || kind === 'areas' || kind === 'coachMonitor' || kind === 'landing'
+        ? ''
+        : '<button type="button" class="tg-btn sm" id="tg-m-save">Guardar</button>') +
       '</div></div>';
     wrap.addEventListener('click', function (ev) {
       if (ev.target === wrap) closeToolModal();
@@ -1448,6 +1655,7 @@
     var testBtn = document.getElementById('tg-m-test-dbx');
     if (testBtn) testBtn.addEventListener('click', testDropboxModal);
     bindModalCopies(pack, conn);
+    bindAssetPreview();
     var addPlan = document.getElementById('tg-m-add-plan');
     if (addPlan) {
       addPlan.addEventListener('click', function () {
@@ -1461,6 +1669,40 @@
         host.appendChild(row);
       });
     }
+  }
+
+  /* Vista previa del panel traspilado en un iframe con sandbox (solo URLs https). */
+  function bindAssetPreview() {
+    var btn = document.getElementById('tg-m-asset-preview');
+    var input = document.getElementById('tg-m-asset-url');
+    var open = document.getElementById('tg-m-asset-open');
+    var host = document.getElementById('tg-m-asset-frame');
+    if (input && open) {
+      input.addEventListener('input', function () {
+        var u = assetPanelUrl(input.value, state.company && state.company.id, assetIdOf(modalKind));
+        if (u) open.setAttribute('href', u);
+      });
+    }
+    if (!btn || !host) return;
+    btn.addEventListener('click', function () {
+      if (host.firstChild) {
+        host.innerHTML = '';
+        btn.textContent = 'Vista previa embebida';
+        return;
+      }
+      var u = assetPanelUrl(input && input.value, state.company && state.company.id, assetIdOf(modalKind));
+      if (!u) return flash('err', 'La URL del panel debe empezar por https://');
+      if (!isTrustedPanelHost(u)) return flash('err', 'La vista previa solo carga paneles de refactorii.com. Usa «Abrir panel».');
+      var frame = document.createElement('iframe');
+      frame.className = 'tg-asset-frame';
+      frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
+      frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+      frame.setAttribute('loading', 'lazy');
+      frame.setAttribute('title', 'Vista previa del panel');
+      frame.src = u;
+      host.appendChild(frame);
+      btn.textContent = 'Ocultar vista previa';
+    });
   }
 
   function bindModalCopies(pack, conn) {
@@ -1478,7 +1720,7 @@
   }
 
   function saveAccountIfNeeded(kind) {
-    if (kind === 'skill' || kind === 'chat' || kind === 'mobility' || kind === 'capabilities' || kind === 'devopsChat') {
+    if (noServiceAccount(kind)) {
       return Promise.resolve();
     }
     var email = fieldVal('tg-m-email');
@@ -1609,6 +1851,28 @@
         method: 'PUT',
         body: { section: 'landingPlans', landingUrl: fieldVal('tg-m-landing-url'), landingPlans: planRows }
       });
+    } else if (kind === 'analytics') {
+      var mon = fieldVal('tg-m-monitor-url');
+      if (mon && !sanitizePanelUrl(mon)) {
+        flash('err', 'La URL de monitoreo debe empezar por https://');
+        return Promise.resolve();
+      }
+      next = api('/public/portal/section', { method: 'PUT', body: { section: 'analytics', monitorUrl: mon } });
+    } else if (isAssetKind(kind)) {
+      var typed = fieldVal('tg-m-asset-url');
+      var keep = fieldChecked('tg-m-asset-keep');
+      if (keep && typed && !sanitizePanelUrl(typed)) {
+        flash('err', 'La URL del panel debe empezar por https://');
+        return Promise.resolve();
+      }
+      var rowsOut;
+      try {
+        rowsOut = mcpWithAsset(c, assetIdOf(kind), typed, keep);
+      } catch (e) {
+        flash('err', e.message);
+        return Promise.resolve();
+      }
+      next = api('/public/portal/section', { method: 'PUT', body: { section: 'mcp', mcpServers: rowsOut } });
     } else {
       return Promise.resolve();
     }
@@ -1911,13 +2175,16 @@
     } catch (e) {
       return flash('err', 'Capacidades JSON inválido: ' + e.message);
     }
-    var mcp = $('#tg-mcp').value.trim();
-    var pay = $('#tg-pay').value.trim();
+    var mcpEl = $('#tg-mcp');
+    var payEl = $('#tg-pay');
+    var mcp = mcpEl ? mcpEl.value.trim() : '';
+    var pay = payEl ? payEl.value.trim() : '';
     var body = { flows: flows };
     if (planOn('skill')) body.skills = [{ path: 'negocio.md', content: $('#tg-skill').value }];
     if (planOn('capabilities')) {
       body.productCapabilities = productCapabilities;
-      body.mcpServers = mcp ? [{ name: 'mcp', type: 'sse', url: mcp }] : [];
+      /* Conserva los paneles traspilados contratados (asset:*): la API reemplaza la lista completa. */
+      body.mcpServers = (mcp ? [{ name: 'mcp', type: 'sse', url: mcp, kind: '' }] : []).concat(assetRowsToKeep(state.company)).slice(0, MAX_MCP_ROWS);
       body.paymentLinks = pay ? [{ label: 'Pago', url: pay }] : [];
     }
     api('/public/portal/company', {
