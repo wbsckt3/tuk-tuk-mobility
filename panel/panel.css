@@ -1215,3 +1215,9 @@ html, body {
 .tg-comp.is-plan-off { opacity: 0.55; cursor: not-allowed; }
 .tg-asset-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .tg-asset-frame { width: 100%; height: 420px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; margin-top: 8px; }
+
+/* Encender un panel que el plan ya incluye: texto a la derecha del checkbox, amarillo y subrayado. */
+.tg-asset-toggle { display: flex; align-items: center; gap: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+.tg-asset-toggle input[type='checkbox'] { width: 18px !important; height: 18px !important; min-width: 18px; padding: 0 !important; border: 0; flex: 0 0 18px; margin: 0; accent-color: #eab308; }
+.tg-asset-toggle span { flex: 1 1 auto; min-width: 0; line-height: 1.35; }
+.tg-asset-toggle.is-in-plan span { color: #ca8a04; text-decoration: underline; text-decoration-color: #facc15; text-decoration-thickness: 2px; text-underline-offset: 4px; }
